@@ -1,0 +1,40 @@
+<ion-view hide-back-button="true">
+    <ion-nav-title>智能粮仓</ion-nav-title>
+    <ion-content id="home">
+       <ion-refresher pulling-text="下拉刷新" spinner="bubbles" on-refresh="doRefresh()"></ion-refresher>
+       <div class="home-intro">
+           <span style="color: #108678; font-size: 16px">北跃粮库&bull;简介</span>
+           <img src="img/icon.png" width="38px" height="27px" class="home-map"/>
+           <p>北跃粮库是黑龙江省萝北县粮食局新建的一座集粮食存储、物流、加工的现代化大型粮库，2016年投入使用。</p>
+           <table>
+               <tr>
+                   <td>仓间个数</td>
+                   <td>总容量</td>
+                   <td>占地面积</td>
+                   <td>所属位置</td>
+               </tr>
+               <tr>
+                   <td>28</td>
+                   <td>30万吨</td>
+                   <td>230亩</td>
+                   <td>鹤北工业园区</td>
+               </tr>
+           </table>
+       </div>
+       <!-- <div id="loading" style="margin: 20px 28%">
+            <img ng-src="img/loading.gif" width="150px" height="150px"/>
+            <p style="font-size: 15px;color: darkgrey;width: 40%;margin: auto">加载中，请稍后...</p>
+        </div>-->
+        <div id="depotlist">
+            <div ng-repeat="item in items" id="depot"
+                 ng-click="click(item.num,item.description,$index)" style="border-bottom: {{borderBottom[$index]}}">
+                <img src={{depotType[$index]}} width="80px" height="80px"/>
+                <p style="color: #108678">{{item.depotName}}</p>
+            </div>
+        </div>
+        <div style="text-align: center;margin-top: 40px;">
+            <span style="color: #a2a2a2;font-size: 18px" ng-bind="loadFailedText"></span>
+        </div>
+
+    </ion-content>
+</ion-view>

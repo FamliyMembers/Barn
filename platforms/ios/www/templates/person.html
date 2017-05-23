@@ -1,0 +1,46 @@
+<ion-view hide-back-button="true" cache-view="false">
+    <ion-nav-title>个人中心</ion-nav-title>
+    <ion-content>
+        <div class="person-nav">
+            <img src="img/person-avatar.png" width="70px" height="60px"/>
+            <p style="color: #ffffff">{{userName}}</p>
+        </div>
+        <div class="list">
+            <a class="item" href="#/tab/personinfo">
+                <table-list-item
+                        icon-left="img/person-icon-person.png"
+                        item-text="个人资料"
+                        icon-right="img/icon-grey-arrow-right.png">
+                </table-list-item>
+            </a>
+            <a class="item" href="">
+                <table-list-item
+                        icon-left="img/person-icon-description.png"
+                        item-text="使用说明"
+                        icon-right="img/icon-grey-arrow-right.png">
+                </table-list-item>
+            </a>
+            <a class="item" href="#/tab/update">
+                <table-list-item
+                        icon-left="img/person-icon-update.png"
+                        item-text="检查更新"
+                        icon-right="img/icon-grey-arrow-right.png">
+                </table-list-item>
+            </a>
+            <a class="item" href="">
+                <table-list-item
+                        icon-left="img/person-icon-about.png"
+                        item-text="关于"
+                        icon-right="img/icon-grey-arrow-right.png"
+                        text-show="true"
+                        extra-text={{version}}>
+                </table-list-item>
+            </a>
+        </div>
+        <div style="text-align: center">
+            <button class="person-logout" ng-click="logout()">
+                退出登录
+            </button>
+        </div>
+    </ion-content>
+</ion-view>

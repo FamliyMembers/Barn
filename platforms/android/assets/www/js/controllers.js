@@ -78,12 +78,12 @@ angular.module('controllers', [])
                 }
                 LoadingService.show();
 
-                $http.get('https://123.56.27.166:8443/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
+                $http.get('http://123.56.27.166:8080/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
                     .then(function(resp){
                         if(resp.data.state==1){
                             localStorage.userId=$scope.name;
                             LoginService.set();
-                            window.plugins.jPushPlugin.setAlias($scope.name);
+                          //  window.plugins.jPushPlugin.setAlias($scope.name);
                             if(document.getElementById("remember").checked==true){
                                 localStorage.password=$scope.password;
                             }else{

@@ -323,4 +323,36 @@ ul.home-depository-nav li{
     width: 60px;
     height: 60px;
 }
+.temperature-one{
+    position:fixed;
+    width:50%;
+    height:10%;
+    background:#F3F3F3;
+    border-right:1px solid #D6D7D8;
+    border-bottom:1px solid #D6D7D8;
+}
+.temperature-two{
+    position:absolute;
+    width:30%;
+    height:60%;
+    left:20%;
+    top:20%;
+    border-radius:5px;
+    background:#25554E;
+}
+.temperature-p1{
+    color:white ;
+    position:absolute;
+    width:100%;
+    height:100%;
+    left:20;
+}
+.temperature-p2{
+    position:absolute;
+    top:25%;
+    right:20%;
+    font-size:18px;
+    color:#25554E;
+}
+
 

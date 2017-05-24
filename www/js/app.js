@@ -314,12 +314,12 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
               }
             })
 
-        if(localStorage.getItem("start")==2){
-            $urlRouterProvider.otherwise("/login");
-        }else{
-            localStorage.setItem("start",2);
-            $urlRouterProvider.otherwise("/start");
-        }
-
+        // if(localStorage.getItem("start")==2){
+        //     $urlRouterProvider.otherwise("/login");
+        // }else{
+        //     localStorage.setItem("start",2);
+        //     $urlRouterProvider.otherwise("/start");
+        // }
+        $urlRouterProvider.otherwise("/start");
 
     })

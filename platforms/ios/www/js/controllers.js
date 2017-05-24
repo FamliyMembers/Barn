@@ -3,105 +3,105 @@
  */
 angular.module('controllers', [])
 
-    .controller('MainCtrl', ['$scope', '$state','$rootScope','LoginService',
-      function ($scope,$state,$rootScope,LoginService) {
-        $rootScope.$on('$stateChangeStart',function(event, toState){
-          if(toState.name=='login'){
-               return;
-          }
-          if(!LoginService.get()){
-            event.preventDefault();// 取消默认跳转行为
-            $state.go("login");//跳转到登录界面
-          }
-        });
+    .controller('MainCtrl', ['$scope', '$state', '$rootScope', 'LoginService',
+        function ($scope, $state, $rootScope, LoginService) {
+            $rootScope.$on('$stateChangeStart', function (event, toState) {
+                if (toState.name == 'login') {
+                    return;
+                }
+                //   if(!LoginService.get()){
+                //     event.preventDefault();// 取消默认跳转行为
+                //     $state.go("login");//跳转到登录界面
+                //   }
+            });
 
-      }])
+        }])
     .controller('StartCtrl', ['$scope', '$state',
-          function ($scope,$state) {
-              $scope.myActiveSlide = 0;
-              $scope.enter=function(){
-                  $state.go("login");
-              }
+        function ($scope, $state) {
+            $scope.myActiveSlide = 0;
+            $scope.enter = function () {
+                $state.go("login");
+            }
 
 
-          }])
-    .controller('TabsCtrl',['$scope','$rootScope','$http','$ionicTabsDelegate','$ionicSlideBoxDelegate',
-        function($scope,$rootScope,$http,$ionicTabsDelegate,$ionicSlideBoxDelegate){
+        }])
+    .controller('TabsCtrl', ['$scope', '$rootScope', '$http', '$ionicTabsDelegate', '$ionicSlideBoxDelegate',
+        function ($scope, $rootScope, $http, $ionicTabsDelegate, $ionicSlideBoxDelegate) {
 
-            $rootScope.badges={
-                news:0
+            $rootScope.badges = {
+                news: 0
             };
-            $rootScope.getNews=function(){
-                $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+localStorage.userId)
-                    .then(function(resp){
-                        var myNews=0;
-                        for(i=0;i<resp.data.length;i++){
-                            if(resp.data[i].status=="false"){
+            $rootScope.getNews = function () {
+                $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID=' + localStorage.userId)
+                    .then(function (resp) {
+                        var myNews = 0;
+                        for (i = 0; i < resp.data.length; i++) {
+                            if (resp.data[i].status == "false") {
                                 myNews++;
                             }
                         }
-                        $rootScope.badges.news=myNews;
-                        if($rootScope.badges.news>99){
-                          $rootScope.badges.news="99+"
+                        $rootScope.badges.news = myNews;
+                        if ($rootScope.badges.news > 99) {
+                            $rootScope.badges.news = "99+"
                         }
-                    },function(error){
+                    }, function (error) {
 
                     });
             };
             $rootScope.getNews();
-            setInterval(function(){
-              $rootScope.getNews();
-            },1000*60);
+            setInterval(function () {
+                $rootScope.getNews();
+            }, 1000 * 60);
 
         }])
-    .controller('LoginCtrl', ['$scope', '$state','$http','PopupService','LoadingService','UserService','LoginService',
-        function ($scope,$state,$http,PopupService,LoadingService,UserService,LoginService) {
+    .controller('LoginCtrl', ['$scope', '$state', '$http', 'PopupService', 'LoadingService', 'UserService', 'LoginService',
+        function ($scope, $state, $http, PopupService, LoadingService, UserService, LoginService) {
             $scope.ctrlScope = $scope;
-            if(localStorage.getItem("password")=="" || localStorage.password==null){
+            if (localStorage.getItem("password") == "" || localStorage.password == null) {
                 $scope.name = "";
                 $scope.password = "";
-            }else {
-                $scope.name=localStorage.getItem("userId");
-                $scope.password=localStorage.getItem("password");
+            } else {
+                $scope.name = localStorage.getItem("userId");
+                $scope.password = localStorage.getItem("password");
             }
-            $scope.login=function(){
-                if($scope.name=="" || $scope.password==""){
-                   // alert("用户名或密码不能为空");
+            $scope.login = function () {
+                if ($scope.name == "" || $scope.password == "") {
+                    // alert("用户名或密码不能为空");
                     PopupService.setContent("用户名或密码不能为空");
                     PopupService.showAlert();
                     return;
-                }else if(isNaN(parseInt($scope.name))){
-                   // alert("用户名必须为数字");
+                } else if (isNaN(parseInt($scope.name))) {
+                    // alert("用户名必须为数字");
                     PopupService.setContent("用户名必须为数字");
                     PopupService.showAlert();
                     return;
                 }
-               // document.getElementById("loginLoading").style.display="block";
-               // document.getElementById("login").style.display="none";
+                // document.getElementById("loginLoading").style.display="block";
+                // document.getElementById("login").style.display="none";
                 LoadingService.show();
 
-                $http.get('http://123.56.27.166:8080/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
-                    .then(function(resp){
-                        if(resp.data.state==1){
-                            localStorage.userId=$scope.name;
+                $http.get('http://123.56.27.166:8080/barn_application/user/login?UID=' + $scope.name + '&password=' + $.md5($scope.password))
+                    .then(function (resp) {
+                        if (resp.data.state == 1) {
+                            localStorage.userId = $scope.name;
                             LoginService.set();
                             // window.plugins.jPushPlugin.setAlias($scope.name);
-                            if(document.getElementById("remember").checked==true){
-                                localStorage.password=$scope.password;
-                            }else{
-                                localStorage.password="";
+                            if (document.getElementById("remember").checked == true) {
+                                localStorage.password = $scope.password;
+                            } else {
+                                localStorage.password = "";
                             }
                             getInfo();
-                        }else{
-                          //  document.getElementById("loginLoading").style.display="none";
-                          //  document.getElementById("login").style.display="block";
+                        } else {
+                            //  document.getElementById("loginLoading").style.display="none";
+                            //  document.getElementById("login").style.display="block";
                             LoadingService.hide();
-                           // alert("用户名或密码错误");
+                            // alert("用户名或密码错误");
                             PopupService.setContent("用户名或密码错误");
                             PopupService.showAlert();
                         }
 
-                    },function(error){
+                    }, function (error) {
                         LoadingService.hide();
                         PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
                         PopupService.showAlert();
@@ -109,30 +109,30 @@ angular.module('controllers', [])
 
             };
 
-            var getInfo=function(){
-                $http.get('http://123.56.27.166:8080/barn_application/user/getUserByUID?UID='+$scope.name)
-                    .then(function(resp){
-                        UserService.person.userName=resp.data.name;
-                        UserService.person.userAddress=resp.data.address;
-                        UserService.person.userAge=resp.data.age;
-                        UserService.person.userSex=resp.data.sex;
-                        UserService.person.userPhone=resp.data.telephone;
+            var getInfo = function () {
+                $http.get('http://123.56.27.166:8080/barn_application/user/getUserByUID?UID=' + $scope.name)
+                    .then(function (resp) {
+                        UserService.person.userName = resp.data.name;
+                        UserService.person.userAddress = resp.data.address;
+                        UserService.person.userAge = resp.data.age;
+                        UserService.person.userSex = resp.data.sex;
+                        UserService.person.userPhone = resp.data.telephone;
                         getRole();
 
-                    },function(error){
+                    }, function (error) {
 
                         LoadingService.hide();
                         PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
                         PopupService.showAlert();
                     });
             };
-            var getRole=function(){
-                $http.get('http://123.56.27.166:8080/barn_application/user/getAuthority?UID='+$scope.name)
-                    .then(function(resp){
+            var getRole = function () {
+                $http.get('http://123.56.27.166:8080/barn_application/user/getAuthority?UID=' + $scope.name)
+                    .then(function (resp) {
                         LoadingService.hide();
-                        UserService.person.userRole=resp.data.role_name;
+                        UserService.person.userRole = resp.data.role_name;
                         $state.go("tabs.home");
-                    },function(error){
+                    }, function (error) {
 
                         LoadingService.hide();
                         PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
@@ -143,44 +143,43 @@ angular.module('controllers', [])
 
         }])
 
-    .controller('TemperatureCtrl', ['$scope', '$location', '$http','$stateParams',
+    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams',
 
-       function ($scope, $location, $http,$stateParams) {
+        function ($scope, $location, $http, $stateParams) {
 
             $scope.title = $stateParams.title;
 
-            $scope.doRefresh = function() {
-                $scope.items=[];
-                // $scope.enter();
-                //获取当前系统时间
+            $scope.doRefresh = function () {
+                $scope.items = [];
                 $scope.$broadcast('scroll.refreshComplete');
             };
 
             $scope.getNowFormatDateAndTime = function () {
-                var date = new Date();
-                var seperator1 = "-";
-                var seperator2 = ":";
-                var month = date.getMonth() + 1;
-                var strDate = date.getDate();
-                var strMinutes = date.getMinutes();
-                var strSeconds = date.getSeconds();
-                if (month >= 1 && month <= 9) {
-                    month = "0" + month;
-                }
-                if (strDate >= 0 && strDate <= 9) {
-                    strDate = "0" + strDate;
-                }
-                if (strMinutes >= 0 && strMinutes <= 9) {
-                    strMinutes = "0" + strMinutes;
-                }
-                if (strSeconds >= 0 && strSeconds <= 9) {
-                    strSeconds = "0" + strSeconds;
-                }
-                var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-                    + " " + date.getHours() + seperator2 + date.getMinutes()
-                    + seperator2 + date.getSeconds();
+                // var date = new Date();
+                // var seperator1 = "-";
+                // var seperator2 = ":";
+                // var month = date.getMonth() + 1;
+                // var strDate = date.getDate();
+                // var strMinutes = date.getMinutes();
+                // var strSeconds = date.getSeconds();
+                // if (month >= 1 && month <= 9) {
+                //     month = "0" + month;
+                // }
+                // if (strDate >= 0 && strDate <= 9) {
+                //     strDate = "0" + strDate;
+                // }
+                // if (strMinutes >= 0 && strMinutes <= 9) {
+                //     strMinutes = "0" + strMinutes;
+                // }
+                // if (strSeconds >= 0 && strSeconds <= 9) {
+                //     strSeconds = "0" + strSeconds;
+                // }
+                // var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+                //     + " " + date.getHours() + seperator2 + date.getMinutes()
+                //     + seperator2 + date.getSeconds();
                 // return currentdate;
-                $scope.dateNow = currentdate;
+                // $scope.dateNow = currentdate;
+
 
             };
 
@@ -189,12 +188,13 @@ angular.module('controllers', [])
 
             //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
             $scope.getEchartsData = function () {
-                 var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=1";
+                var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=1";
                 // var url = './js/yu.json';
                 $http.get(url).success(function (response) {
 
                     $scope.datas = response;
                     drawChart(response);
+
                     console.log('success', response);
                 })
             }
@@ -220,8 +220,8 @@ angular.module('controllers', [])
             function drawChart(chartdata) {
 
 
-                  var statistic25 = {//所有25度在每一层的个数
-                    
+                var statistic25 = {//所有25度在每一层的个数
+
                     1: 0,
                     2: 0,
                     3: 0,
@@ -229,7 +229,7 @@ angular.module('controllers', [])
                     5: 0
                 }
                 var statistic30 = {//每一层级30-35度的个数
-                   
+
                     1: 0,
                     2: 0,
                     3: 0,
@@ -237,7 +237,7 @@ angular.module('controllers', [])
                     5: 0
                 }
                 var statistic35 = {//所有35度在每一层的个数
-                   
+
                     1: 0,
                     2: 0,
                     3: 0,
@@ -257,10 +257,13 @@ angular.module('controllers', [])
                     //tem为一个临时变量，存储名为data的object，如果此object为undefined，则不予显示，非空则赋值给temp
                     // var tem = chartdata[i].data[0];
                     // console.log('tem', tem);
-                  
-                   var temp = chartdata[i].data;
-                   temp = parseFloat(temp);
-                   console.log('typeof',typeof(temp));
+
+                    //更新时间在这儿
+                    $scope.dateNow = chartdata[0].timestamp;
+
+                    var temp = chartdata[i].data;
+                    temp = parseFloat(temp);
+                    console.log('typeof', typeof (temp));
 
                     if (temp > 25 && temp <= 30) {//25-30度每一层的个数
                         statistic25[chartdata[i].depth]++;
@@ -273,7 +276,7 @@ angular.module('controllers', [])
                     }
 
                     var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-                    console.log('item',i,item);
+                    console.log('item', i, item);
                     allresult[chartdata[i].depth].push(item);
                     //  console.log('temp！！！',i,temp);
                     //  console.log('气死我了，你到底是啥啊啊啊！！！',chartdata[i].data[0]);
@@ -511,19 +514,24 @@ angular.module('controllers', [])
                         //底部图例
                         visualMap: {
                             type: "piecewise",
-                            min: 0,
-                            max: 130,  //最大是40的意思是，图例中等比例分割，如果有5层，每一块的变化区间是8，如果最大显示温度为35，则每一颜色变化区间为7度。
-                            itemWidth: 14,
-                            itemHeight: 12,
-                            textGap: 3,
+                            splitNumber: 5,
                             orient: 'horizontal',
                             inverse: false,
                             right: 0,
                             calculable: true,
                             dimension: 2,
-                            inRange: {
-                                color: ['#2B6894', '#84CBF0', '#FEEE50', '#F09536', '#E43125']
-                            },
+                            textGap: 3,    //这个是每个小矩形数值之间的距离
+                            itemWidth: 14,
+                            itemHeight: 12, //itemHeight和itemWidth这两个是指小矩形的宽高
+                            pieces: [
+                                { max: 0, color: '#2B6894' },
+                                { min: 0, max: 10, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
+                                { min: 10, max: 25, color: '#FEEE50' },
+                                { min: 25, max: 30, color: '#F09536' },
+                                { min: 30, color: '#E43125' },
+                                //{value: -1, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
+                                // 不指定 min，表示 min 为无限大（-Infinity）。
+                            ],
                             textStyle: {
                                 color: '#6B6F72'
                             }
@@ -794,35 +802,35 @@ angular.module('controllers', [])
         }
 
     ])
-    .controller('HomeCtrl',['$scope','$state','$http','LoadingService','PopupService','$rootScope',
-        function($scope,$state,$http,LoadingService,PopupService,$rootScope){
+    .controller('HomeCtrl', ['$scope', '$state', '$http', 'LoadingService', 'PopupService', '$rootScope',
+        function ($scope, $state, $http, LoadingService, PopupService, $rootScope) {
             $scope.loading = true;
             $scope.items = [];
-            $scope.size=[];
+            $scope.size = [];
             $scope.depotType = [];
-            $scope.userId=localStorage.userId;
-            $scope.long=[];
-            $scope.width=[];
-            $scope.height=[];
-            $scope.borderBottom=[];
-            $scope.loadFailedText="";
+            $scope.userId = localStorage.userId;
+            $scope.long = [];
+            $scope.width = [];
+            $scope.height = [];
+            $scope.borderBottom = [];
+            $scope.loadFailedText = "";
 
             LoadingService.show();
             $rootScope.getNews();
 
-            $scope.enter=function(){
+            $scope.enter = function () {
                 LoadingService.show();
-                $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID='+$scope.userId)
-                    .then(function(resp){
-                      //  document.getElementById("loading").style.display="none";
+                $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID=' + $scope.userId)
+                    .then(function (resp) {
+                        //  document.getElementById("loading").style.display="none";
                         LoadingService.hide();
-                        $scope.loadFailedText="";
-                        $scope.items=[];
-                        if(resp.data[0].state==1){
+                        $scope.loadFailedText = "";
+                        $scope.items = [];
+                        if (resp.data[0].state == 1) {
                             // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
-                        }else {
+                        } else {
                             for (i = 0; i < resp.data.length; i++) {
-                                var depotName, num, type,description;
+                                var depotName, num, type, description;
                                 depotName = resp.data[i].BNID + "号仓";
                                 num = resp.data[i].BNID;
                                 description = resp.data[i].description;
@@ -832,21 +840,21 @@ angular.module('controllers', [])
                                 if (resp.data[i].BNType == "rectangle") {
                                     type = "square";
                                 }
-                                if(resp.data.length%2==0){
-                                    if(i==resp.data.length-2 || i==resp.data.length-1){
+                                if (resp.data.length % 2 == 0) {
+                                    if (i == resp.data.length - 2 || i == resp.data.length - 1) {
                                         $scope.borderBottom.push("transparent");
-                                    }else{
+                                    } else {
                                         $scope.borderBottom.push("1px solid #bcbcbc");
                                     }
-                                }else{
-                                    if(i==resp.data.length-1){
+                                } else {
+                                    if (i == resp.data.length - 1) {
                                         $scope.borderBottom.push("transparent");
-                                    }else{
+                                    } else {
                                         $scope.borderBottom.push("1px solid #bcbcbc");
                                     }
                                 }
 
-                                $scope.items.push({depotName: depotName, num: num, type: type,description:description});
+                                $scope.items.push({ depotName: depotName, num: num, type: type, description: description });
                                 if (type == "circle") {
                                     $scope.depotType.push("img/icon-circle-depot.png");
                                 }
@@ -861,12 +869,12 @@ angular.module('controllers', [])
 
                         }
 
-                    },function(error){
+                    }, function (error) {
                         LoadingService.hide();
                         PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
                         PopupService.showAlert();
-                        if($scope.items.length==0){
-                            $scope.loadFailedText="数据加载失败";
+                        if ($scope.items.length == 0) {
+                            $scope.loadFailedText = "数据加载失败";
                         }
 
                     });
@@ -875,90 +883,90 @@ angular.module('controllers', [])
             $scope.enter();
 
 
-            $scope.click = function(num,description,i){
+            $scope.click = function (num, description, i) {
 
                 $state.go('tabs.detail',
-                    {number:num,long:$scope.long[i],width:$scope.width[i],height:$scope.height[i],description:description});
+                    { number: num, long: $scope.long[i], width: $scope.width[i], height: $scope.height[i], description: description });
             };
 
-            $scope.doRefresh = function() {
-                    $scope.enter();
+            $scope.doRefresh = function () {
+                $scope.enter();
                 $scope.$broadcast('scroll.refreshComplete');
             };
 
         }])
-    .controller('DetailCtrl',['$scope','$state','$stateParams','$window','$timeout','$http','PopupService','LoadingService','UserService',
-        function($scope,$state,$stateParams,$window,$timeout,$http,PopupService,LoadingService,UserService){
+    .controller('DetailCtrl', ['$scope', '$state', '$stateParams', '$window', '$timeout', '$http', 'PopupService', 'LoadingService', 'UserService',
+        function ($scope, $state, $stateParams, $window, $timeout, $http, PopupService, LoadingService, UserService) {
 
             var number = $stateParams.number;
-            var userId=localStorage.getItem("userId");
-            $scope.table={};
-            $scope.phonenum=UserService.person.userPhone;
-            $scope.table.description=$stateParams.description;
+            var userId = localStorage.getItem("userId");
+            $scope.table = {};
+            $scope.phonenum = UserService.person.userPhone;
+            $scope.table.description = $stateParams.description;
             $scope.long = $stateParams.long;
             $scope.width = $stateParams.width;
             $scope.height = $stateParams.height;
-            $scope.table.title = number+ "号仓";
+            $scope.table.title = number + "号仓";
             $scope.noMore = false;
             $scope.loadText = "继续拖动，查看小仓库";
             $scope.items = [];
-            $scope.userRole=UserService.person.userRole;
-            $scope.userName=UserService.person.userName;
-            $scope.display="none";
-            $scope.loadFailedText="";
+            $scope.userRole = UserService.person.userRole;
+            $scope.userName = UserService.person.userName;
+            $scope.display = "none";
+            $scope.loadFailedText = "";
             LoadingService.show();
 
-            $scope.enter=function(){
+            $scope.enter = function () {
                 LoadingService.show();
-                $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnByBNID?BNID='+number)
-                    .then(function(resp){
+                $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnByBNID?BNID=' + number)
+                    .then(function (resp) {
                         $scope.items = [];
                         LoadingService.hide();
                         $scope.loadText = "继续拖动，查看小仓库";
                         $scope.noMore = false;
-                        $scope.display="block";
-                        $scope.loadFailedText="";
-                        var leftBigText,rightGrayText,barnId;
-                        if(resp.data.length<=1){
-                          $scope.noMore = true;
-                          $scope.loadText = "已没有更多数据";
+                        $scope.display = "block";
+                        $scope.loadFailedText = "";
+                        var leftBigText, rightGrayText, barnId;
+                        if (resp.data.length <= 1) {
+                            $scope.noMore = true;
+                            $scope.loadText = "已没有更多数据";
                         }
-                        for(i=0;i<resp.data.length;i++){
+                        for (i = 0; i < resp.data.length; i++) {
 
-                            if(i==0)leftBigText="小仓一";
-                            if(i==1)leftBigText="小仓二";
-                            if(i==2)leftBigText="小仓三";
-                            if(i==3)leftBigText="小仓四";
-                            if(i==3)leftBigText="小仓五";
+                            if (i == 0) leftBigText = "小仓一";
+                            if (i == 1) leftBigText = "小仓二";
+                            if (i == 2) leftBigText = "小仓三";
+                            if (i == 3) leftBigText = "小仓四";
+                            if (i == 3) leftBigText = "小仓五";
 
-                            rightGrayText="最大库存"+resp.data[i].volumn+"t";
+                            rightGrayText = "最大库存" + resp.data[i].volumn + "t";
                             barnId = resp.data[i].barn_cell_id;
-                            $scope.items.push( {leftBigText:leftBigText,leftSmallText:'（种类/稻谷）',rightGrayText:rightGrayText,rightBlackText:'当前库存700t',barnId:barnId})
+                            $scope.items.push({ leftBigText: leftBigText, leftSmallText: '（种类/稻谷）', rightGrayText: rightGrayText, rightBlackText: '当前库存700t', barnId: barnId })
                         }
-                    },function(error){
+                    }, function (error) {
                         LoadingService.hide();
                         PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
                         PopupService.showAlert();
-                        $scope.display="none";
-                        if($scope.items.length==0){
-                            $scope.loadFailedText="数据加载失败";
+                        $scope.display = "none";
+                        if ($scope.items.length == 0) {
+                            $scope.loadFailedText = "数据加载失败";
                         }
                     });
             };
 
             $scope.enter();
 
-            $scope.back=function(){
+            $scope.back = function () {
                 $state.go("tabs.home");
             };
-            $scope.callPhone=function(phonenumber){
-                $window.location.href="tel:"+phonenumber;
+            $scope.callPhone = function (phonenumber) {
+                $window.location.href = "tel:" + phonenumber;
             };
-            $scope.doRefresh = function() {
+            $scope.doRefresh = function () {
                 $scope.enter();
                 $scope.$broadcast('scroll.refreshComplete');
             };
-            $scope.loadMore = function() {
+            $scope.loadMore = function () {
                 $timeout(function () {
                     $scope.noMore = true;
                     $scope.loadText = "已没有更多数据";
@@ -967,279 +975,281 @@ angular.module('controllers', [])
 
             };
 
-            $scope.viewTemperature = function(text,id){
+            $scope.viewTemperature = function (text, id) {
                 $state.go('tabs.temperature',
-                    {title:text,id:id});
+                    { title: text, id: id });
             }
 
 
         }])
-    .controller('RiskCtrl',['$scope',
-        function($scope){
-            $scope.itemClass=["item","item","item"];
-            $scope.warn="img/risk-icon-warn.png";
-            $scope.violation="img/risk-icon-violation.png";
-            $scope.statistic="img/risk-icon-statistic.png";
-            $scope.arrow="img/icon-grey-arrow-right.png";
-            $scope.onTouch=function(n){
-                if(n==0){
-                    $scope.warn="img/risk-icon-warn-light.png";
+    .controller('RiskCtrl', ['$scope',
+        function ($scope) {
+            $scope.itemClass = ["item", "item", "item"];
+            $scope.warn = "img/risk-icon-warn.png";
+            $scope.violation = "img/risk-icon-violation.png";
+            $scope.statistic = "img/risk-icon-statistic.png";
+            $scope.arrow = "img/icon-grey-arrow-right.png";
+            $scope.onTouch = function (n) {
+                if (n == 0) {
+                    $scope.warn = "img/risk-icon-warn-light.png";
                 }
-                if(n==1){
-                    $scope.violation="img/risk-icon-violation-light.png";
+                if (n == 1) {
+                    $scope.violation = "img/risk-icon-violation-light.png";
                 }
-                if(n==2){
-                    $scope.statistic="img/risk-icon-statistic-light.png";
+                if (n == 2) {
+                    $scope.statistic = "img/risk-icon-statistic-light.png";
                 }
 
-                for(var i=0;i<3;i++){
-                    if(i==n){
+                for (var i = 0; i < 3; i++) {
+                    if (i == n) {
                         $scope.itemClass[i] = "item green-yellow-bg";
-                    }else{
+                    } else {
                         $scope.itemClass[i] = "item";
                     }
                 }
 
-                $scope.arrow="img/icon-white-arrow-right.png";
+                $scope.arrow = "img/icon-white-arrow-right.png";
             };
-            $scope.onRelease=function(n){
-                if(n==0){
-                    $scope.warn="img/risk-icon-warn.png";
+            $scope.onRelease = function (n) {
+                if (n == 0) {
+                    $scope.warn = "img/risk-icon-warn.png";
                 }
-                if(n==1){
-                    $scope.violation="img/risk-icon-violation.png";
+                if (n == 1) {
+                    $scope.violation = "img/risk-icon-violation.png";
                 }
-                if(n==2){
-                    $scope.statistic="img/risk-icon-statistic.png";
+                if (n == 2) {
+                    $scope.statistic = "img/risk-icon-statistic.png";
                 }
 
-                for(var i=0;i<3;i++){
+                for (var i = 0; i < 3; i++) {
                     $scope.itemClass[i] = "item";
                 }
 
-                $scope.arrow="img/icon-grey-arrow-right.png";
+                $scope.arrow = "img/icon-grey-arrow-right.png";
             };
         }])
-    .controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope',
-        function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope){
+    .controller('WarnCtrl', ['$scope', '$state', '$http', 'LoadingService', 'PopupService', '$ionicHistory', '$rootScope',
+        function ($scope, $state, $http, LoadingService, PopupService, $ionicHistory, $rootScope) {
 
-            if($ionicHistory.backView().stateName!="tabs.risk"){
-              $scope.hide=true;
-              $scope.display="block";
-            }else{
-              $scope.hide=false;
-              $scope.display="none";
+            if ($ionicHistory.backView().stateName != "tabs.risk") {
+                $scope.hide = true;
+                $scope.display = "block";
+            } else {
+                $scope.hide = false;
+                $scope.display = "none";
             }
-            var userId=localStorage.getItem("userId");
-           /* PopupService.setContent("领取失败");
-            var myTap=function () {
-              alert("点击事件发生了");
-            };
-            PopupService.showPopup(myTap); */
+            var userId = localStorage.getItem("userId");
+            /* PopupService.setContent("领取失败");
+             var myTap=function () {
+               alert("点击事件发生了");
+             };
+             PopupService.showPopup(myTap); */
 
-            $scope.items=[];
-            $scope.itemClass1=[];
-            $scope.itemClass2=[];
-            $scope.loadFailedText="";
+            $scope.items = [];
+            $scope.itemClass1 = [];
+            $scope.itemClass2 = [];
+            $scope.loadFailedText = "";
             LoadingService.show();
-           /* $scope.enter=function(){
+            /* $scope.enter=function(){
+                 LoadingService.show();
+                 $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmByUID?UID='+userId,{cache:false})
+                     .then(function(resp){
+                         //  document.getElementById("warnLoading").style.display="none";
+                         //  document.getElementById("warn").style.display="block";
+                         LoadingService.hide();
+                         $scope.items=[];
+                       if(resp.data[0].state==1){
+                         // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                         $scope.loadFailedText="当前数据库中没有任何告警信息"
+                       }else{
+                         $scope.loadFailedText="";
+                         var news=0;
+                         var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
+                         for(i=0;i<resp.data.length;i++){
+ 
+                           title=resp.data[i].BNID+"号仓报警";
+                           detail=resp.data[i].BNID+"号"+resp.data[i].alarm_name;
+                           date=resp.data[i].time.split(" ")[0];
+                           alarmId=resp.data[i].id;
+                           confirmId=resp.data[i].confirm_UID;
+                           if(resp.data[i].time.split(" ")[1].split(":")[0]>12){
+                             duration="pm";
+                           }else{
+                             duration="am";
+                           }
+                           time=resp.data[i].time.split(" ")[1].split(".")[0]+" "+duration;
+                           if(resp.data[i].status=="true"){
+                             flag=0;
+                             itemClass1="";
+                             itemClass2="item warn-right-item";
+                             news++
+                           }else{
+                             flag=1;
+                             itemClass1="lightgray-bg";
+                             itemClass2="item warn-right-item lightgray-bg";
+                           }
+                           $scope.items.push({date:date, time:time,title:title,detail:detail,
+                             flag:flag,alarmId:alarmId,confirmId:confirmId,
+                             itemClass1:itemClass1,itemClass2:itemClass2});
+ 
+                         }
+                         $rootScope.badges.news=news;
+                         if($rootScope.badges.news>99){
+                           $rootScope.badges.news="99+"
+                         }
+                         /!*$scope.items.sort(function(a,b){
+                          return a.flag-b.flag});
+                          for(i=0;i<$scope.items.length;i++){
+                          if ($scope.items[i].flag == 0) {
+                          $scope.itemClass1.push("");
+                          $scope.itemClass2.push("item warn-right-item");
+                          } else {
+                          $scope.itemClass1.push("lightgray-bg");
+                          $scope.itemClass2.push("item warn-right-item lightgray-bg");
+                          }
+                          } *!/
+                       }
+ 
+ 
+                     },function(error){
+                         LoadingService.hide();
+                         PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新页面");
+                         PopupService.showAlert();
+                         if($scope.items.length==0){
+                             $scope.loadFailedText="数据加载失败";
+                         }
+ 
+                     });
+             };*/
+            $scope.enter = function () {
                 LoadingService.show();
-                $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmByUID?UID='+userId,{cache:false})
-                    .then(function(resp){
+                $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID=' + userId, { cache: false })
+                    .then(function (resp) {
                         //  document.getElementById("warnLoading").style.display="none";
                         //  document.getElementById("warn").style.display="block";
                         LoadingService.hide();
-                        $scope.items=[];
-                      if(resp.data[0].state==1){
-                        // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
-                        $scope.loadFailedText="当前数据库中没有任何告警信息"
-                      }else{
-                        $scope.loadFailedText="";
-                        var news=0;
-                        var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
-                        for(i=0;i<resp.data.length;i++){
+                        $scope.items = [];
+                        if (resp.data[0].state == 1) {
+                            // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                            $scope.loadFailedText = "当前数据库中没有任何告警信息"
+                        } else {
+                            $scope.loadFailedText = "";
+                            var news = 0;
+                            var title, detail, date, time, flag, duration, alarmId, confirmId, itemClass1, itemClass2;
+                            for (i = 0; i < resp.data.length; i++) {
 
-                          title=resp.data[i].BNID+"号仓报警";
-                          detail=resp.data[i].BNID+"号"+resp.data[i].alarm_name;
-                          date=resp.data[i].time.split(" ")[0];
-                          alarmId=resp.data[i].id;
-                          confirmId=resp.data[i].confirm_UID;
-                          if(resp.data[i].time.split(" ")[1].split(":")[0]>12){
-                            duration="pm";
-                          }else{
-                            duration="am";
-                          }
-                          time=resp.data[i].time.split(" ")[1].split(".")[0]+" "+duration;
-                          if(resp.data[i].status=="true"){
-                            flag=0;
-                            itemClass1="";
-                            itemClass2="item warn-right-item";
-                            news++
-                          }else{
-                            flag=1;
-                            itemClass1="lightgray-bg";
-                            itemClass2="item warn-right-item lightgray-bg";
-                          }
-                          $scope.items.push({date:date, time:time,title:title,detail:detail,
-                            flag:flag,alarmId:alarmId,confirmId:confirmId,
-                            itemClass1:itemClass1,itemClass2:itemClass2});
+                                title = resp.data[i].BNID + "号仓报警";
+                                detail = resp.data[i].BNID + "号仓库" + resp.data[i].alarm_msg;
+                                date = resp.data[i].create_time.split(" ")[0];
+                                alarmId = resp.data[i].id;
+                                confirmId = resp.data[i].confirm_UID;
+                                if (resp.data[i].create_time.split(" ")[1].split(":")[0] > 12) {
+                                    duration = "pm";
+                                } else {
+                                    duration = "am";
+                                }
+                                time = resp.data[i].create_time.split(" ")[1].split(".")[0] + " " + duration;
+                                if (resp.data[i].status == "false") {
+                                    flag = 0;
+                                    itemClass1 = "";
+                                    itemClass2 = "item warn-right-item";
+                                    news++
+                                } else {
+                                    flag = 1;
+                                    itemClass1 = "lightgray-bg";
+                                    itemClass2 = "item warn-right-item lightgray-bg";
+                                }
+                                $scope.items.push({
+                                    date: date, time: time, title: title, detail: detail,
+                                    flag: flag, alarmId: alarmId, confirmId: confirmId,
+                                    itemClass1: itemClass1, itemClass2: itemClass2
+                                });
 
+                            }
+                            $rootScope.badges.news = news;
+                            if ($rootScope.badges.news > 99) {
+                                $rootScope.badges.news = "99+"
+                            }
+                            /*$scope.items.sort(function(a,b){
+                             return a.flag-b.flag});
+                             for(i=0;i<$scope.items.length;i++){
+                             if ($scope.items[i].flag == 0) {
+                             $scope.itemClass1.push("");
+                             $scope.itemClass2.push("item warn-right-item");
+                             } else {
+                             $scope.itemClass1.push("lightgray-bg");
+                             $scope.itemClass2.push("item warn-right-item lightgray-bg");
+                             }
+                             } */
                         }
-                        $rootScope.badges.news=news;
-                        if($rootScope.badges.news>99){
-                          $rootScope.badges.news="99+"
-                        }
-                        /!*$scope.items.sort(function(a,b){
-                         return a.flag-b.flag});
-                         for(i=0;i<$scope.items.length;i++){
-                         if ($scope.items[i].flag == 0) {
-                         $scope.itemClass1.push("");
-                         $scope.itemClass2.push("item warn-right-item");
-                         } else {
-                         $scope.itemClass1.push("lightgray-bg");
-                         $scope.itemClass2.push("item warn-right-item lightgray-bg");
-                         }
-                         } *!/
-                      }
 
 
-                    },function(error){
+                    }, function (error) {
                         LoadingService.hide();
                         PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新页面");
                         PopupService.showAlert();
-                        if($scope.items.length==0){
-                            $scope.loadFailedText="数据加载失败";
+                        if ($scope.items.length == 0) {
+                            $scope.loadFailedText = "数据加载失败";
                         }
 
                     });
-            };*/
-          $scope.enter=function(){
-            LoadingService.show();
-            $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId,{cache:false})
-              .then(function(resp){
-                //  document.getElementById("warnLoading").style.display="none";
-                //  document.getElementById("warn").style.display="block";
-                LoadingService.hide();
-                $scope.items=[];
-                if(resp.data[0].state==1){
-                  // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
-                  $scope.loadFailedText="当前数据库中没有任何告警信息"
-                }else{
-                  $scope.loadFailedText="";
-                  var news=0;
-                  var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
-                  for(i=0;i<resp.data.length;i++){
-
-                    title=resp.data[i].BNID+"号仓报警";
-                    detail=resp.data[i].BNID+"号仓库"+resp.data[i].alarm_msg;
-                    date=resp.data[i].create_time.split(" ")[0];
-                    alarmId=resp.data[i].id;
-                    confirmId=resp.data[i].confirm_UID;
-                    if(resp.data[i].create_time.split(" ")[1].split(":")[0]>12){
-                      duration="pm";
-                    }else{
-                      duration="am";
-                    }
-                    time=resp.data[i].create_time.split(" ")[1].split(".")[0]+" "+duration;
-                    if(resp.data[i].status=="false"){
-                      flag=0;
-                      itemClass1="";
-                      itemClass2="item warn-right-item";
-                      news++
-                    }else{
-                      flag=1;
-                      itemClass1="lightgray-bg";
-                      itemClass2="item warn-right-item lightgray-bg";
-                    }
-                    $scope.items.push({date:date, time:time,title:title,detail:detail,
-                      flag:flag,alarmId:alarmId,confirmId:confirmId,
-                      itemClass1:itemClass1,itemClass2:itemClass2});
-
-                  }
-                  $rootScope.badges.news=news;
-                  if($rootScope.badges.news>99){
-                    $rootScope.badges.news="99+"
-                  }
-                  /*$scope.items.sort(function(a,b){
-                   return a.flag-b.flag});
-                   for(i=0;i<$scope.items.length;i++){
-                   if ($scope.items[i].flag == 0) {
-                   $scope.itemClass1.push("");
-                   $scope.itemClass2.push("item warn-right-item");
-                   } else {
-                   $scope.itemClass1.push("lightgray-bg");
-                   $scope.itemClass2.push("item warn-right-item lightgray-bg");
-                   }
-                   } */
-                }
-
-
-              },function(error){
-                LoadingService.hide();
-                PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新页面");
-                PopupService.showAlert();
-                if($scope.items.length==0){
-                  $scope.loadFailedText="数据加载失败";
-                }
-
-              });
-          };
+            };
 
             $scope.enter();
 
-            $scope.goConfirm=function(detail,id){
-                localStorage.alarmDetail=detail;
-              //  localStorage.alarmFlag=flag;
-                localStorage.alarmId=id;
-                localStorage.receiveType=0;
-             //   localStorage.confirmId=confirmId;
-                $state.go("tabs.confirmwarn",{detail:detail,alarmId:id,type:0});
+            $scope.goConfirm = function (detail, id) {
+                localStorage.alarmDetail = detail;
+                //  localStorage.alarmFlag=flag;
+                localStorage.alarmId = id;
+                localStorage.receiveType = 0;
+                //   localStorage.confirmId=confirmId;
+                $state.go("tabs.confirmwarn", { detail: detail, alarmId: id, type: 0 });
             };
 
-            $scope.doRefresh = function() {
+            $scope.doRefresh = function () {
                 $scope.enter();
                 $scope.$broadcast('scroll.refreshComplete');
             };
-            $scope.back=function(){
-              $state.go("tabs.risk");
+            $scope.back = function () {
+                $state.go("tabs.risk");
             }
 
         }])
-    .controller('WarnConfirmCtrl',['$scope','$stateParams','$http','$ionicHistory','$state','PopupService','$rootScope','LoadingService',
-        function($scope,$stateParams,$http,$ionicHistory,$state,PopupService,$rootScope,LoadingService){
+    .controller('WarnConfirmCtrl', ['$scope', '$stateParams', '$http', '$ionicHistory', '$state', 'PopupService', '$rootScope', 'LoadingService',
+        function ($scope, $stateParams, $http, $ionicHistory, $state, PopupService, $rootScope, LoadingService) {
 
-            if($ionicHistory.backView().stateName!="tabs.warn"){
-                $scope.hide=true;
-                $scope.display="block";
+            if ($ionicHistory.backView().stateName != "tabs.warn") {
+                $scope.hide = true;
+                $scope.display = "block";
                 //   document.getElementById("confirmTitle").style.display="block";
-             //   $ionicHistory.backView().stateName="tabs.risk"
-            }else{
-                $scope.hide=false;
-                $scope.display="none";
+                //   $ionicHistory.backView().stateName="tabs.risk"
+            } else {
+                $scope.hide = false;
+                $scope.display = "none";
             }
 
             $scope.buttonText = "领取预警";
             $scope.buttonClass = "green-bg";
             $scope.confirmPerson = "领取人：";
             $scope.confirmDisplay = "none";
-          /*  var type=$stateParams.type;
-            $scope.detail = $stateParams.detail;
-            $scope.flag = $stateParams.flag;
-            $scope.alarmId = $stateParams.alarmId;
-
-            alert($ionicHistory.currentView().stateName);
-            var keys="";
-            for(key in $ionicHistory.backView()){
-                keys=keys+"--"+key;
-            }
-            alert(keys);
-            alert($ionicHistory.backView().stateName);*/
-            var type=localStorage.receiveType;
-          //  var confirmId=localStorage.confirmId;
+            /*  var type=$stateParams.type;
+              $scope.detail = $stateParams.detail;
+              $scope.flag = $stateParams.flag;
+              $scope.alarmId = $stateParams.alarmId;
+  
+              alert($ionicHistory.currentView().stateName);
+              var keys="";
+              for(key in $ionicHistory.backView()){
+                  keys=keys+"--"+key;
+              }
+              alert(keys);
+              alert($ionicHistory.backView().stateName);*/
+            var type = localStorage.receiveType;
+            //  var confirmId=localStorage.confirmId;
             $scope.detail = localStorage.alarmDetail;
-          //  $scope.flag = localStorage.alarmFlag;
+            //  $scope.flag = localStorage.alarmFlag;
             $scope.alarmId = localStorage.alarmId;
-          //  alert($scope.alarmId);
+            //  alert($scope.alarmId);
             /*var enter=function () {
              $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmInfoByAlarmId?alarmId='+$scope.alarmId)
                .then(function(resp){
@@ -1282,54 +1292,54 @@ angular.module('controllers', [])
                   });
               }
             };*/
-          var i=0;
-          var enter=function () {
-            if(i!=0){
-              LoadingService.show();
-            }
-            $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByAlarmSumId?alarmSumId='+$scope.alarmId)
-              .then(function(resp){
-                var flag;
-                if(resp.data[0].status=="false"){
-                  flag=0;
-                }else{
-                  flag=1;
+            var i = 0;
+            var enter = function () {
+                if (i != 0) {
+                    LoadingService.show();
                 }
-                if(flag==1){
-                  $scope.buttonText = "已领取";
-                  $scope.buttonClass = "lightgray-bg";
-                  document.getElementById("confirm").disabled="disabled";
-                  getConfirmPerson(resp.data[0].confirm_UID);
-                }
-                i++;
-                LoadingService.hide();
+                $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByAlarmSumId?alarmSumId=' + $scope.alarmId)
+                    .then(function (resp) {
+                        var flag;
+                        if (resp.data[0].status == "false") {
+                            flag = 0;
+                        } else {
+                            flag = 1;
+                        }
+                        if (flag == 1) {
+                            $scope.buttonText = "已领取";
+                            $scope.buttonClass = "lightgray-bg";
+                            document.getElementById("confirm").disabled = "disabled";
+                            getConfirmPerson(resp.data[0].confirm_UID);
+                        }
+                        i++;
+                        LoadingService.hide();
 
-              },function(error){
-                PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
-                PopupService.showAlert();
+                    }, function (error) {
+                        PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
+                        PopupService.showAlert();
 
-              });
-          }
-          /*if($scope.flag==1){
-           $scope.buttonText = "已领取";
-           $scope.buttonClass = "lightgray-bg";
-           document.getElementById("confirm").disabled="disabled";
-
-           }*/
-          var getConfirmPerson=function(confirmId){
-            if(confirmId!=null){
-
-              $http.get('http://123.56.27.166:8080/barn_application/user/getUserByUID?UID='+confirmId)
-                .then(function(resp){
-                  $scope.confirmPerson=$scope.confirmPerson+resp.data.name;
-                  $scope.confirmDisplay = "block";
-                },function(error){
-                  /*PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
-                   PopupService.showAlert();*/
-
-                });
+                    });
             }
-          };
+            /*if($scope.flag==1){
+             $scope.buttonText = "已领取";
+             $scope.buttonClass = "lightgray-bg";
+             document.getElementById("confirm").disabled="disabled";
+  
+             }*/
+            var getConfirmPerson = function (confirmId) {
+                if (confirmId != null) {
+
+                    $http.get('http://123.56.27.166:8080/barn_application/user/getUserByUID?UID=' + confirmId)
+                        .then(function (resp) {
+                            $scope.confirmPerson = $scope.confirmPerson + resp.data.name;
+                            $scope.confirmDisplay = "block";
+                        }, function (error) {
+                            /*PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
+                             PopupService.showAlert();*/
+
+                        });
+                }
+            };
             enter();
             /*$scope.confirm=function(){
                 LoadingService.show();
@@ -1396,111 +1406,111 @@ angular.module('controllers', [])
                 }
 
             };*/
-          $scope.confirm=function(){
-            LoadingService.show();
-            if(type==0){
-              $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyAlarmSumByAlarmID?' +
-                'confirm_UID='+localStorage.userId+'&alarmSumId='+$scope.alarmId)
-                .then(function(resp){
-                  LoadingService.hide();
-                  //   alert(resp);
-                  if(resp.data.state==1){
-                   /* PopupService.setContent("领取成功");
-                    PopupService.showAlert();
-                    $scope.buttonText = "已领取";
-                    $scope.buttonClass = "lightgray-bg";
-                    $scope.confirmPerson=$scope.confirmPerson+UserService.person.userName;
-                    $scope.confirmDisplay = "block";*/
-                    PopupService.setContent("领取成功");
-                    var myTap=function () {
-                      enter();
-                    };
-                    PopupService.showPopup(myTap);
-                    $rootScope.badges.news=$rootScope.badges.news-1;
-                  }else if(resp.data.msg.indexOf("重复")>-1){
-                    PopupService.setContent("有人抢先一步领取了该告警");
-                    var myTap=function () {
-                      enter();
-                    };
-                    PopupService.showPopup(myTap);
-                  }else{
-                    PopupService.setContent("领取失败");
-                    var myTap=function () {
-                      enter();
-                    };
-                    PopupService.showPopup(myTap);
-                  }
-                },function(error){
-                  LoadingService.hide();
-                  PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
-                  PopupService.showAlert();
-                });
-            }else{
-              var deviceId=localStorage.warnDeviceId;
-              var address=localStorage.warnAddress;
-              var alarmType=localStorage.warnAlarmType;
-              var unixTimestamp,newtime;
-              if(localStorage.warnTime.split('-').length!=1){
-                newtime=localStorage.warnTime;
-              }else{
-                var time=parseInt(localStorage.warnTime);
-                unixTimestamp = new Date(time*1000) ;
-                newtime = unixTimestamp.getFullYear()+'-'+(unixTimestamp.getMonth()+1)+'-'+unixTimestamp.getDate()
-                  +' '+unixTimestamp.getHours()+':'+unixTimestamp.getMinutes()+':'+unixTimestamp.getSeconds();
-              }
-              $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyStatusByParas?' +
-                'device_id='+deviceId+'&address='+address+'&time='+newtime+'&alarm_type_id='+alarmType+'&confirm_UID='+localStorage.userId)
-                .then(function(resp){
-                  LoadingService.hide();
-                  if(resp.data.state==1){
-                    // alert("确认成功");
-                    PopupService.setContent("确认成功");
-                    PopupService.showAlert();
-                    $scope.buttonText = "已领取";
-                    $scope.buttonClass = "lightgray-bg";
-                    $rootScope.badges.news=$rootScope.badges.news-1;
-                  }else{
-                    // alert("领取失败");
-                    PopupService.setContent("领取失败");
-                    PopupService.showAlert();
-                  }
+            $scope.confirm = function () {
+                LoadingService.show();
+                if (type == 0) {
+                    $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyAlarmSumByAlarmID?' +
+                        'confirm_UID=' + localStorage.userId + '&alarmSumId=' + $scope.alarmId)
+                        .then(function (resp) {
+                            LoadingService.hide();
+                            //   alert(resp);
+                            if (resp.data.state == 1) {
+                                /* PopupService.setContent("领取成功");
+                                 PopupService.showAlert();
+                                 $scope.buttonText = "已领取";
+                                 $scope.buttonClass = "lightgray-bg";
+                                 $scope.confirmPerson=$scope.confirmPerson+UserService.person.userName;
+                                 $scope.confirmDisplay = "block";*/
+                                PopupService.setContent("领取成功");
+                                var myTap = function () {
+                                    enter();
+                                };
+                                PopupService.showPopup(myTap);
+                                $rootScope.badges.news = $rootScope.badges.news - 1;
+                            } else if (resp.data.msg.indexOf("重复") > -1) {
+                                PopupService.setContent("有人抢先一步领取了该告警");
+                                var myTap = function () {
+                                    enter();
+                                };
+                                PopupService.showPopup(myTap);
+                            } else {
+                                PopupService.setContent("领取失败");
+                                var myTap = function () {
+                                    enter();
+                                };
+                                PopupService.showPopup(myTap);
+                            }
+                        }, function (error) {
+                            LoadingService.hide();
+                            PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
+                            PopupService.showAlert();
+                        });
+                } else {
+                    var deviceId = localStorage.warnDeviceId;
+                    var address = localStorage.warnAddress;
+                    var alarmType = localStorage.warnAlarmType;
+                    var unixTimestamp, newtime;
+                    if (localStorage.warnTime.split('-').length != 1) {
+                        newtime = localStorage.warnTime;
+                    } else {
+                        var time = parseInt(localStorage.warnTime);
+                        unixTimestamp = new Date(time * 1000);
+                        newtime = unixTimestamp.getFullYear() + '-' + (unixTimestamp.getMonth() + 1) + '-' + unixTimestamp.getDate()
+                            + ' ' + unixTimestamp.getHours() + ':' + unixTimestamp.getMinutes() + ':' + unixTimestamp.getSeconds();
+                    }
+                    $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyStatusByParas?' +
+                        'device_id=' + deviceId + '&address=' + address + '&time=' + newtime + '&alarm_type_id=' + alarmType + '&confirm_UID=' + localStorage.userId)
+                        .then(function (resp) {
+                            LoadingService.hide();
+                            if (resp.data.state == 1) {
+                                // alert("确认成功");
+                                PopupService.setContent("确认成功");
+                                PopupService.showAlert();
+                                $scope.buttonText = "已领取";
+                                $scope.buttonClass = "lightgray-bg";
+                                $rootScope.badges.news = $rootScope.badges.news - 1;
+                            } else {
+                                // alert("领取失败");
+                                PopupService.setContent("领取失败");
+                                PopupService.showAlert();
+                            }
 
-                },function(error){
+                        }, function (error) {
 
-                  PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
-                  PopupService.showAlert();
-                });
-            }
+                            PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
+                            PopupService.showAlert();
+                        });
+                }
 
-          };
-            $scope.back=function(){
+            };
+            $scope.back = function () {
                 $state.go("tabs.risk");
-              //  $ionicHistory.goBack();
+                //  $ionicHistory.goBack();
             }
 
         }])
-    .controller('PersonCtrl',['$scope','$state','$ionicHistory','UserService','LoginService',
-        function($scope,$state,$ionicHistory,UserService,LoginService){
-            $scope.version="当前"+localStorage.appVersion;
-            $scope.userName=UserService.person.userName;
-            $scope.logout=function(){
+    .controller('PersonCtrl', ['$scope', '$state', '$ionicHistory', 'UserService', 'LoginService',
+        function ($scope, $state, $ionicHistory, UserService, LoginService) {
+            $scope.version = "当前" + localStorage.appVersion;
+            $scope.userName = UserService.person.userName;
+            $scope.logout = function () {
                 $ionicHistory.clearCache();
                 $ionicHistory.clearHistory();
                 LoginService.set();
                 $state.go("login");
             };
         }])
-    .controller('PersonInfoCtrl',['$scope','UserService',
-        function($scope,UserService){
-            $scope.person=UserService.person;
-           /* $scope.person.role=UserService.userRole;
-            $scope.person.name=UserService.userName;
-            $scope.person.sex=UserService.userSex;
-            $scope.person.age=UserService.userAge;
-            $scope.person.address=UserService.userAddress;*/
+    .controller('PersonInfoCtrl', ['$scope', 'UserService',
+        function ($scope, UserService) {
+            $scope.person = UserService.person;
+            /* $scope.person.role=UserService.userRole;
+             $scope.person.name=UserService.userName;
+             $scope.person.sex=UserService.userSex;
+             $scope.person.age=UserService.userAge;
+             $scope.person.address=UserService.userAddress;*/
         }])
 
-    .controller('StatisticCtrl',['$scope','$state','$http','$rootScope',function ($scope,$state,$http) {
+    .controller('StatisticCtrl', ['$scope', '$state', '$http', '$rootScope', function ($scope, $state, $http) {
 
         //获取数据
         /*$scope.doMessage = function () {
@@ -1525,116 +1535,116 @@ angular.module('controllers', [])
             $scope.myvalue = 0.8;
         }*/
 
-      $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+localStorage.userId)
-        .then(function(resp){
-          var already=0,notyet=0;
-          for(i=0;i<resp.data.length;i++) {
-            if (resp.data[i].status == "true") {
-              notyet++;
-            } else {
-              already++;
-            }
-          }
+        $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID=' + localStorage.userId)
+            .then(function (resp) {
+                var already = 0, notyet = 0;
+                for (i = 0; i < resp.data.length; i++) {
+                    if (resp.data[i].status == "true") {
+                        notyet++;
+                    } else {
+                        already++;
+                    }
+                }
 
-          $scope.myvalue=already/(already+notyet);
-          already=Math.round(already/(already+notyet)*100);
-          notyet=100-already;
-          $scope.message = {already:already+'%',notyet:notyet+'%'};
-          doCanvas();
+                $scope.myvalue = already / (already + notyet);
+                already = Math.round(already / (already + notyet) * 100);
+                notyet = 100 - already;
+                $scope.message = { already: already + '%', notyet: notyet + '%' };
+                doCanvas();
 
-        },function(error){
+            }, function (error) {
 
-        });
-      var doCanvas=function () {
-        //获取Canvas对象(画布)
-        var canvas = document.getElementById("myCanvas");
-        //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
-        if (canvas.getContext) {
-          //获取对应的CanvasRenderingContext2D对象(画笔)
-          var context = canvas.getContext("2d");
-          var centerSize = [60, 60, 50];
-          //画红色的圆
-          context.beginPath();
-          context.moveTo(centerSize[0], centerSize[1]);
-          context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2 , false);
-          context.closePath();
-          context.fillStyle = '#E93458';
-          context.fill();
-          //灰色的
-          context.beginPath();
-          context.moveTo(centerSize[0], centerSize[1]);
-          context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI* 2* $scope.myvalue, false);
-          context.closePath();
-          context.fillStyle = '#F099B8';
-          context.fill();
+            });
+        var doCanvas = function () {
+            //获取Canvas对象(画布)
+            var canvas = document.getElementById("myCanvas");
+            //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
+            if (canvas.getContext) {
+                //获取对应的CanvasRenderingContext2D对象(画笔)
+                var context = canvas.getContext("2d");
+                var centerSize = [60, 60, 50];
+                //画红色的圆
+                context.beginPath();
+                context.moveTo(centerSize[0], centerSize[1]);
+                context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2, false);
+                context.closePath();
+                context.fillStyle = '#E93458';
+                context.fill();
+                //灰色的
+                context.beginPath();
+                context.moveTo(centerSize[0], centerSize[1]);
+                context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2 * $scope.myvalue, false);
+                context.closePath();
+                context.fillStyle = '#F099B8';
+                context.fill();
 
-          //画里面的白色的圆
-          context.beginPath();
-          context.moveTo(centerSize[0], centerSize[1]);
-          context.arc(centerSize[0], centerSize[1], centerSize[2] - 15, 0, Math.PI * 2, true);
-          context.closePath();
-          context.fillStyle = 'rgba(255,255,255,1)';
-          context.fill();
-        }
-
-        //获取Canvas对象(画布)
-        var canvas2 = document.getElementById("myCanvas2");
-        //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
-        if (canvas2.getContext) {
-          //获取对应的CanvasRenderingContext2D对象(画笔)
-          var context = canvas2.getContext("2d");
-          var value = canvas2.getAttribute("value");
-          var centerSize = [60, 60, 50];
-          //灰色的
-          context.beginPath();
-          context.moveTo(centerSize[0], centerSize[1]);
-          context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2, false);
-          context.closePath();
-          context.fillStyle = '#4DAED5';
-          context.fill();
-          //画红色的圆
-          context.beginPath();
-          context.moveTo(centerSize[0], centerSize[1]);
-          context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2 * value, false);
-          context.closePath();
-          context.fillStyle = '#99E2FC';
-          context.fill();
-          //画里面的白色的圆
-          context.beginPath();
-          context.moveTo(centerSize[0], centerSize[1]);
-          context.arc(centerSize[0], centerSize[1], centerSize[2] - 15, 0, Math.PI * 2, true);
-          context.closePath();
-          context.fillStyle = 'rgba(255,255,255,1)';
-          context.fill();
-        }
-      }
-
-    }])
-    .controller('UpdateCtrl',['$scope','$http','PopupService',
-    function($scope,$http,PopupService){
-
-      $scope.display="none";
-      $scope.versionText="检测到最新版本为: ";
-
-        $http.get('http://123.56.27.166:8080/barn_application/version/getLatestVersion')
-          .then(function(resp){
-            var nowVersion=resp.data[0].version_id;
-            if(nowVersion!=localStorage.appVersion){
-              $scope.versionText=$scope.versionText+nowVersion;
-              $scope.display="block";
-            }else{
-              $scope.versionText="当前版本已为最新";
-              $scope.display="none";
+                //画里面的白色的圆
+                context.beginPath();
+                context.moveTo(centerSize[0], centerSize[1]);
+                context.arc(centerSize[0], centerSize[1], centerSize[2] - 15, 0, Math.PI * 2, true);
+                context.closePath();
+                context.fillStyle = 'rgba(255,255,255,1)';
+                context.fill();
             }
 
-          },function(error){
-            PopupService.setContent("网络连接错误");
-            PopupService.showAlert();
-
-          });
-
-      $scope.update=function () {
-        window.open('https://fir.im/barn1', '_system');
-      }
+            //获取Canvas对象(画布)
+            var canvas2 = document.getElementById("myCanvas2");
+            //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
+            if (canvas2.getContext) {
+                //获取对应的CanvasRenderingContext2D对象(画笔)
+                var context = canvas2.getContext("2d");
+                var value = canvas2.getAttribute("value");
+                var centerSize = [60, 60, 50];
+                //灰色的
+                context.beginPath();
+                context.moveTo(centerSize[0], centerSize[1]);
+                context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2, false);
+                context.closePath();
+                context.fillStyle = '#4DAED5';
+                context.fill();
+                //画红色的圆
+                context.beginPath();
+                context.moveTo(centerSize[0], centerSize[1]);
+                context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2 * value, false);
+                context.closePath();
+                context.fillStyle = '#99E2FC';
+                context.fill();
+                //画里面的白色的圆
+                context.beginPath();
+                context.moveTo(centerSize[0], centerSize[1]);
+                context.arc(centerSize[0], centerSize[1], centerSize[2] - 15, 0, Math.PI * 2, true);
+                context.closePath();
+                context.fillStyle = 'rgba(255,255,255,1)';
+                context.fill();
+            }
+        }
 
     }])
+    .controller('UpdateCtrl', ['$scope', '$http', 'PopupService',
+        function ($scope, $http, PopupService) {
+
+            $scope.display = "none";
+            $scope.versionText = "检测到最新版本为: ";
+
+            $http.get('http://123.56.27.166:8080/barn_application/version/getLatestVersion')
+                .then(function (resp) {
+                    var nowVersion = resp.data[0].version_id;
+                    if (nowVersion != localStorage.appVersion) {
+                        $scope.versionText = $scope.versionText + nowVersion;
+                        $scope.display = "block";
+                    } else {
+                        $scope.versionText = "当前版本已为最新";
+                        $scope.display = "none";
+                    }
+
+                }, function (error) {
+                    PopupService.setContent("网络连接错误");
+                    PopupService.showAlert();
+
+                });
+
+            $scope.update = function () {
+                window.open('https://fir.im/barn1', '_system');
+            }
+
+        }])

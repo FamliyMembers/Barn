@@ -71,7 +71,7 @@ angular.module('directives', [])
                    $scope.iconLeft="img/personinfo-icon-address.png";
                }
               $scope.myCall=function (phoneNum) {
-                $window.location.href="tel:"+phoneNum;
+                window.location.href="tel:"+phoneNum;
               }
 
             }

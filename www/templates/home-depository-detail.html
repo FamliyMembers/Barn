@@ -6,7 +6,7 @@
                  style="position: relative;top: 10px;margin-left: 10px"
                     ng-click="back()"/>
             <p style="display: inline-block">{{table.title}}</p>
-            <div>
+            <!--<div>
                 <span style="font-size: 18px;font-weight: bold;margin-left: 20px">{{userName}}</span>
                 <span style="font-size: 11px">{{userRole}}</span>
                 <span style="font-size: 13px;float: right;margin-right: 20px">{{phonenum}}</span>
@@ -14,7 +14,7 @@
                      width="25px" height="24px"
                      style="float: right;position: relative;top: -3px;margin-right: 5px" ng-click="callPhone({{phonenum}})"/>
 
-            </div>
+            </div>-->
         </div>
         <table>
             <tr>
@@ -54,7 +54,8 @@
                             left-big-text={{item.leftBigText}}
                             left-small-text={{item.leftSmallText}}
                             right-gray-text={{item.rightGrayText}}
-                            right-black-text={{item.rightBlackText}}>
+                            right-black-text={{item.rightBlackText}}
+                            call-phone="callPhone()">
                     </detail-list-item>
                 </a>
         </div>

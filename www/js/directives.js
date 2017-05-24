@@ -70,6 +70,10 @@ angular.module('directives', [])
                 }else if($scope.leftSmallText=="（种类/大豆）"){
                    $scope.iconLeft="img/personinfo-icon-address.png";
                }
+              $scope.myCall=function (phoneNum) {
+                $window.location.href="tel:"+phoneNum;
+              }
+
             }
         };
     }])

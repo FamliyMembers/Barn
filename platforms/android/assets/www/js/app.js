@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic','controllers','directives','services','ngCordova'])
 
-    .run(function($ionicPlatform,$location,$ionicHistory,$ionicPopup,$rootScope,$timeout,$state,$cordovaAppVersion,$cordovaBadge,LoginService) {
+    .run(function($ionicPlatform,$location,$ionicHistory,$ionicPopup,$rootScope,$timeout,$state,$cordovaAppVersion,$cordovaBadge,$cordovaNetwork,$cordovaToast) {
         $ionicPlatform.ready(function () {
 
             if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -21,6 +21,10 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
             if (window.StatusBar) {
                 StatusBar.styleDefault();
             }
+            if($cordovaNetwork.getNetwork()!=Connection.WIFI){
+              $cordovaToast.showLongBottom("检测到当前网络环境为非wifi网络");
+            }
+
             if (window.cordova && window.cordova.InAppBrowser) {
               window.open = window.cordova.InAppBrowser.open;
             }

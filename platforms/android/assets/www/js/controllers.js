@@ -3,9 +3,12 @@
  */
 angular.module('controllers', [])
 
-    .controller('MainCtrl', ['$scope', '$state','$rootScope','LoginService',
-      function ($scope,$state,$rootScope,LoginService) {
-        $rootScope.$on('$stateChangeStart',function(event, toState){
+    .controller('MainCtrl', ['$scope', '$state','$rootScope','LoginService','$cordovaNetwork','$cordovaToast',
+      function ($scope,$state,$rootScope,LoginService,$cordovaNetwork,$cordovaToast) {
+
+       var state=0;
+
+       $rootScope.$on('$stateChangeStart',function(event, toState){
           if(toState.name=='login' || toState.name=='start'){
                return;
           }
@@ -14,6 +17,23 @@ angular.module('controllers', [])
             $state.go("login");//跳转到登录界面
           }
         });
+
+        // 监听手机网络在线事件
+        $rootScope.$on('$cordovaNetwork:online', function(event, networkState){
+          if(state!=0){
+            if(networkState==Connection.WIFI){
+              $cordovaToast.showLongBottom("手机重新连接上wifi网络");
+            }else{
+              $cordovaToast.showLongBottom("手机正在使用非wifi网络");
+            }
+          }
+
+        });
+        // 监听手机网络离线事件
+        $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
+          $cordovaToast.showLongBottom("手机网络断开了");
+          state++;
+        })
 
       }])
     .controller('StartCtrl', ['$scope', '$state',
@@ -143,614 +163,653 @@ angular.module('controllers', [])
 
     .controller('TemperatureCtrl', ['$scope', '$location', '$http','$stateParams',
 
-        function ($scope, $location, $http,$stateParams) {
+      function ($scope, $location, $http,$stateParams) {
 
-            $scope.doRefresh = function() {
-                $scope.items=[];
-                // $scope.enter();
-                //获取当前系统时间
-                $scope.$broadcast('scroll.refreshComplete');
-            };
+        $scope.title = $stateParams.title;
 
-            $scope.title = $stateParams.title;
+        $scope.doRefresh = function() {
+          $scope.items=[];
+          // $scope.enter();
+          //获取当前系统时间
+          $scope.$broadcast('scroll.refreshComplete');
+        };
 
-            //value作为标志数据，可以进行切换两个图表的标志
-            var value = 0;
+        $scope.getNowFormatDateAndTime = function () {
+          var date = new Date();
+          var seperator1 = "-";
+          var seperator2 = ":";
+          var month = date.getMonth() + 1;
+          var strDate = date.getDate();
+          var strMinutes = date.getMinutes();
+          var strSeconds = date.getSeconds();
+          if (month >= 1 && month <= 9) {
+            month = "0" + month;
+          }
+          if (strDate >= 0 && strDate <= 9) {
+            strDate = "0" + strDate;
+          }
+          if (strMinutes >= 0 && strMinutes <= 9) {
+            strMinutes = "0" + strMinutes;
+          }
+          if (strSeconds >= 0 && strSeconds <= 9) {
+            strSeconds = "0" + strSeconds;
+          }
+          var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + date.getHours() + seperator2 + date.getMinutes()
+            + seperator2 + date.getSeconds();
+          // return currentdate;
+          $scope.dateNow = currentdate;
 
-            //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
-            $scope.getEchartsData = function () {
-                // var url = "http://123.56.27.166:8080/barn_application/barn/getBarnByBNID?BNID=1";
-                var url = './js/test2.json';
-                $http.get(url).success(function (response) {
+        };
 
-                    $scope.datas = response;
-                    drawChart(response);
-                    console.log('success', response);
-                })
-            }
-            //试验button的切换页面的功能
-            $scope.doChangeEcharts = function () {
-                if (value == 1) {
+        //value作为标志数据，可以进行切换两个图表的标志
+        var value = 0;
 
-                    document.getElementById('second').style.display = "none";
-                    document.getElementById('first').style.display = "block";
-                    $scope.label = "粮温数据";
-                    value = value - 1;
-                    console.log('hello，if被调用，此时的value值已经改变，变成了', value);
-                }
-                else {
-                    value = value + 1;
-                    document.getElementById('second').style.display = "block";
-                    document.getElementById('first').style.display = "none";
-                    $scope.label = "异常数据汇总";
-                    console.log('hello，else被调用，此时的value值已经改变，变成了', value);
-                }
-            }
-            //drawChart函数功能部分
-            function drawChart(chartdata) {
+        //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
+        $scope.getEchartsData = function () {
+          var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=1";
+          // var url = './js/yu.json';
+          $http.get(url).success(function (response) {
 
-
-                var statistic25={//所有25度在每一层的个数
-                    0:0,
-                    1:0,
-                    2:0,
-                    3:0,
-                    4:0
-
-                }
-                var statistic30={//每一层级30-35度的个数
-                    0:0,
-                    1:0,
-                    2:0,
-                    3:0,
-                    4:0
-
-                }
-                var statistic35={//所有35度在每一层的个数
-                    0:0,
-                    1:0,
-                    2:0,
-                    3:0,
-                    4:0
-
-                }
-                var allresult={//allresult是图标1的数据，0为5m，1为10m，以此类推
-                    0:[],
-                    1:[],
-                    2:[],
-                    3:[],
-                    4:[]
-                };
-                for (var i = 0; i < chartdata.length; i++) {
-
-                    //item数组中的每一项的名称需要修改一下
-                    if(chartdata[i].Address>25&&chartdata[i].Address<=30){//25-30度每一层的个数
-                        statistic25[chartdata[i].depth]++;
-                    }
-                    if(chartdata[i].Address>30&&chartdata[i].Address<=35){///30-35度每一层的个数
-                        statistic30[chartdata[i].depth]++;
-                    }
-                    if(chartdata[i].Address>35){
-                        statistic35[chartdata[i].depth]++;
-                    }
-                    allresult[chartdata[i].depth]
-                    var item = [chartdata[i].location_x, chartdata[i].location_y, chartdata[i].Address,chartdata[i].depth];
-                    allresult[chartdata[i].depth].push(item);
-
-
-                }
-
-                var chart2datas={   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
-                    l:[],//25-30
-                    m:[],//30-35
-                    h:[]//>35
-                }
-                for(var i=0;i<5;i++){
-                    chart2datas["l"].push(statistic25[i]);
-                    chart2datas["m"].push(statistic30[i]);
-                    chart2datas["h"].push(statistic35[i]);
-                }
-
-                //标签为first的echart的js实现
-                // 基于准备好的dom，初始化echarts实例
-                var myChart1 = echarts.init(document.getElementById('first'));
-                var schema =
-                    [
-                        { name: 'corE', index: 0, text: '东向位置' },
-                        { name: 'corN', index: 1, text: '北向位置' },
-                        { name: 'temP', index: 2, text: '摄氏温度' },
-                        { name: 'deeP', index: 3, text: '纵向深度' }
-                    ];
-
-                var select =
-                    [
-                        { name: 'P1', index: 0, text: '东：' },
-                        { name: 'P2', index: 1, text: '北：' },
-                        { name: 'P3', index: 1, text: '温：' }
-
-                    ];
-
-                var itemStyle =
-                {
-                    normal:
-                    {
-                        opacity: 100,
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowOffsetY: 0,
-                        shadowColor: 'rgba(0, 0, 0, 1)'
-                    }
-                };
-                var option1 = {
-                    //固定框架的option写这
-                    baseOption: {
-                        timeline: {
-                            //loop: false,
-                            axisType: 'category',
-                            autoPlay: false,
-                            bottom: 20,
-                            label:
-                            {
-                                normal:
-                                {
-                                    textStyle:
-                                    {
-                                        color: '#6B6F72'
-                                    }
-                                },
-                                emphasis: {
-                                    textStyle: {
-                                        color: '#6B6F72'
-                                    }
-                                }
-                            },
-                            symbol: 'none',
-                            lineStyle: {
-                                color: '#555'
-                            },
-                            checkpointStyle: {
-                                color: '#bbb',
-                                borderColor: '#777',
-                                borderWidth: 2
-                            },
-                            controlStyle: {
-                                showNextBtn: false,
-                                showPrevBtn: false,
-                                normal: {
-                                    color: '#666',
-                                    borderColor: '#666'
-                                },
-                                emphasis: {
-                                    color: '#aaa',
-                                    borderColor: '#aaa'
-                                }
-                            },
-                            data: ['5m', '10m', '15m', '20m','25m']
-                        },
-                        grid: {
-                            containLabel: true,
-                            top: 10,
-                            left: 5
-                        },
-                        // title: {
-                        //     left: 'center',
-                        //     textStyle: {
-                        //         color: '#6B6F72'
-                        //     }
-                        // },
-
-                        backgroundColor: '#F3F3F3',
-
-                        color: [
-                            '#dd4444', '#fec42c', '#80F1BE'
-                        ],
-                        //提示框组件，就是浮着的那个
-                        tooltip: {
-                            padding: 10,
-                            backgroundColor: '#222',
-                            borderColor: '#777',
-                            borderWidth: 1,
-                            formatter: function (obj) {
-                                var value = obj.value;
-                                return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
-                                    + obj.seriesName
-                                    + '</div>'
-                                    + schema[0].text + '：' + value[0] + '<br>'
-                                    + schema[1].text + '：' + value[1] + '<br>'
-                                    + schema[3].text + '：' + value[3] + '<br>'
-                                    + schema[2].text + '：' + value[2] + '<br>'
-                            }
-                        },
-                        //区域缩放
-                        dataZoom: [
-                            {
-                                type: 'slider',
-                                show: false,
-                                yAxisIndex: [0],
-                                left: '93%',
-                                top: 50,
-                                start: 0,
-                                end: 100,
-                                zoomLock:true,
-                                textStyle: {
-                                    color: '#aed2ff'},
-                                borderColor: '#3c4868',
-                                width: '26',
-                                height: '70%',
-                                handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                                handleSize: '90%',
-                                labelPrecision: '0',
-                                dataBackground: {
-                                    areaStyle: {
-                                        color: '#222445'
-                                    },
-                                    lineStyle: {
-                                        opacity: 0.8,
-                                        color: '#222445'
-                                    }
-                                },
-                                handleStyle: {
-                                    color: '#aed2ff',
-                                    shadowBlur: 3,
-                                    shadowColor: 'rgba(0, 0, 0, 0.6)',
-                                    shadowOffsetX: 2,
-                                    shadowOffsetY: 2
-                                }
-                            },//datazoom第一部分
-
-                            {
-                                type: 'inside',
-                                yAxisIndex: [0],
-                                start: 0,
-                                end: 100,
-                                zoomLock:true,
-                                show: true,
-                                textStyle: {
-                                    color: '#aed2ff'
-                                },
-                                borderColor: '#3c4868',
-                                top: 50,
-                                width: '26',
-                                height: '70%',
-                                handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                                handleSize: '90%',
-                                dataBackground: {
-                                    areaStyle: {
-                                        color: '#222445'
-                                    },
-                                    lineStyle: {
-                                        opacity: 0.8,
-                                        color: '#222445'
-                                    }
-                                },
-                                handleStyle: {
-                                    color: '#aed2ff',
-                                    shadowBlur: 3,
-                                    shadowColor: 'rgba(0, 0, 0, 0.6)',
-                                    shadowOffsetX: 2,
-                                    shadowOffsetY: 2
-                                }
-                            },//datazoom第二部分
-
-                            {
-                                "show": false,
-                                "height": 23,
-                                "xAxisIndex": [
-                                    0
-                                ],
-                                labelPrecision: '0',
-                                top: 30,
-                                "start": 0,
-                                "end": 100,
-                                handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                                handleSize: '110%',
-                                handleStyle: {
-                                    color: '#aed2ff',
-                                    shadowBlur: 3,
-                                    shadowColor: 'rgba(0, 0, 0, 0.6)',
-                                    shadowOffsetX: 2,
-                                    shadowOffsetY: 2
-                                },
-                                textStyle: {
-                                    color: "#fff"
-                                },
-                                borderColor: "#90979c"
-
-
-                            },//datazoom第三部分
-                            {
-                                "type": "inside",
-                                "show": true,
-                                "height": 20,
-                                "start": 0,
-                                "end": 100
-                            }//第四部分
-
-                        ],//datazoom结束
-                        //底部图例
-                        visualMap: {
-                            type: "piecewise",
-                            min: 0,
-                            max: 35,
-                            itemWidth: 14,
-                            itemHeight: 12,
-                            textGap: 3,
-                            orient: 'horizontal',
-                            inverse: false,
-                            right: 0,
-                            calculable: true,
-                            dimension: 2,
-                            inRange: {
-                                color: ['#2B6894', '#84CBF0', '#FEEE50', '#F09536', '#E43125']
-                            },
-                            textStyle: {
-                                color: '#6B6F72'
-                            }
-                        },
-
-                        xAxis: {
-                            name: 'X',
-                            nameGap: 12,
-                            nameTextStyle: {
-                                color: '#6B6F72',
-                                fontSize: 14
-                            },
-                            // max: 5,
-                            min: 0,
-                            splitLine: {
-                                show: true
-                            },
-                            axisLine: {
-                                lineStyle: {
-                                    color: '#6B6F72'
-                                }
-                            }
-                        },
-
-                        yAxis: [{
-                            name: 'Y',
-                            type: 'value',
-
-                            nameLocation: 'end',
-                            nameGap: 12,
-                            nameTextStyle: {
-                                color: '#6B6F72',
-                                fontSize: 16
-                            },
-                            min: 0,
-                            axisLine: {
-                                lineStyle: {
-                                    color: '#6B6F72'
-                                }
-                            },
-                            splitLine: {
-                                show: true
-                            }
-                        }],
-
-                        series: [
-                            {
-                                name: '1号粮囤',
-                                type: 'scatter',
-                                xAxisIndex: 0,
-                                yAxisIndex: 0,
-                                itemStyle: itemStyle,
-                                symbolSize: function (value) {
-                                    if (value[2] > 30)
-                                    { return Math.round(30); }
-                                    else if (value[2] < 20)
-                                    { return Math.round(10); }
-                                    else { return Math.round(20); }
-                                }
-
-
-                            }
-                        ]
-                    },
-
-                    //变化数据写这
-                    options: [
-                        //5m
-                        {
-
-                            // title: {
-                            //     text: '5m深度处粮温'
-                            // },
-                            series: [
-                                {
-                                    data: allresult['0']
-                                }
-
-
-
-                            ]
-                        },
-                        //10m
-                        {
-
-                            // title: {
-                            //     text: '10m深度处粮温'
-                            // },
-                            series: [
-                                {
-                                    data: allresult['1']
-
-                                }
-
-
-                            ]
-                        }, //15m
-                        {
-
-                            // title: {
-                            //     text: '15m深度处粮温'
-                            // },
-                            series: [
-                                {
-                                    data:allresult['2']
-                                }
-
-
-                            ]
-                        },
-                        //20m
-                        {
-                            // title: {
-                            //     text: '20m深度处粮温'
-
-                            // },
-                            series: [
-                                {
-                                    data: allresult['3']
-                                }
-                            ]
-                        }
-                    ]
-                }
-                myChart1.setOption(option1);
-                $scope.label = "粮温数据";
-                window.onresize = myChart1.resize;
-
-
-                //标签为second的粮温预警的js实现
-                // 基于准备好的dom，初始化echarts实例
-                var myChart2 = echarts.init(document.getElementById('second'));
-                // 指定图表的配置项和数据
-                var option = {
-                    // title: {
-                    //     text: '异常数据汇总',
-                    //     left: 'center',
-                    //     top: 30,
-                    //     textStyle: {
-                    //         color: '#3B746D'
-                    //     }
-                    // },
-
-                    backgroundColor: '#F3F3F3',
-                    label:
-                    {
-                        normal:
-                        {
-                            textStyle:
-                            {
-                                color: '#000000'
-                            }
-                        },
-                        emphasis: {
-                            textStyle: {
-                                color: '#000000'
-                            }
-                        }
-                    },
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-                        }
-                    },
-                    color: [
-                        '#C6381E', '#FF9900', '#FFCC00', '#33CC00', '#0099FF'
-                    ],
-                    legend: {
-
-                        bottom: 0,
-                        right: 0,
-                        textStyle:
-                        {
-                            color: '#000000',
-                            fontWeight: 'lighter'
-                        },
-
-                        data: ['>35℃', '[35℃,30℃)', '[30℃,25℃)']
-                    },
-                    grid: {
-                        left: '3%',
-                        right: '4%',
-                        bottom: '10%',
-                        top:10,
-                        containLabel: true
-                    },
-                    xAxis: {
-                        splitLine: {
-                            show: false
-                        },
-                        //不显示刻度线分割
-                        axisTick: {
-                            show: false
-                        },
-                        axisLine: {
-                            lineStyle: {
-                                color: 'gray'
-
-                            }
-                        },
-                        type: 'value'
-                    },
-                    yAxis: {
-                        axisLine: {
-                            lineStyle: {
-                                color: 'gray'
-                            }
-                        },
-                        //不显示刻度线分割
-                        axisTick: {
-                            show: false
-                        },
-                        splitLine: {
-                            show: false
-                        }
-                        ,
-                        type: 'category',
-                        data: ['5m', '10m', '15m', '20m','25m']
-                    },
-                    series: [
-                        {
-                            name: '>35℃',
-                            type: 'bar',
-                            stack: '总量',
-                            barWidth: 30,
-                            label: {
-                                normal: {
-                                    show: true,
-                                    position: 'insideRight'
-                                }
-                            },
-                            data: chart2datas["h"]
-                        },
-                        {
-                            name: '[35℃,30℃)',
-                            type: 'bar',
-                            stack: '总量',
-                            barWidth: 30,
-                            label: {
-                                normal: {
-                                    show: true,
-                                    position: 'insideRight'
-                                }
-                            },
-                            data: chart2datas["m"]
-                        },
-                        {
-                            name: '[30℃,25℃)',
-                            type: 'bar',
-                            stack: '总量',
-                            barWidth: 30,
-                            label: {
-                                normal: {
-                                    show: true,
-                                    position: 'insideRight'
-                                }
-                            },
-                            data: chart2datas["l"]
-                        }
-                    ]
-                };
-                // 使用刚指定的配置项和数据显示图表。
-                myChart2.setOption(option);
-                window.onresize = myChart2.resize;
-            }
-
+            $scope.datas = response;
+            drawChart(response);
+            console.log('success', response);
+          })
         }
+        //试验button的切换页面的功能
+        $scope.doChangeEcharts = function () {
+          if (value == 1) {
+
+            document.getElementById('second').style.display = "none";
+            document.getElementById('first').style.display = "block";
+            $scope.label = "粮温数据";
+            value = value - 1;
+            console.log('hello，if被调用，此时的value值已经改变，变成了', value);
+          }
+          else {
+            value = value + 1;
+            document.getElementById('second').style.display = "block";
+            document.getElementById('first').style.display = "none";
+            $scope.label = "异常数据汇总";
+            console.log('hello，else被调用，此时的value值已经改变，变成了', value);
+          }
+        }
+        //drawChart函数功能部分
+        function drawChart(chartdata) {
+
+
+          var statistic25 = {//所有25度在每一层的个数
+
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
+          }
+          var statistic30 = {//每一层级30-35度的个数
+
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
+          }
+          var statistic35 = {//所有35度在每一层的个数
+
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
+          }
+          var allresult = {//allresult是图标1的数据，1为5m，2为10m,3-15,4-20,5-25以此类推
+            0: [],
+            1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: []
+          };
+          for (var i = 0; i < chartdata.length; i++) {
+
+            //tem为一个临时变量，存储名为data的object，如果此object为undefined，则不予显示，非空则赋值给temp
+            // var tem = chartdata[i].data[0];
+            // console.log('tem', tem);
+
+            var temp = chartdata[i].data;
+            temp = parseFloat(temp);
+            console.log('typeof',typeof(temp));
+
+            if (temp > 25 && temp <= 30) {//25-30度每一层的个数
+              statistic25[chartdata[i].depth]++;
+            }
+            if (temp > 30 && temp <= 35) {///30-35度每一层的个数
+              statistic30[chartdata[i].depth]++;
+            }
+            if (temp > 35) {//>35度每一层的个数
+              statistic35[chartdata[i].depth]++;
+            }
+
+            var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
+            console.log('item',i,item);
+            allresult[chartdata[i].depth].push(item);
+            //  console.log('temp！！！',i,temp);
+            //  console.log('气死我了，你到底是啥啊啊啊！！！',chartdata[i].data[0]);
+
+
+          }
+          var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
+            l: [],//25-30
+            m: [],//30-35
+            h: []//>35
+          }
+          for (var i = 1; i < 6; i++) {
+            chart2datas["l"].push(statistic25[i]);
+            chart2datas["m"].push(statistic30[i]);
+            chart2datas["h"].push(statistic35[i]);
+          }
+
+          //标签为first的echart的js实现
+          // 基于准备好的dom，初始化echarts实例
+          var myChart1 = echarts.init(document.getElementById('first'));
+          var schema =
+            [
+              { name: 'corE', index: 0, text: '东向位置' },
+              { name: 'corN', index: 1, text: '北向位置' },
+              { name: 'temP', index: 2, text: '摄氏温度' },
+              { name: 'deeP', index: 3, text: '纵向深度' }
+            ];
+
+          var select =
+            [
+              { name: 'P1', index: 0, text: '东：' },
+              { name: 'P2', index: 1, text: '北：' },
+              { name: 'P3', index: 1, text: '温：' }
+
+            ];
+
+          var itemStyle =
+            {
+              normal:
+                {
+                  opacity: 100,
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowOffsetY: 0,
+                  shadowColor: 'rgba(0, 0, 0, 1)'
+                }
+            };
+          var option1 = {
+            //固定框架的option写这
+            baseOption: {
+              timeline: {
+                //loop: false,
+                axisType: 'category',
+                autoPlay: false,
+                bottom: 20,
+                label:
+                  {
+                    normal:
+                      {
+                        textStyle:
+                          {
+                            color: '#6B6F72'
+                          }
+                      },
+                    emphasis: {
+                      textStyle: {
+                        color: '#6B6F72'
+                      }
+                    }
+                  },
+                symbol: 'none',
+                lineStyle: {
+                  color: '#555'
+                },
+                checkpointStyle: {
+                  color: '#bbb',
+                  borderColor: '#777',
+                  borderWidth: 2
+                },
+                controlStyle: {
+                  showNextBtn: false,
+                  showPrevBtn: false,
+                  normal: {
+                    color: '#666',
+                    borderColor: '#666'
+                  },
+                  emphasis: {
+                    color: '#aaa',
+                    borderColor: '#aaa'
+                  }
+                },
+                data: ['5m', '10m', '15m', '20m', '25m']
+              },
+              grid: {
+                containLabel: true,
+                top: 10,
+                left: 5
+              },
+              // title: {
+              //     left: 'center',
+              //     textStyle: {
+              //         color: '#6B6F72'
+              //     }
+              // },
+
+              backgroundColor: '#F3F3F3',
+
+              color: [
+                '#dd4444', '#fec42c', '#80F1BE'
+              ],
+              //提示框组件，就是浮着的那个
+              tooltip: {
+                padding: 10,
+                backgroundColor: '#222',
+                borderColor: '#777',
+                borderWidth: 1,
+                formatter: function (obj) {
+                  var value = obj.value;
+                  return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
+                    + obj.seriesName
+                    + '</div>'
+                    + schema[0].text + '：' + value[0] + '<br>'
+                    + schema[1].text + '：' + value[1] + '<br>'
+                    + schema[3].text + '：' + value[3] + '<br>'
+                    + schema[2].text + '：' + value[2] + '<br>'
+                }
+              },
+              //区域缩放
+              dataZoom: [
+                {
+                  type: 'slider',
+                  show: false,
+                  yAxisIndex: [0],
+                  left: '93%',
+                  top: 50,
+                  start: 0,
+                  end: 100,
+                  zoomLock: true,
+                  textStyle: {
+                    color: '#aed2ff'
+                  },
+                  borderColor: '#3c4868',
+                  width: '26',
+                  height: '70%',
+                  handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                  handleSize: '90%',
+                  labelPrecision: '0',
+                  dataBackground: {
+                    areaStyle: {
+                      color: '#222445'
+                    },
+                    lineStyle: {
+                      opacity: 0.8,
+                      color: '#222445'
+                    }
+                  },
+                  handleStyle: {
+                    color: '#aed2ff',
+                    shadowBlur: 3,
+                    shadowColor: 'rgba(0, 0, 0, 0.6)',
+                    shadowOffsetX: 2,
+                    shadowOffsetY: 2
+                  }
+                },//datazoom第一部分
+
+                {
+                  type: 'inside',
+                  yAxisIndex: [0],
+                  start: 0,
+                  end: 100,
+                  zoomLock: true,
+                  show: true,
+                  textStyle: {
+                    color: '#aed2ff'
+                  },
+                  borderColor: '#3c4868',
+                  top: 50,
+                  width: '26',
+                  height: '70%',
+                  handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                  handleSize: '90%',
+                  dataBackground: {
+                    areaStyle: {
+                      color: '#222445'
+                    },
+                    lineStyle: {
+                      opacity: 0.8,
+                      color: '#222445'
+                    }
+                  },
+                  handleStyle: {
+                    color: '#aed2ff',
+                    shadowBlur: 3,
+                    shadowColor: 'rgba(0, 0, 0, 0.6)',
+                    shadowOffsetX: 2,
+                    shadowOffsetY: 2
+                  }
+                },//datazoom第二部分
+
+                {
+                  "show": false,
+                  "height": 23,
+                  "xAxisIndex": [
+                    0
+                  ],
+                  labelPrecision: '0',
+                  top: 30,
+                  "start": 0,
+                  "end": 100,
+                  handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                  handleSize: '110%',
+                  handleStyle: {
+                    color: '#aed2ff',
+                    shadowBlur: 3,
+                    shadowColor: 'rgba(0, 0, 0, 0.6)',
+                    shadowOffsetX: 2,
+                    shadowOffsetY: 2
+                  },
+                  textStyle: {
+                    color: "#fff"
+                  },
+                  borderColor: "#90979c"
+
+
+                },//datazoom第三部分
+                {
+                  "type": "inside",
+                  "show": true,
+                  "height": 20,
+                  "start": 0,
+                  "end": 100
+                }//第四部分
+
+              ],//datazoom结束
+              //底部图例
+              visualMap: {
+                type: "piecewise",
+                min: 0,
+                max: 130,  //最大是40的意思是，图例中等比例分割，如果有5层，每一块的变化区间是8，如果最大显示温度为35，则每一颜色变化区间为7度。
+                itemWidth: 14,
+                itemHeight: 12,
+                textGap: 3,
+                orient: 'horizontal',
+                inverse: false,
+                right: 0,
+                calculable: true,
+                dimension: 2,
+                inRange: {
+                  color: ['#2B6894', '#84CBF0', '#FEEE50', '#F09536', '#E43125']
+                },
+                textStyle: {
+                  color: '#6B6F72'
+                }
+              },
+
+              xAxis: {
+                name: 'X',
+                nameGap: 12,
+                nameTextStyle: {
+                  color: '#6B6F72',
+                  fontSize: 14
+                },
+                // max: 5,
+                min: 0,
+                splitLine: {
+                  show: true
+                },
+                axisLine: {
+                  lineStyle: {
+                    color: '#6B6F72'
+                  }
+                }
+              },
+
+              yAxis: [{
+                name: 'Y',
+                type: 'value',
+
+                nameLocation: 'end',
+                nameGap: 12,
+                nameTextStyle: {
+                  color: '#6B6F72',
+                  fontSize: 16
+                },
+                min: 0,
+                axisLine: {
+                  lineStyle: {
+                    color: '#6B6F72'
+                  }
+                },
+                splitLine: {
+                  show: true
+                }
+              }],
+
+              series: [
+                {
+                  name: '1号粮囤',
+                  type: 'scatter',
+                  xAxisIndex: 0,
+                  yAxisIndex: 0,
+                  itemStyle: itemStyle,
+                  symbolSize: function (value) {
+                    if (value[2] > 30)
+                    { return Math.round(30); }
+                    else if (value[2] < 20)
+                    { return Math.round(10); }
+                    else { return Math.round(20); }
+                  }
+
+
+                }
+              ]
+            },
+
+            //变化数据写这
+            options: [
+              //5m
+              {
+
+                // title: {
+                //     text: '5m深度处粮温'
+                // },
+                series: [
+                  {
+                    data: allresult['1']
+                  }
+
+
+
+                ]
+              },
+              //10m
+              {
+
+                // title: {
+                //     text: '10m深度处粮温'
+                // },
+                series: [
+                  {
+                    data: allresult['2']
+
+                  }
+
+
+                ]
+              }, //15m
+              {
+
+                // title: {
+                //     text: '15m深度处粮温'
+                // },
+                series: [
+                  {
+                    data: allresult['3']
+                  }
+
+
+                ]
+              },
+              //20m
+              {
+                // title: {
+                //     text: '20m深度处粮温'
+
+                // },
+                series: [
+                  {
+                    data: allresult['4']
+                  }
+                ]
+              }
+            ]
+          }
+          myChart1.setOption(option1);
+          $scope.label = "粮温数据";
+          window.onresize = myChart1.resize;
+
+
+          //标签为second的粮温预警的js实现
+          // 基于准备好的dom，初始化echarts实例
+          var myChart2 = echarts.init(document.getElementById('second'));
+          // 指定图表的配置项和数据
+          var option = {
+            // title: {
+            //     text: '异常数据汇总',
+            //     left: 'center',
+            //     top: 30,
+            //     textStyle: {
+            //         color: '#3B746D'
+            //     }
+            // },
+
+            backgroundColor: '#F3F3F3',
+            label:
+              {
+                normal:
+                  {
+                    textStyle:
+                      {
+                        color: '#000000'
+                      }
+                  },
+                emphasis: {
+                  textStyle: {
+                    color: '#000000'
+                  }
+                }
+              },
+            tooltip: {
+              trigger: 'axis',
+              axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+              }
+            },
+            color: [
+              '#C6381E', '#FF9900', '#FFCC00', '#33CC00', '#0099FF'
+            ],
+            legend: {
+
+              bottom: 0,
+              right: 0,
+              textStyle:
+                {
+                  color: '#000000',
+                  fontWeight: 'lighter'
+                },
+
+              data: ['>35℃', '[35℃,30℃)', '[30℃,25℃)']
+            },
+            grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '10%',
+              top: 10,
+              containLabel: true
+            },
+            xAxis: {
+              splitLine: {
+                show: false
+              },
+              //不显示刻度线分割
+              axisTick: {
+                show: false
+              },
+              axisLine: {
+                lineStyle: {
+                  color: 'gray'
+
+                }
+              },
+              type: 'value'
+            },
+            yAxis: {
+              axisLine: {
+                lineStyle: {
+                  color: 'gray'
+                }
+              },
+              //不显示刻度线分割
+              axisTick: {
+                show: false
+              },
+              splitLine: {
+                show: false
+              }
+              ,
+              type: 'category',
+              data: ['5m', '10m', '15m', '20m', '25m']
+            },
+            series: [
+              {
+                name: '>35℃',
+                type: 'bar',
+                stack: '总量',
+                barWidth: 30,
+                label: {
+                  normal: {
+                    show: true,
+                    position: 'insideRight'
+                  }
+                },
+                data: chart2datas["h"]
+              },
+              {
+                name: '[35℃,30℃)',
+                type: 'bar',
+                stack: '总量',
+                barWidth: 30,
+                label: {
+                  normal: {
+                    show: true,
+                    position: 'insideRight'
+                  }
+                },
+                data: chart2datas["m"]
+              },
+              {
+                name: '[30℃,25℃)',
+                type: 'bar',
+                stack: '总量',
+                barWidth: 30,
+                label: {
+                  normal: {
+                    show: true,
+                    position: 'insideRight'
+                  }
+                },
+                data: chart2datas["l"]
+              }
+            ]
+          };
+          // 使用刚指定的配置项和数据显示图表。
+          myChart2.setOption(option);
+          window.onresize = myChart2.resize;
+        }
+
+      }
 
     ])
     .controller('HomeCtrl',['$scope','$state','$http','LoadingService','PopupService','$rootScope',
@@ -923,7 +982,6 @@ angular.module('controllers', [])
                     $scope.loadText = "已没有更多数据";
                 }, 1000);
                 $scope.$broadcast('scroll.infiniteScrollComplete');
-
             };
 
             $scope.viewTemperature = function(text,id){
@@ -1164,8 +1222,8 @@ angular.module('controllers', [])
             }
 
         }])
-    .controller('WarnConfirmCtrl',['$scope','$stateParams','$http','$ionicHistory','$state','PopupService','$rootScope','LoadingService',
-        function($scope,$stateParams,$http,$ionicHistory,$state,PopupService,$rootScope,LoadingService){
+    .controller('WarnConfirmCtrl',['$scope','$stateParams','$http','$ionicHistory','$state','PopupService','$rootScope','LoadingService','UserService',
+        function($scope,$stateParams,$http,$ionicHistory,$state,PopupService,$rootScope,LoadingService,UserService){
 
             if($ionicHistory.backView().stateName!="tabs.warn"){
                 $scope.hide=true;
@@ -1354,79 +1412,85 @@ angular.module('controllers', [])
 
             };*/
           $scope.confirm=function(){
-            LoadingService.show();
-            if(type==0){
-              $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyAlarmSumByAlarmID?' +
-                'confirm_UID='+localStorage.userId+'&alarmSumId='+$scope.alarmId)
-                .then(function(resp){
-                  LoadingService.hide();
-                  //   alert(resp);
-                  if(resp.data.state==1){
-                   /* PopupService.setContent("领取成功");
-                    PopupService.showAlert();
-                    $scope.buttonText = "已领取";
-                    $scope.buttonClass = "lightgray-bg";
-                    $scope.confirmPerson=$scope.confirmPerson+UserService.person.userName;
-                    $scope.confirmDisplay = "block";*/
-                    PopupService.setContent("领取成功");
-                    var myTap=function () {
-                      enter();
-                    };
-                    PopupService.showPopup(myTap);
-                    $rootScope.getNews();
-                  }else if(resp.data.msg.indexOf("重复")>-1){
-                    PopupService.setContent("有人抢先一步领取了该告警");
-                    var myTap=function () {
-                      enter();
-                    };
-                    PopupService.showPopup(myTap);
-                  }else{
-                    PopupService.setContent("领取失败");
-                    var myTap=function () {
-                      enter();
-                    };
-                    PopupService.showPopup(myTap);
-                  }
-                },function(error){
-                  LoadingService.hide();
-                  PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
-                  PopupService.showAlert();
-                });
+            if(UserService.person.userRole=="超级管理员"){
+              PopupService.setContent("抱歉，超级管理员无法领取该告警");
+              PopupService.showAlert();
             }else{
-              var deviceId=localStorage.warnDeviceId;
-              var address=localStorage.warnAddress;
-              var alarmType=localStorage.warnAlarmType;
-              var unixTimestamp,newtime;
-              if(localStorage.warnTime.split('-').length!=1){
-                newtime=localStorage.warnTime;
-              }else{
-                var time=parseInt(localStorage.warnTime);
-                unixTimestamp = new Date(time*1000) ;
-                newtime = unixTimestamp.getFullYear()+'-'+(unixTimestamp.getMonth()+1)+'-'+unixTimestamp.getDate()
-                  +' '+unixTimestamp.getHours()+':'+unixTimestamp.getMinutes()+':'+unixTimestamp.getSeconds();
+              LoadingService.show();
+              if(type==0){
+                $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyAlarmSumByAlarmID?' +
+                  'confirm_UID='+localStorage.userId+'&alarmSumId='+$scope.alarmId)
+                  .then(function(resp){
+                    LoadingService.hide();
+                    //   alert(resp);
+                    if(resp.data.state==1){
+                      /* PopupService.setContent("领取成功");
+                       PopupService.showAlert();
+                       $scope.buttonText = "已领取";
+                       $scope.buttonClass = "lightgray-bg";
+                       $scope.confirmPerson=$scope.confirmPerson+UserService.person.userName;
+                       $scope.confirmDisplay = "block";*/
+                      PopupService.setContent("领取成功");
+                      var myTap=function () {
+                        enter();
+                      };
+                      PopupService.showPopup(myTap);
+                      $rootScope.getNews();
+                    }else if(resp.data.msg.indexOf("重复")>-1){
+                      PopupService.setContent("有人抢先一步领取了该告警");
+                      var myTap=function () {
+                        enter();
+                      };
+                      PopupService.showPopup(myTap);
+                    }else{
+                      PopupService.setContent("领取失败");
+                      var myTap=function () {
+                        enter();
+                      };
+                      PopupService.showPopup(myTap);
+                    }
+                  },function(error){
+                    LoadingService.hide();
+                    PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
+                    PopupService.showAlert();
+                  });
               }
-              $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyStatusByParas?' +
-                'device_id='+deviceId+'&address='+address+'&time='+newtime+'&alarm_type_id='+alarmType+'&confirm_UID='+localStorage.userId)
-                .then(function(resp){
-                  LoadingService.hide();
-                  if(resp.data.state==1){
-                    // alert("确认成功");
-                    PopupService.setContent("确认成功");
-                    PopupService.showAlert();
-                    $scope.buttonText = "已领取";
-                    $scope.buttonClass = "lightgray-bg";
-                    $rootScope.badges.news=$rootScope.badges.news-1;
-                  }else{
-                    // alert("领取失败");
-                    PopupService.setContent("领取失败");
-                    PopupService.showAlert();
-                  }
+              else{
+                var deviceId=localStorage.warnDeviceId;
+                var address=localStorage.warnAddress;
+                var alarmType=localStorage.warnAlarmType;
+                var unixTimestamp,newtime;
+                if(localStorage.warnTime.split('-').length!=1){
+                  newtime=localStorage.warnTime;
+                }else{
+                  var time=parseInt(localStorage.warnTime);
+                  unixTimestamp = new Date(time*1000) ;
+                  newtime = unixTimestamp.getFullYear()+'-'+(unixTimestamp.getMonth()+1)+'-'+unixTimestamp.getDate()
+                    +' '+unixTimestamp.getHours()+':'+unixTimestamp.getMinutes()+':'+unixTimestamp.getSeconds();
+                }
+                $http.get('http://123.56.27.166:8080/barn_application/alarm/modifyStatusByParas?' +
+                  'device_id='+deviceId+'&address='+address+'&time='+newtime+'&alarm_type_id='+alarmType+'&confirm_UID='+localStorage.userId)
+                  .then(function(resp){
+                    LoadingService.hide();
+                    if(resp.data.state==1){
+                      // alert("确认成功");
+                      PopupService.setContent("确认成功");
+                      PopupService.showAlert();
+                      $scope.buttonText = "已领取";
+                      $scope.buttonClass = "lightgray-bg";
+                      $rootScope.badges.news=$rootScope.badges.news-1;
+                    }else{
+                      // alert("领取失败");
+                      PopupService.setContent("领取失败");
+                      PopupService.showAlert();
+                    }
 
-                },function(error){
+                  },function(error){
 
-                  PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
-                  PopupService.showAlert();
-                });
+                    PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
+                    PopupService.showAlert();
+                  });
+              }
             }
 
           };
@@ -1577,8 +1641,8 @@ angular.module('controllers', [])
       doCanvas();
 
     }])
-    .controller('UpdateCtrl',['$scope','$http','PopupService',
-    function($scope,$http,PopupService){
+    .controller('UpdateCtrl',['$scope','$http','PopupService','$cordovaNetwork',
+    function($scope,$http,PopupService,$cordovaNetwork){
 
       $scope.display="none";
       $scope.versionText="检测到最新版本为: ";
@@ -1601,7 +1665,16 @@ angular.module('controllers', [])
           });
 
       $scope.update=function () {
-        window.open('https://fir.im/barn1', '_system');
+        var type=$cordovaNetwork.getNetwork();
+        var continueLoad=function () {
+          window.open('https://fir.im/barn1', '_system');
+        };
+        if(type!=Connection.WIFI){
+          PopupService.setContent("检测到您的手机处于非wifi网络环境，是否继续更新？");
+          PopupService.showYNPopup(continueLoad);
+        }else{
+          continueLoad();
+        }
       }
 
     }])

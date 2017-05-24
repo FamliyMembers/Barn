@@ -145,7 +145,7 @@ angular.module('controllers', [])
 
     .controller('TemperatureCtrl', ['$scope', '$location', '$http','$stateParams',
 
-        function ($scope, $location, $http,$stateParams) {
+       function ($scope, $location, $http,$stateParams) {
 
             $scope.title = $stateParams.title;
 
@@ -189,8 +189,8 @@ angular.module('controllers', [])
 
             //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
             $scope.getEchartsData = function () {
-                // var url = "http://123.56.27.166:8080/barn_application/barn/getBarnByBNID?BNID=1";
-                var url = './js/test2.json';
+                 var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=1";
+                // var url = './js/yu.json';
                 $http.get(url).success(function (response) {
 
                     $scope.datas = response;
@@ -220,62 +220,72 @@ angular.module('controllers', [])
             function drawChart(chartdata) {
 
 
-                var statistic25={//所有25度在每一层的个数
-                    0:0,
-                    1:0,
-                    2:0,
-                    3:0,
-                    4:0
-
+                  var statistic25 = {//所有25度在每一层的个数
+                    
+                    1: 0,
+                    2: 0,
+                    3: 0,
+                    4: 0,
+                    5: 0
                 }
-                var statistic30={//每一层级30-35度的个数
-                    0:0,
-                    1:0,
-                    2:0,
-                    3:0,
-                    4:0
-
+                var statistic30 = {//每一层级30-35度的个数
+                   
+                    1: 0,
+                    2: 0,
+                    3: 0,
+                    4: 0,
+                    5: 0
                 }
-                var statistic35={//所有35度在每一层的个数
-                    0:0,
-                    1:0,
-                    2:0,
-                    3:0,
-                    4:0
-
+                var statistic35 = {//所有35度在每一层的个数
+                   
+                    1: 0,
+                    2: 0,
+                    3: 0,
+                    4: 0,
+                    5: 0
                 }
-                var allresult={//allresult是图标1的数据，0为5m，1为10m，以此类推
-                    0:[],
-                    1:[],
-                    2:[],
-                    3:[],
-                    4:[]
+                var allresult = {//allresult是图标1的数据，1为5m，2为10m,3-15,4-20,5-25以此类推
+                    0: [],
+                    1: [],
+                    2: [],
+                    3: [],
+                    4: [],
+                    5: []
                 };
                 for (var i = 0; i < chartdata.length; i++) {
 
-                    //item数组中的每一项的名称需要修改一下
-                    if(chartdata[i].Address>25&&chartdata[i].Address<=30){//25-30度每一层的个数
+                    //tem为一个临时变量，存储名为data的object，如果此object为undefined，则不予显示，非空则赋值给temp
+                    // var tem = chartdata[i].data[0];
+                    // console.log('tem', tem);
+                  
+                   var temp = chartdata[i].data;
+                   temp = parseFloat(temp);
+                   console.log('typeof',typeof(temp));
+
+                    if (temp > 25 && temp <= 30) {//25-30度每一层的个数
                         statistic25[chartdata[i].depth]++;
                     }
-                    if(chartdata[i].Address>30&&chartdata[i].Address<=35){///30-35度每一层的个数
+                    if (temp > 30 && temp <= 35) {///30-35度每一层的个数
                         statistic30[chartdata[i].depth]++;
                     }
-                    if(chartdata[i].Address>35){
+                    if (temp > 35) {//>35度每一层的个数
                         statistic35[chartdata[i].depth]++;
                     }
-                    allresult[chartdata[i].depth]
-                    var item = [chartdata[i].location_x, chartdata[i].location_y, chartdata[i].Address,chartdata[i].depth];
+
+                    var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
+                    console.log('item',i,item);
                     allresult[chartdata[i].depth].push(item);
+                    //  console.log('temp！！！',i,temp);
+                    //  console.log('气死我了，你到底是啥啊啊啊！！！',chartdata[i].data[0]);
 
 
                 }
-
-                var chart2datas={   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
-                    l:[],//25-30
-                    m:[],//30-35
-                    h:[]//>35
+                var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
+                    l: [],//25-30
+                    m: [],//30-35
+                    h: []//>35
                 }
-                for(var i=0;i<5;i++){
+                for (var i = 1; i < 6; i++) {
                     chart2datas["l"].push(statistic25[i]);
                     chart2datas["m"].push(statistic30[i]);
                     chart2datas["h"].push(statistic35[i]);
@@ -301,16 +311,16 @@ angular.module('controllers', [])
                     ];
 
                 var itemStyle =
-                {
-                    normal:
                     {
-                        opacity: 100,
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowOffsetY: 0,
-                        shadowColor: 'rgba(0, 0, 0, 1)'
-                    }
-                };
+                        normal:
+                        {
+                            opacity: 100,
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowOffsetY: 0,
+                            shadowColor: 'rgba(0, 0, 0, 1)'
+                        }
+                    };
                 var option1 = {
                     //固定框架的option写这
                     baseOption: {
@@ -355,7 +365,7 @@ angular.module('controllers', [])
                                     borderColor: '#aaa'
                                 }
                             },
-                            data: ['5m', '10m', '15m', '20m','25m']
+                            data: ['5m', '10m', '15m', '20m', '25m']
                         },
                         grid: {
                             containLabel: true,
@@ -401,9 +411,10 @@ angular.module('controllers', [])
                                 top: 50,
                                 start: 0,
                                 end: 100,
-                                zoomLock:true,
+                                zoomLock: true,
                                 textStyle: {
-                                    color: '#aed2ff'},
+                                    color: '#aed2ff'
+                                },
                                 borderColor: '#3c4868',
                                 width: '26',
                                 height: '70%',
@@ -433,7 +444,7 @@ angular.module('controllers', [])
                                 yAxisIndex: [0],
                                 start: 0,
                                 end: 100,
-                                zoomLock:true,
+                                zoomLock: true,
                                 show: true,
                                 textStyle: {
                                     color: '#aed2ff'
@@ -501,7 +512,7 @@ angular.module('controllers', [])
                         visualMap: {
                             type: "piecewise",
                             min: 0,
-                            max: 35,
+                            max: 130,  //最大是40的意思是，图例中等比例分割，如果有5层，每一块的变化区间是8，如果最大显示温度为35，则每一颜色变化区间为7度。
                             itemWidth: 14,
                             itemHeight: 12,
                             textGap: 3,
@@ -588,7 +599,7 @@ angular.module('controllers', [])
                             // },
                             series: [
                                 {
-                                    data: allresult['0']
+                                    data: allresult['1']
                                 }
 
 
@@ -603,7 +614,7 @@ angular.module('controllers', [])
                             // },
                             series: [
                                 {
-                                    data: allresult['1']
+                                    data: allresult['2']
 
                                 }
 
@@ -617,7 +628,7 @@ angular.module('controllers', [])
                             // },
                             series: [
                                 {
-                                    data:allresult['2']
+                                    data: allresult['3']
                                 }
 
 
@@ -631,7 +642,7 @@ angular.module('controllers', [])
                             // },
                             series: [
                                 {
-                                    data: allresult['3']
+                                    data: allresult['4']
                                 }
                             ]
                         }
@@ -697,7 +708,7 @@ angular.module('controllers', [])
                         left: '3%',
                         right: '4%',
                         bottom: '10%',
-                        top:10,
+                        top: 10,
                         containLabel: true
                     },
                     xAxis: {
@@ -731,7 +742,7 @@ angular.module('controllers', [])
                         }
                         ,
                         type: 'category',
-                        data: ['5m', '10m', '15m', '20m','25m']
+                        data: ['5m', '10m', '15m', '20m', '25m']
                     },
                     series: [
                         {

@@ -60,7 +60,10 @@ angular.module('directives', [])
                 leftSmallText: '@',
                 iconRight: '@',
                 rightGrayText: '@',
-                rightBlackText: '@'
+                rightBlackText: '@',
+                name:'@',
+                phoneNum:'@',
+                show:'@'
             },
             link: function($scope,$element,$attrs){
                if($scope.leftSmallText=="（种类/稻谷）"){
@@ -70,8 +73,9 @@ angular.module('directives', [])
                 }else if($scope.leftSmallText=="（种类/大豆）"){
                    $scope.iconLeft="img/personinfo-icon-address.png";
                }
-              $scope.myCall=function (phoneNum) {
-                window.location.href="tel:"+phoneNum;
+              $scope.show=true;
+              $scope.myCall=function () {
+                window.location.href="tel:"+$scope.phoneNum;
               }
 
             }

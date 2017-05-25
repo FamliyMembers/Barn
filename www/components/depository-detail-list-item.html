@@ -8,12 +8,12 @@
     <span style="color:#a2a2a2; font-size: 12px;float: right;margin-right: 3px;margin-top: 3px">{{rightGrayText}}</span>
     <span style="float: right;margin-right: 4px;font-size: 12px;margin-top: 3px">{{rightBlackText}}</span>
   </div>
-  <div style="padding-top: 30px;color: grey">
-    <span style="font-size: 14px;margin-left: 30px">王大胖</span>
+  <div style="padding-top: 30px;color: grey" ng-if="show">
+    <span style="font-size: 14px;margin-left: 30px">{{name}}</span>
     <span style="font-size: 11px">普通管理员</span>
-    <p style="float: right;margin-right: 30px;margin-top: -6px;height: 50px" ng-click="myCall('15844574451');$event.stopPropagation();">
+    <p style="float: right;margin-right: 30px;margin-top: -8px" ng-click="myCall();$event.stopPropagation();">
       <i class="icon ion-ios-telephone-outline" style="font-size: 25px;position: relative;top: 3px"></i>
-      <span style="font-size: 14px">15844574451</span>
+      <span style="font-size: 14px">{{phoneNum}}</span>
     </p>
   </div>
 </div>

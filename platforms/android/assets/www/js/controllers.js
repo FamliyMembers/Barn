@@ -98,12 +98,12 @@ angular.module('controllers', [])
                 }
                 LoadingService.show();
 
-                $http.get('https://123.56.27.166:8443/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
+                $http.get('http://123.56.27.166:8080/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
                     .then(function(resp){
                         if(resp.data.state==1){
                             localStorage.userId=$scope.name;
                             LoginService.set();
-                            window.plugins.jPushPlugin.setAlias($scope.name);
+                           // window.plugins.jPushPlugin.setAlias($scope.name);
                             if(document.getElementById("remember").checked==true){
                                 localStorage.password=$scope.password;
                             }else{
@@ -161,44 +161,43 @@ angular.module('controllers', [])
 
         }])
 
-    .controller('TemperatureCtrl', ['$scope', '$location', '$http','$stateParams',
+    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams',
 
-      function ($scope, $location, $http,$stateParams) {
+      function ($scope, $location, $http, $stateParams) {
 
         $scope.title = $stateParams.title;
 
-        $scope.doRefresh = function() {
-          $scope.items=[];
-          // $scope.enter();
-          //获取当前系统时间
+        $scope.doRefresh = function () {
+          $scope.items = [];
           $scope.$broadcast('scroll.refreshComplete');
         };
 
         $scope.getNowFormatDateAndTime = function () {
-          var date = new Date();
-          var seperator1 = "-";
-          var seperator2 = ":";
-          var month = date.getMonth() + 1;
-          var strDate = date.getDate();
-          var strMinutes = date.getMinutes();
-          var strSeconds = date.getSeconds();
-          if (month >= 1 && month <= 9) {
-            month = "0" + month;
-          }
-          if (strDate >= 0 && strDate <= 9) {
-            strDate = "0" + strDate;
-          }
-          if (strMinutes >= 0 && strMinutes <= 9) {
-            strMinutes = "0" + strMinutes;
-          }
-          if (strSeconds >= 0 && strSeconds <= 9) {
-            strSeconds = "0" + strSeconds;
-          }
-          var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-            + " " + date.getHours() + seperator2 + date.getMinutes()
-            + seperator2 + date.getSeconds();
+          // var date = new Date();
+          // var seperator1 = "-";
+          // var seperator2 = ":";
+          // var month = date.getMonth() + 1;
+          // var strDate = date.getDate();
+          // var strMinutes = date.getMinutes();
+          // var strSeconds = date.getSeconds();
+          // if (month >= 1 && month <= 9) {
+          //     month = "0" + month;
+          // }
+          // if (strDate >= 0 && strDate <= 9) {
+          //     strDate = "0" + strDate;
+          // }
+          // if (strMinutes >= 0 && strMinutes <= 9) {
+          //     strMinutes = "0" + strMinutes;
+          // }
+          // if (strSeconds >= 0 && strSeconds <= 9) {
+          //     strSeconds = "0" + strSeconds;
+          // }
+          // var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+          //     + " " + date.getHours() + seperator2 + date.getMinutes()
+          //     + seperator2 + date.getSeconds();
           // return currentdate;
-          $scope.dateNow = currentdate;
+          // $scope.dateNow = currentdate;
+
 
         };
 
@@ -213,6 +212,7 @@ angular.module('controllers', [])
 
             $scope.datas = response;
             drawChart(response);
+
             console.log('success', response);
           })
         }
@@ -276,9 +276,12 @@ angular.module('controllers', [])
             // var tem = chartdata[i].data[0];
             // console.log('tem', tem);
 
+            //更新时间在这儿
+            $scope.dateNow = chartdata[0].timestamp;
+
             var temp = chartdata[i].data;
             temp = parseFloat(temp);
-            console.log('typeof',typeof(temp));
+            console.log('typeof', typeof (temp));
 
             if (temp > 25 && temp <= 30) {//25-30度每一层的个数
               statistic25[chartdata[i].depth]++;
@@ -291,7 +294,7 @@ angular.module('controllers', [])
             }
 
             var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-            console.log('item',i,item);
+            console.log('item', i, item);
             allresult[chartdata[i].depth].push(item);
             //  console.log('temp！！！',i,temp);
             //  console.log('气死我了，你到底是啥啊啊啊！！！',chartdata[i].data[0]);
@@ -529,19 +532,24 @@ angular.module('controllers', [])
               //底部图例
               visualMap: {
                 type: "piecewise",
-                min: 0,
-                max: 130,  //最大是40的意思是，图例中等比例分割，如果有5层，每一块的变化区间是8，如果最大显示温度为35，则每一颜色变化区间为7度。
-                itemWidth: 14,
-                itemHeight: 12,
-                textGap: 3,
+                splitNumber: 5,
                 orient: 'horizontal',
                 inverse: false,
                 right: 0,
                 calculable: true,
                 dimension: 2,
-                inRange: {
-                  color: ['#2B6894', '#84CBF0', '#FEEE50', '#F09536', '#E43125']
-                },
+                textGap: 3,    //这个是每个小矩形数值之间的距离
+                itemWidth: 14,
+                itemHeight: 12, //itemHeight和itemWidth这两个是指小矩形的宽高
+                pieces: [
+                  { max: 0, color: '#2B6894' },
+                  { min: 0, max: 10, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
+                  { min: 10, max: 25, color: '#FEEE50' },
+                  { min: 25, max: 30, color: '#F09536' },
+                  { min: 30, color: '#E43125' },
+                  //{value: -1, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
+                  // 不指定 min，表示 min 为无限大（-Infinity）。
+                ],
                 textStyle: {
                   color: '#6B6F72'
                 }
@@ -818,17 +826,17 @@ angular.module('controllers', [])
             $scope.items = [];
             $scope.size=[];
             $scope.depotType = [];
-            $scope.userId=localStorage.userId;
             $scope.long=[];
             $scope.width=[];
             $scope.height=[];
+            $scope.intro={};
             $scope.borderBottom=[];
             $scope.loadFailedText="";
 
             LoadingService.show();
             $rootScope.getNews();
 
-            $scope.enter=function(){
+           /* $scope.enter=function(){
                 LoadingService.show();
                 $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID='+$scope.userId)
                     .then(function(resp){
@@ -888,7 +896,83 @@ angular.module('controllers', [])
                         }
 
                     });
-            };
+            };*/
+          $scope.enter=function(){
+            LoadingService.show();
+            $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnHouseByUID?UID='+localStorage.userId)
+              .then(function(resp){
+                //  document.getElementById("loading").style.display="none";
+                $scope.items=[];
+                if(resp.data[0].state==1){
+                  // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                  $scope.loadFailedText="已没有更多数据";
+                }else {
+                  var storageId=resp.data[0].storage_id;
+                  $scope.loadFailedText="";
+                  for (i = 0; i < resp.data.length; i++) {
+                    var depotName, num, type,description;
+                    depotName = resp.data[i].id + "号仓";
+                    num = resp.data[i].id;
+                    description = resp.data[i].description;
+                    if (resp.data[i].type == 0) {
+                      type = "circle";
+                    }
+                    if (resp.data[i].type == 1) {
+                      type = "square";
+                    }
+                    if(resp.data.length%2==0){
+                      if(i==resp.data.length-2 || i==resp.data.length-1){
+                        $scope.borderBottom.push("transparent");
+                      }else{
+                        $scope.borderBottom.push("1px solid #bcbcbc");
+                      }
+                    }else{
+                      if(i==resp.data.length-1){
+                        $scope.borderBottom.push("transparent");
+                      }else{
+                        $scope.borderBottom.push("1px solid #bcbcbc");
+                      }
+                    }
+
+                    $scope.items.push({depotName: depotName, num: num, type: type,description:description});
+                    if (type == "circle") {
+                      $scope.depotType.push("img/icon-circle-depot.png");
+                    }
+                    if (type == "square") {
+                      $scope.depotType.push("img/icon-square-depot.png");
+                    }
+                    $scope.size[i] = resp.data[i].size.split("/");
+                    $scope.long[i] = $scope.size[i][0];
+                    $scope.width[i] = $scope.size[i][1];
+                    $scope.height[i] = 5;
+                  }
+                  getIntro(storageId);
+
+                }
+
+              },function(error){
+                LoadingService.hide();
+                PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
+                PopupService.showAlert();
+                if($scope.items.length==0){
+                  $scope.loadFailedText="数据加载失败";
+                }
+
+              });
+          };
+          var getIntro=function (storageId) {
+            $http.get('http://123.56.27.166:8080/barn_application/barn/getStorageById?storage_id='+storageId)
+              .then(function(resp){
+                LoadingService.hide();
+                $scope.intro.name=resp.data[0].name;
+                $scope.intro.location=resp.data[0].location;
+
+              },function(error){
+                LoadingService.hide();
+                PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
+                PopupService.showAlert();
+              });
+          };
 
             $scope.enter();
 
@@ -926,7 +1010,7 @@ angular.module('controllers', [])
             $scope.loadFailedText="";
             LoadingService.show();
 
-            $scope.enter=function(){
+            /*$scope.enter=function(){
                 LoadingService.show();
                 $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnByBNID?BNID='+number)
                     .then(function(resp){
@@ -962,7 +1046,45 @@ angular.module('controllers', [])
                             $scope.loadFailedText="数据加载失败";
                         }
                     });
-            };
+            };*/
+
+          $scope.enter=function(){
+            LoadingService.show();
+            $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnByUIDAndBarnHouseID?UID='+localStorage.userId+'&barn_house_id='+number)
+              .then(function(resp){
+                $scope.items = [];
+                LoadingService.hide();
+                $scope.loadText = "继续拖动，查看小仓库";
+                $scope.noMore = false;
+                $scope.display="block";
+                $scope.loadFailedText="";
+                var leftBigText,rightGrayText,barnId;
+                if(resp.data.length<=1){
+                  $scope.noMore = true;
+                  $scope.loadText = "已没有更多数据";
+                }
+                for(i=0;i<resp.data.length;i++){
+
+                  if(i==0)leftBigText="小仓一";
+                  if(i==1)leftBigText="小仓二";
+                  if(i==2)leftBigText="小仓三";
+                  if(i==3)leftBigText="小仓四";
+                  if(i==4)leftBigText="小仓五";
+
+                  rightGrayText="最大库存"+resp.data[i].volume+"t";
+                  barnId = resp.data[i].BNID;
+                  $scope.items.push( {leftBigText:leftBigText,leftSmallText:'（种类/稻谷）',rightGrayText:rightGrayText,rightBlackText:'当前库存700t',barnId:barnId})
+                }
+              },function(error){
+                LoadingService.hide();
+                PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
+                PopupService.showAlert();
+                $scope.display="none";
+                if($scope.items.length==0){
+                  $scope.loadFailedText="数据加载失败";
+                }
+              });
+          };
 
             $scope.enter();
 

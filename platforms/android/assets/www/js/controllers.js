@@ -98,12 +98,12 @@ angular.module('controllers', [])
                 }
                 LoadingService.show();
 
-                $http.get('http://123.56.27.166:8080/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
+                $http.get('https://123.56.27.166:8443/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
                     .then(function(resp){
                         if(resp.data.state==1){
                             localStorage.userId=$scope.name;
                             LoginService.set();
-                           // window.plugins.jPushPlugin.setAlias($scope.name);
+                            window.plugins.jPushPlugin.setAlias($scope.name);
                             if(document.getElementById("remember").checked==true){
                                 localStorage.password=$scope.password;
                             }else{
@@ -1004,11 +1004,13 @@ angular.module('controllers', [])
             $scope.noMore = false;
             $scope.loadText = "继续拖动，查看小仓库";
             $scope.items = [];
+            $scope.persons=[];
             $scope.userRole=UserService.person.userRole;
             $scope.userName=UserService.person.userName;
             $scope.display="none";
             $scope.loadFailedText="";
             LoadingService.show();
+            var k=0;
 
             /*$scope.enter=function(){
                 LoadingService.show();
@@ -1050,10 +1052,11 @@ angular.module('controllers', [])
 
           $scope.enter=function(){
             LoadingService.show();
+            k=0;
             $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnByUIDAndBarnHouseID?UID='+localStorage.userId+'&barn_house_id='+number)
               .then(function(resp){
                 $scope.items = [];
-                LoadingService.hide();
+                $scope.persons = [];
                 $scope.loadText = "继续拖动，查看小仓库";
                 $scope.noMore = false;
                 $scope.display="block";
@@ -1073,8 +1076,10 @@ angular.module('controllers', [])
 
                   rightGrayText="最大库存"+resp.data[i].volume+"t";
                   barnId = resp.data[i].BNID;
+                  getManagerInfo(barnId);
                   $scope.items.push( {leftBigText:leftBigText,leftSmallText:'（种类/稻谷）',rightGrayText:rightGrayText,rightBlackText:'当前库存700t',barnId:barnId})
                 }
+                getManagerInfo($scope.items[0].barnId);
               },function(error){
                 LoadingService.hide();
                 PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
@@ -1083,6 +1088,28 @@ angular.module('controllers', [])
                 if($scope.items.length==0){
                   $scope.loadFailedText="数据加载失败";
                 }
+              });
+          };
+          var getManagerInfo=function (id) {
+            k++;
+            $http.get('http://123.56.27.166:8080/barn_application/barn/getUserByBNID?BNID='+id)
+              .then(function(resp){
+                var name,phoneNum;
+                if(resp.data.length==0){
+                  name="";
+                  phoneNum="";
+                }else{
+                  name=resp.data[0].name;
+                  phoneNum=resp.data[0].telephone;
+                }
+                $scope.persons.push({name:name,phoneNum:phoneNum});
+                if(k<$scope.items.length){
+                  getManagerInfo($scope.items[k].barnId);
+                }else{
+                  LoadingService.hide();
+                }
+              },function(error){
+
               });
           };
 

@@ -4,14 +4,14 @@
          style="position: relative;top: 2px;margin-left: -10px">
     <span style="color:#108678; font-size: 16px">{{leftBigText}}</span>
     <span style="color:#108678; font-size: 12px">{{leftSmallText}}</span>
-    <img ng-src="img/arrowright.png" width="25px" height="30px" style="float: right;position: relative;top: 20px">
+    <img ng-src="img/arrowright.png" width="22px" height="27px" style="float: right;position: relative;">
     <span style="color:#a2a2a2; font-size: 12px;float: right;margin-right: 3px;margin-top: 3px">{{rightGrayText}}</span>
     <span style="float: right;margin-right: 4px;font-size: 12px;margin-top: 3px">{{rightBlackText}}</span>
   </div>
-  <div style="padding-top: 30px;color: grey" ng-if="show">
+  <div style="padding-top: 30px;color: grey" ng-show="phoneNum">
     <span style="font-size: 14px;margin-left: 30px">{{name}}</span>
-    <span style="font-size: 11px">普通管理员</span>
-    <p style="float: right;margin-right: 30px;margin-top: -8px" ng-click="myCall();$event.stopPropagation();">
+    <span style="font-size: 11px">仓库管理员</span>
+    <p style="float: right;margin-right: 30px;margin-top: -6px" ng-click="myCall();$event.stopPropagation();">
       <i class="icon ion-ios-telephone-outline" style="font-size: 25px;position: relative;top: 3px"></i>
       <span style="font-size: 14px">{{phoneNum}}</span>
     </p>

@@ -89,21 +89,40 @@ angular.module('services', [])
           ]
         });
       };
-
+      var showYNPopup=function (myYNTap) {
+        var myYNPopup = $ionicPopup.show({
+          title: myTitle,
+          template: myBody,
+          buttons: [
+            {
+              text: '<b>否</b>',
+              type: 'button-royal',
+              onTap: function(e) {
+              }
+            },
+            {
+              text: '<b>是</b>',
+              type: 'button-royal',
+              onTap: function(e) {
+                myYNTap();
+              }
+            }
+          ]
+        });
+      };
 
         return{
             showAlert:showAlert,
             showPopup:showPopup,
             setTitle:setTitle,
-            setContent:setContent
+            setContent:setContent,
+            showYNPopup:showYNPopup
         };
     }])
     .factory('ConfirmService',[function(){
-
         var detail="";
         var flag="";
         var alarmId=1;
-
         return{
             detail:detail,
             flag:flag,

@@ -161,11 +161,13 @@ angular.module('controllers', [])
 
         }])
 
-    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams',
+    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams','LoadingService',
 
-      function ($scope, $location, $http, $stateParams) {
+      function ($scope, $location, $http, $stateParams, LoadingService) {
 
         $scope.title = $stateParams.title;
+
+        LoadingService.show();
 
         $scope.doRefresh = function () {
           $scope.items = [];
@@ -206,16 +208,18 @@ angular.module('controllers', [])
 
         //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
         $scope.getEchartsData = function () {
+
+          var id = 1;
           var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=1";
           // var url = './js/yu.json';
           $http.get(url).success(function (response) {
-
+            LoadingService.hide();
             $scope.datas = response;
             drawChart(response);
-
             console.log('success', response);
           })
         }
+
         //试验button的切换页面的功能
         $scope.doChangeEcharts = function () {
           if (value == 1) {
@@ -237,7 +241,7 @@ angular.module('controllers', [])
         //drawChart函数功能部分
         function drawChart(chartdata) {
 
-
+          var temandhum = []; //装载温度和湿度的数据，BNID=30的四个
           var statistic25 = {//所有25度在每一层的个数
 
             1: 0,
@@ -293,14 +297,20 @@ angular.module('controllers', [])
               statistic35[chartdata[i].depth]++;
             }
 
+            if (chartdata[i].BNID == 30) {
+              temandhum.push(chartdata[i].data);
+            }
+
             var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-            console.log('item', i, item);
+            // console.log('item', i, item);
             allresult[chartdata[i].depth].push(item);
-            //  console.log('temp！！！',i,temp);
-            //  console.log('气死我了，你到底是啥啊啊啊！！！',chartdata[i].data[0]);
-
-
           }
+          $scope.airTemperature = temandhum[0];
+          $scope.airHumidity = temandhum[1];
+          $scope.barnTemperature = temandhum[2];
+          $scope.barnHumidity = temandhum[3];
+          console.log('temandhum------', temandhum);
+
           var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
             l: [],//25-30
             m: [],//30-35
@@ -317,7 +327,7 @@ angular.module('controllers', [])
           var myChart1 = echarts.init(document.getElementById('first'));
           var schema =
             [
-              { name: 'corE', index: 0, text: '东向位置' },
+              { name: 'corE', index: 0, text: '西向位置' },
               { name: 'corN', index: 1, text: '北向位置' },
               { name: 'temP', index: 2, text: '摄氏温度' },
               { name: 'deeP', index: 3, text: '纵向深度' }
@@ -386,12 +396,12 @@ angular.module('controllers', [])
                     borderColor: '#aaa'
                   }
                 },
-                data: ['5m', '10m', '15m', '20m', '25m']
+                data: ['一层', '二层', '三层', '四层', '五层']
               },
               grid: {
                 containLabel: true,
-                top: 10,
-                left: 5
+                top: 25,
+                right: 8
               },
               // title: {
               //     left: 'center',
@@ -556,8 +566,10 @@ angular.module('controllers', [])
               },
 
               xAxis: {
-                name: 'X',
-                nameGap: 12,
+                name: '西向',
+                nameGap: 5,
+                inverse:true,
+
                 nameTextStyle: {
                   color: '#6B6F72',
                   fontSize: 14
@@ -575,11 +587,12 @@ angular.module('controllers', [])
               },
 
               yAxis: [{
-                name: 'Y',
+                name: '北向',
                 type: 'value',
-
+                position:'right',
                 nameLocation: 'end',
-                nameGap: 12,
+                nameGap: 5,
+                // nameRotate: 90,
                 nameTextStyle: {
                   color: '#6B6F72',
                   fontSize: 16
@@ -768,7 +781,7 @@ angular.module('controllers', [])
               }
               ,
               type: 'category',
-              data: ['5m', '10m', '15m', '20m', '25m']
+              data: ['一层', '二层', '三层', '四层', '五层']
             },
             series: [
               {

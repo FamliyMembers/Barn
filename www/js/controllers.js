@@ -161,7 +161,7 @@ angular.module('controllers', [])
 
         }])
 
-    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams', 'LoadingService',
+    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams','LoadingService',
 
       function ($scope, $location, $http, $stateParams, LoadingService) {
 
@@ -327,7 +327,7 @@ angular.module('controllers', [])
           var myChart1 = echarts.init(document.getElementById('first'));
           var schema =
             [
-              { name: 'corE', index: 0, text: '东向位置' },
+              { name: 'corE', index: 0, text: '西向位置' },
               { name: 'corN', index: 1, text: '北向位置' },
               { name: 'temP', index: 2, text: '摄氏温度' },
               { name: 'deeP', index: 3, text: '纵向深度' }
@@ -400,8 +400,8 @@ angular.module('controllers', [])
               },
               grid: {
                 containLabel: true,
-                top: 10,
-                left: 5
+                top: 25,
+                right: 8
               },
               // title: {
               //     left: 'center',
@@ -566,8 +566,10 @@ angular.module('controllers', [])
               },
 
               xAxis: {
-                name: 'X',
-                nameGap: 12,
+                name: '西向',
+                nameGap: 5,
+                inverse:true,
+
                 nameTextStyle: {
                   color: '#6B6F72',
                   fontSize: 14
@@ -585,11 +587,12 @@ angular.module('controllers', [])
               },
 
               yAxis: [{
-                name: 'Y',
+                name: '北向',
                 type: 'value',
-
+                position:'right',
                 nameLocation: 'end',
-                nameGap: 12,
+                nameGap: 5,
+                // nameRotate: 90,
                 nameTextStyle: {
                   color: '#6B6F72',
                   fontSize: 16

@@ -1095,12 +1095,13 @@ angular.module('controllers', [])
                 }
                 for(i=0;i<resp.data.length;i++){
 
-                  if(i==0)leftBigText="小仓一";
+                 /* if(i==0)leftBigText="小仓一";
                   if(i==1)leftBigText="小仓二";
                   if(i==2)leftBigText="小仓三";
                   if(i==3)leftBigText="小仓四";
-                  if(i==4)leftBigText="小仓五";
+                  if(i==4)leftBigText="小仓五";*/
 
+                  leftBigText=resp.data[i].description;
                   rightGrayText="最大库存"+resp.data[i].volume+"t";
                   barnId = resp.data[i].BNID;
                   getManagerInfo(barnId);
@@ -1854,3 +1855,29 @@ angular.module('controllers', [])
       }
 
     }])
+    .controller('TestCtrl', ['$scope','$cordovaDatePicker',
+      function ($scope,$cordovaDatePicker) {
+
+        var options1 = {
+          date: new Date(),
+          mode: 'date', // or 'time'
+          titleText: '请选择日期',
+          androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+        };
+        var options2 = {
+          date: new Date(),
+          mode: 'time', // or 'time'
+          titleText: '请选择时间',
+          is24Hour: true,
+          androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+        };
+        $scope.pickDate=function(){
+
+          $cordovaDatePicker.show(options1).then(function(date1){
+            $cordovaDatePicker.show(options2).then(function(date2){
+              alert(date1+date2);
+            });
+          });
+        }
+
+      }])

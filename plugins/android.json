@@ -32,9 +32,6 @@
         "cordova-plugin-app-version": {
             "PACKAGE_NAME": "com.yzm.barn"
         },
-        "cordova-plugin-badge": {
-            "PACKAGE_NAME": "com.yzm.barn"
-        },
         "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "com.yzm.barn"
         },
@@ -43,13 +40,13 @@
         },
         "cordova-plugin-x-toast": {
             "PACKAGE_NAME": "com.yzm.barn"
+        },
+        "cordova-plugin-datepicker": {
+            "PACKAGE_NAME": "com.yzm.barn"
         }
     },
     "dependent_plugins": {
         "cordova-plugin-jcore": {
-            "PACKAGE_NAME": "com.yzm.barn"
-        },
-        "cordova-plugin-app-event": {
             "PACKAGE_NAME": "com.yzm.barn"
         }
     }

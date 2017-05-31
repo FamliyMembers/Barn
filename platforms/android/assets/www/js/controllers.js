@@ -209,9 +209,10 @@ angular.module('controllers', [])
         //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
         $scope.getEchartsData = function () {
 
-          var id = 1;
-          var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=1";
-          // var url = './js/yu.json';
+          var id = $stateParams.id;
+          console.log('id----', id);
+          var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID="+id;
+          //  var url = './js/yu.json';
           $http.get(url).success(function (response) {
             LoadingService.hide();
             $scope.datas = response;
@@ -272,7 +273,7 @@ angular.module('controllers', [])
             2: [],
             3: [],
             4: [],
-            5: []
+            5: []   //可以设置一个五维数组，第一个为层数，其他的为x,y,data，depth
           };
           for (var i = 0; i < chartdata.length; i++) {
 
@@ -284,7 +285,12 @@ angular.module('controllers', [])
             $scope.dateNow = chartdata[0].timestamp;
 
             var temp = chartdata[i].data;
-            temp = parseFloat(temp);
+            if(temp){
+              temp = parseFloat(temp);
+            }
+            else{
+              temp = -999;
+            }
             console.log('typeof', typeof (temp));
 
             if (temp > 25 && temp <= 30) {//25-30度每一层的个数
@@ -423,6 +429,15 @@ angular.module('controllers', [])
                 borderWidth: 1,
                 formatter: function (obj) {
                   var value = obj.value;
+                  if (value[2] == -999){ //如果无效点，data为-999
+                    return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
+                      + obj.seriesName
+                      + '</div>'
+                      + schema[0].text + '：' + value[0] + '<br>'
+                      + schema[1].text + '：' + value[1] + '<br>'
+                      + schema[3].text + '：' + value[3] + '<br>'
+                      + schema[2].text + '：' + '无效' + '<br>'
+                  }
                   return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
                     + obj.seriesName
                     + '</div>'
@@ -552,12 +567,11 @@ angular.module('controllers', [])
                 itemWidth: 14,
                 itemHeight: 12, //itemHeight和itemWidth这两个是指小矩形的宽高
                 pieces: [
-                  { max: 0, color: '#2B6894' },
-                  { min: 0, max: 10, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
-                  { min: 10, max: 25, color: '#FEEE50' },
-                  { min: 25, max: 30, color: '#F09536' },
+                  { min:-273,max: 0, color: '#2B6894' },
+                  { min: 0, max: 15, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
+                  { min: 15, max: 30, color: '#FEEE50' },
                   { min: 30, color: '#E43125' },
-                  //{value: -1, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
+                  {value: -999, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
                   // 不指定 min，表示 min 为无限大（-Infinity）。
                 ],
                 textStyle: {
@@ -1081,12 +1095,13 @@ angular.module('controllers', [])
                 }
                 for(i=0;i<resp.data.length;i++){
 
-                  if(i==0)leftBigText="小仓一";
+                 /* if(i==0)leftBigText="小仓一";
                   if(i==1)leftBigText="小仓二";
                   if(i==2)leftBigText="小仓三";
                   if(i==3)leftBigText="小仓四";
-                  if(i==4)leftBigText="小仓五";
+                  if(i==4)leftBigText="小仓五";*/
 
+                  leftBigText=resp.data[i].description;
                   rightGrayText="最大库存"+resp.data[i].volume+"t";
                   barnId = resp.data[i].BNID;
                   getManagerInfo(barnId);
@@ -1840,3 +1855,29 @@ angular.module('controllers', [])
       }
 
     }])
+    .controller('TestCtrl', ['$scope','$cordovaDatePicker',
+      function ($scope,$cordovaDatePicker) {
+
+        var options1 = {
+          date: new Date(),
+          mode: 'date', // or 'time'
+          titleText: '请选择日期',
+          androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+        };
+        var options2 = {
+          date: new Date(),
+          mode: 'time', // or 'time'
+          titleText: '请选择时间',
+          is24Hour: true,
+          androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+        };
+        $scope.pickDate=function(){
+
+          $cordovaDatePicker.show(options1).then(function(date1){
+            $cordovaDatePicker.show(options2).then(function(date2){
+              alert(date1+date2);
+            });
+          });
+        }
+
+      }])

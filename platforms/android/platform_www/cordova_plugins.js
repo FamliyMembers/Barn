@@ -50,15 +50,6 @@ module.exports = [
         ]
     },
     {
-        "id": "cordova-plugin-badge.Badge",
-        "file": "plugins/cordova-plugin-badge/www/badge.js",
-        "pluginId": "cordova-plugin-badge",
-        "clobbers": [
-            "plugin.notification.badge",
-            "cordova.plugins.notification.badge"
-        ]
-    },
-    {
         "id": "cordova-plugin-inappbrowser.inappbrowser",
         "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
         "pluginId": "cordova-plugin-inappbrowser",
@@ -96,6 +87,14 @@ module.exports = [
         "id": "cordova-plugin-x-toast.tests",
         "file": "plugins/cordova-plugin-x-toast/test/tests.js",
         "pluginId": "cordova-plugin-x-toast"
+    },
+    {
+        "id": "cordova-plugin-datepicker.DatePicker",
+        "file": "plugins/cordova-plugin-datepicker/www/android/DatePicker.js",
+        "pluginId": "cordova-plugin-datepicker",
+        "clobbers": [
+            "datePicker"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -110,11 +109,10 @@ module.exports.metadata =
     "cordova-plugin-jcore": "1.1.4",
     "jpush-phonegap-plugin": "3.1.6",
     "cordova-plugin-app-version": "0.1.9",
-    "cordova-plugin-app-event": "1.2.0",
-    "cordova-plugin-badge": "0.7.4",
     "cordova-plugin-inappbrowser": "1.7.1",
     "cordova-plugin-network-information": "1.3.3",
-    "cordova-plugin-x-toast": "2.6.0"
+    "cordova-plugin-x-toast": "2.6.0",
+    "cordova-plugin-datepicker": "0.9.2"
 };
 // BOTTOM OF METADATA
 });

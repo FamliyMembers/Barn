@@ -76,7 +76,7 @@
         "depth": 5,
         "barn_cell_id": 1,
         "timestamp": "2017-05-27 16:39:57.0",
-        "data": "11.5",
+        "data": "0",
         "type": "1"
     },
     {
@@ -108,7 +108,7 @@
         "depth": 2,
         "barn_cell_id": 1,
         "timestamp": "2017-05-27 16:39:57.0",
-        "data": "6.0",
+        "data": "0",
         "type": "1"
     },
     {
@@ -124,7 +124,7 @@
         "depth": 3,
         "barn_cell_id": 1,
         "timestamp": "2017-05-27 16:39:57.0",
-        "data": "5.0",
+        "data": "0",
         "type": "1"
     },
     {
@@ -172,7 +172,7 @@
         "depth": 1,
         "barn_cell_id": 1,
         "timestamp": "2017-05-27 16:39:57.0",
-        "data": "13.0",
+        "data": "0",
         "type": "1"
     },
     {
@@ -252,7 +252,7 @@
         "depth": 1,
         "barn_cell_id": 1,
         "timestamp": "2017-05-27 16:39:57.0",
-        "data": "13.5",
+        "data": "0",
         "type": "1"
     },
     {

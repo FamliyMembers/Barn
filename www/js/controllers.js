@@ -174,34 +174,6 @@ angular.module('controllers', [])
                 $scope.$broadcast('scroll.refreshComplete');
             };
 
-            $scope.getNowFormatDateAndTime = function () {
-                // var date = new Date();
-                // var seperator1 = "-";
-                // var seperator2 = ":";
-                // var month = date.getMonth() + 1;
-                // var strDate = date.getDate();
-                // var strMinutes = date.getMinutes();
-                // var strSeconds = date.getSeconds();
-                // if (month >= 1 && month <= 9) {
-                //     month = "0" + month;
-                // }
-                // if (strDate >= 0 && strDate <= 9) {
-                //     strDate = "0" + strDate;
-                // }
-                // if (strMinutes >= 0 && strMinutes <= 9) {
-                //     strMinutes = "0" + strMinutes;
-                // }
-                // if (strSeconds >= 0 && strSeconds <= 9) {
-                //     strSeconds = "0" + strSeconds;
-                // }
-                // var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-                //     + " " + date.getHours() + seperator2 + date.getMinutes()
-                //     + seperator2 + date.getSeconds();
-                // return currentdate;
-                // $scope.dateNow = currentdate;
-
-
-            };
 
             //value作为标志数据，可以进行切换两个图表的标志
             var value = 0;
@@ -211,8 +183,8 @@ angular.module('controllers', [])
                 
                 var id = $stateParams.id;
                  console.log('id----', id);
-                var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID="+id;
-                //  var url = './js/yu.json';
+                 var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID="+id;
+                  //var url = './js/yu.json';
                 $http.get(url).success(function (response) {
                     LoadingService.hide();
                     $scope.datas = response;
@@ -285,13 +257,14 @@ angular.module('controllers', [])
                     $scope.dateNow = chartdata[0].timestamp;
 
                     var temp = chartdata[i].data;
-                    if(temp){
-                    temp = parseFloat(temp);
+                    console.log('-----1----typeof', typeof (temp));
+                    if(temp === null ){
+                        temp = 101;
                     }
                     else{
-                        temp = -999;
+                       temp = parseFloat(temp); 
                     }
-                    console.log('typeof', typeof (temp));
+                    console.log('-----2-----typeof', typeof (temp));
 
                     if (temp > 25 && temp <= 30) {//25-30度每一层的个数
                         statistic25[chartdata[i].depth]++;
@@ -308,13 +281,13 @@ angular.module('controllers', [])
                     }
 
                     var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-                    // console.log('item', i, item);
+                    console.log('item', i, item);
                     allresult[chartdata[i].depth].push(item);
                 }
-                    $scope.airTemperature = temandhum[0];
-                    $scope.airHumidity = temandhum[1];
-                    $scope.barnTemperature = temandhum[2];
-                    $scope.barnHumidity = temandhum[3];
+                    $scope.barnTemperature = temandhum[0];
+                    $scope.barnHumidity = temandhum[1];
+                    $scope.airTemperature = temandhum[2];
+                    $scope.airHumidity = temandhum[3];
                     console.log('temandhum------', temandhum);
 
                 var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
@@ -429,7 +402,7 @@ angular.module('controllers', [])
                             borderWidth: 1,
                             formatter: function (obj) {
                                 var value = obj.value;
-                                if (value[2] == -999){ //如果无效点，data为-999
+                                if (value[2] == 999){ //如果无效点，data为-999
                                     return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
                                     + obj.seriesName
                                     + '</div>'
@@ -567,11 +540,11 @@ angular.module('controllers', [])
                             itemWidth: 14,
                             itemHeight: 12, //itemHeight和itemWidth这两个是指小矩形的宽高
                             pieces: [
-                                { min:-273,max: 0, color: '#2B6894' },
+                                { max: 0, color: '#2B6894' },
                                 { min: 0, max: 15, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
                                 { min: 15, max: 30, color: '#FEEE50' },
-                                { min: 30, color: '#E43125' },
-                                {value: -999, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
+                                { min: 30, max:100,color: '#E43125' },
+                                { min:100, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
                                 // 不指定 min，表示 min 为无限大（-Infinity）。
                             ],
                             textStyle: {

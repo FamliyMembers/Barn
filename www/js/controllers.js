@@ -257,8 +257,9 @@ angular.module('controllers', [])
                     $scope.dateNow = chartdata[0].timestamp;
 
                     var temp = chartdata[i].data;
+                    console.log('-----!----类型是', chartdata[i].data);
                     console.log('-----1----typeof', typeof (temp));
-                    if(temp === null ){
+                    if(temp === null||temp === undefined ){  //data字段就没有了，为undefined
                         temp = 101;
                     }
                     else{
@@ -266,10 +267,10 @@ angular.module('controllers', [])
                     }
                     console.log('-----2-----typeof', typeof (temp));
 
-                    if (temp > 25 && temp <= 30) {//25-30度每一层的个数
+                    if (temp > 15 && temp <= 25) {//25-30度每一层的个数
                         statistic25[chartdata[i].depth]++;
                     }
-                    if (temp > 30 && temp <= 35) {///30-35度每一层的个数
+                    if (temp > 25 && temp <= 35) {///30-35度每一层的个数
                         statistic30[chartdata[i].depth]++;
                     }
                     if (temp > 35) {//>35度每一层的个数
@@ -544,7 +545,7 @@ angular.module('controllers', [])
                                 { min: 0, max: 15, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
                                 { min: 15, max: 30, color: '#FEEE50' },
                                 { min: 30, max:100,color: '#E43125' },
-                                { min:100, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
+                                { value:101, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
                                 // 不指定 min，表示 min 为无限大（-Infinity）。
                             ],
                             textStyle: {
@@ -617,6 +618,7 @@ angular.module('controllers', [])
 
                     //变化数据写这
                     options: [
+                        
                         //5m
                         {
 
@@ -669,6 +671,17 @@ angular.module('controllers', [])
                             series: [
                                 {
                                     data: allresult['4']
+                                }
+                            ]
+                        },
+                          {
+                            // title: {
+                            //     text: '20m深度处粮温'
+
+                            // },
+                            series: [
+                                {
+                                    data: allresult['5']
                                 }
                             ]
                         }
@@ -728,7 +741,7 @@ angular.module('controllers', [])
                             fontWeight: 'lighter'
                         },
 
-                        data: ['>35℃', '[35℃,30℃)', '[30℃,25℃)']
+                        data: ['>35℃', '[35℃,25℃)', '[25℃,15℃)']
                     },
                     grid: {
                         left: '3%',
@@ -776,38 +789,38 @@ angular.module('controllers', [])
                             type: 'bar',
                             stack: '总量',
                             barWidth: 30,
-                            label: {
-                                normal: {
-                                    show: true,
-                                    position: 'insideRight'
-                                }
-                            },
+                            // label: {
+                            //     normal: {
+                            //         show: true,
+                            //         position: 'insideRight'
+                            //     }
+                            // },
                             data: chart2datas["h"]
                         },
                         {
-                            name: '[35℃,30℃)',
+                            name: '[35℃,25℃)',
                             type: 'bar',
                             stack: '总量',
                             barWidth: 30,
-                            label: {
-                                normal: {
-                                    show: true,
-                                    position: 'insideRight'
-                                }
-                            },
+                            // label: {
+                            //     normal: {
+                            //         show: true,
+                            //         position: 'insideRight'
+                            //     }
+                            // },
                             data: chart2datas["m"]
                         },
                         {
-                            name: '[30℃,25℃)',
+                            name: '[25℃,15℃)',
                             type: 'bar',
                             stack: '总量',
                             barWidth: 30,
-                            label: {
-                                normal: {
-                                    show: true,
-                                    position: 'insideRight'
-                                }
-                            },
+                            // label: {
+                            //     normal: {
+                            //         show: true,
+                            //         position: 'insideRight'
+                            //     }
+                            // },
                             data: chart2datas["l"]
                         }
                     ]
@@ -1068,11 +1081,12 @@ angular.module('controllers', [])
                 }
                 for(i=0;i<resp.data.length;i++){
 
-                  if(i==0)leftBigText="小仓一";
-                  if(i==1)leftBigText="小仓二";
-                  if(i==2)leftBigText="小仓三";
-                  if(i==3)leftBigText="小仓四";
-                  if(i==4)leftBigText="小仓五";
+                //   if(i==0)leftBigText="小仓一";
+                //   if(i==1)leftBigText="小仓二";
+                //   if(i==2)leftBigText="小仓三";
+                //   if(i==3)leftBigText="小仓四";
+                //   if(i==4)leftBigText="小仓五";
+                  leftBigText = resp.data[i].description ;
 
                   rightGrayText="最大库存"+resp.data[i].volume+"t";
                   barnId = resp.data[i].BNID;
@@ -1827,3 +1841,11 @@ angular.module('controllers', [])
       }
 
     }])
+    .controller('searchHistoryCtrl', ['$scope', '$location', '$http', '$stateParams','LoadingService',
+
+        function ($scope, $location, $http, $stateParams, LoadingService) {
+
+
+
+        }
+    ])

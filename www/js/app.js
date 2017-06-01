@@ -317,6 +317,15 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 }
               }
             })
+             .state('tabs.search-history', {
+              url: "/search-history",
+              views: {
+                'table-tab': {
+                  templateUrl: "templates/search-history.html",
+                  controller: "searchHistoryCtrl"
+                }
+              }
+            })
 
         if(localStorage.getItem("start")==1){
             $urlRouterProvider.otherwise("/login");

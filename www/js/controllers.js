@@ -1881,3 +1881,183 @@ angular.module('controllers', [])
         }
 
       }])
+    .controller('LineCtrl', ['$scope','$ionicPopover','$cordovaDatePicker',
+    function ($scope,$ionicPopover,$cordovaDatePicker) {
+
+      $scope.barns=["一号仓","二号仓","三号仓"];
+      $scope.startTime="请选择起始时间";
+      $scope.endTime="请选择终止时间";
+      $scope.barn="请选择仓号";
+      $scope.popover = $ionicPopover.fromTemplateUrl('my-popover.html', {
+        scope: $scope
+      });
+
+      // .fromTemplateUrl() 方法
+      $ionicPopover.fromTemplateUrl('my-popover.html', {
+        scope: $scope
+      }).then(function(popover) {
+        $scope.popover = popover;
+      });
+
+
+      $scope.openPopover = function($event) {
+        $scope.popover.show($event);
+      };
+      $scope.closePopover = function() {
+        $scope.popover.hide();
+      };
+
+      $scope.selectBarn=function (i) {
+        $scope.closePopover();
+        $scope.barn=$scope.barns[i];
+        lineChart.clear();
+        getData();
+        setMyOption();
+        lineChart.setOption(option);
+      };
+      var data1=[];
+      var data2=[];
+      var data3=[];
+      var data4=[];
+      var data5=[];
+      var xData=[];
+      var option={};
+      var category=[];
+      var lineChart=echarts.init(document.getElementById("lineChart"));
+
+      var options = {
+        date: new Date(),
+        mode: 'date', // or 'time'
+        titleText: '请选择日期',
+        androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+      };
+      $scope.selectTime=function(flag){
+
+        $cordovaDatePicker.show(options).then(function(date){
+            var dateTime=
+              date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+            if(flag==1){
+              $scope.startTime=dateTime;
+              $scope.date=date;
+            }
+            if(flag==2){
+              $scope.endTime=dateTime;
+              lineChart.clear();
+              getData();
+              setMyOption();
+              lineChart.setOption(option);
+            }
+        });
+      };
+
+      getData();
+      setMyOption();
+      lineChart.setOption(option);
+
+     function getData() {
+       data1=[];
+       data2=[];
+       data3=[];
+       data4=[];
+       data5=[];
+       xData=[];
+       var date=new Date()-1000*3600*24*20;
+       for(var i=0;i<10;i++){
+         var dataY=Math.round(Math.random() * 10);
+         var dataX=i*1000*3600*24;
+         data1.push(dataY+25);
+         data2.push(dataY+22);
+         data3.push(dataY+19);
+         data4.push(dataY+16);
+         data5.push(dataY+27);
+         xData.push(new Date(Math.round(date+dataX)).toLocaleDateString());
+       }
+       category=xData.map(function (str) {
+         return str.replace('2017-', '').replace('-','/');
+       });
+     }
+
+// 指定图表的配置项和数据
+      function setMyOption() {
+        option = {
+          backgroundColor:'#edf9f5',
+          title:{
+            text:'层均温变化图',
+            top:10
+          },
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            left:10,
+            top:40,
+            data:['一层','二层','三层','四层','五层']
+          },
+          grid: {
+            left:30,
+            top:100,
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            name:'时间',
+            nameLocation:'middle',
+            nameGap:30,
+            boundaryGap: false,
+            data: category
+          },
+          yAxis: {
+            type: 'value',
+            min:10,
+            name:'层均温',
+            nameLocation:'middle',
+            nameGap:30,
+            splitLine:{
+              lineStyle:{
+                color:'#aaa'
+              }
+            }
+          },
+          dataZoom: [
+            {
+              type: 'inside',
+              xAxisIndex: [0]
+            }
+          ],
+          series: [
+
+            {
+              name:'一层',
+              type:'line',
+              smooth: true,
+              data:data1
+            },
+            {
+              name:'二层',
+              type:'line',
+              smooth: true,
+              data:data2
+            },
+            {
+              name:'三层',
+              type:'line',
+              smooth: true,
+              data:data3
+            },
+            {
+              name:'四层',
+              type:'line',
+              smooth: true,
+              data:data4
+            },
+            {
+              name:'五层',
+              type:'line',
+              smooth: true,
+              data:data5
+            }
+          ]
+        };
+      }
+
+    }])

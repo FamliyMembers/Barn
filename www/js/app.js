@@ -231,6 +231,15 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                     }
                 }
             })
+            .state('tabs.line', {
+              url: "/line",
+              views: {
+                'table-tab': {
+                  templateUrl: "templates/table-line.html",
+                  controller: "LineCtrl"
+                }
+              }
+            })
             .state('tabs.risk', {
                 url: "/risk",
                 views: {

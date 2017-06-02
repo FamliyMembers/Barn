@@ -174,34 +174,6 @@ angular.module('controllers', [])
           $scope.$broadcast('scroll.refreshComplete');
         };
 
-        $scope.getNowFormatDateAndTime = function () {
-          // var date = new Date();
-          // var seperator1 = "-";
-          // var seperator2 = ":";
-          // var month = date.getMonth() + 1;
-          // var strDate = date.getDate();
-          // var strMinutes = date.getMinutes();
-          // var strSeconds = date.getSeconds();
-          // if (month >= 1 && month <= 9) {
-          //     month = "0" + month;
-          // }
-          // if (strDate >= 0 && strDate <= 9) {
-          //     strDate = "0" + strDate;
-          // }
-          // if (strMinutes >= 0 && strMinutes <= 9) {
-          //     strMinutes = "0" + strMinutes;
-          // }
-          // if (strSeconds >= 0 && strSeconds <= 9) {
-          //     strSeconds = "0" + strSeconds;
-          // }
-          // var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-          //     + " " + date.getHours() + seperator2 + date.getMinutes()
-          //     + seperator2 + date.getSeconds();
-          // return currentdate;
-          // $scope.dateNow = currentdate;
-
-
-        };
 
         //value作为标志数据，可以进行切换两个图表的标志
         var value = 0;
@@ -212,7 +184,7 @@ angular.module('controllers', [])
           var id = $stateParams.id;
           console.log('id----', id);
           var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID="+id;
-          //  var url = './js/yu.json';
+          //var url = './js/yu.json';
           $http.get(url).success(function (response) {
             LoadingService.hide();
             $scope.datas = response;
@@ -285,18 +257,20 @@ angular.module('controllers', [])
             $scope.dateNow = chartdata[0].timestamp;
 
             var temp = chartdata[i].data;
-            if(temp){
-              temp = parseFloat(temp);
+            console.log('-----!----类型是', chartdata[i].data);
+            console.log('-----1----typeof', typeof (temp));
+            if(temp === null||temp === undefined ){  //data字段就没有了，为undefined
+              temp = 101;
             }
             else{
-              temp = -999;
+              temp = parseFloat(temp);
             }
-            console.log('typeof', typeof (temp));
+            console.log('-----2-----typeof', typeof (temp));
 
-            if (temp > 25 && temp <= 30) {//25-30度每一层的个数
+            if (temp > 15 && temp <= 25) {//25-30度每一层的个数
               statistic25[chartdata[i].depth]++;
             }
-            if (temp > 30 && temp <= 35) {///30-35度每一层的个数
+            if (temp > 25 && temp <= 35) {///30-35度每一层的个数
               statistic30[chartdata[i].depth]++;
             }
             if (temp > 35) {//>35度每一层的个数
@@ -308,13 +282,13 @@ angular.module('controllers', [])
             }
 
             var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-            // console.log('item', i, item);
+            console.log('item', i, item);
             allresult[chartdata[i].depth].push(item);
           }
-          $scope.airTemperature = temandhum[0];
-          $scope.airHumidity = temandhum[1];
-          $scope.barnTemperature = temandhum[2];
-          $scope.barnHumidity = temandhum[3];
+          $scope.barnTemperature = temandhum[0];
+          $scope.barnHumidity = temandhum[1];
+          $scope.airTemperature = temandhum[2];
+          $scope.airHumidity = temandhum[3];
           console.log('temandhum------', temandhum);
 
           var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
@@ -429,7 +403,7 @@ angular.module('controllers', [])
                 borderWidth: 1,
                 formatter: function (obj) {
                   var value = obj.value;
-                  if (value[2] == -999){ //如果无效点，data为-999
+                  if (value[2] == 999){ //如果无效点，data为-999
                     return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
                       + obj.seriesName
                       + '</div>'
@@ -567,11 +541,11 @@ angular.module('controllers', [])
                 itemWidth: 14,
                 itemHeight: 12, //itemHeight和itemWidth这两个是指小矩形的宽高
                 pieces: [
-                  { min:-273,max: 0, color: '#2B6894' },
+                  { max: 0, color: '#2B6894' },
                   { min: 0, max: 15, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
                   { min: 15, max: 30, color: '#FEEE50' },
-                  { min: 30, color: '#E43125' },
-                  {value: -999, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
+                  { min: 30, max:100,color: '#E43125' },
+                  { value:101, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
                   // 不指定 min，表示 min 为无限大（-Infinity）。
                 ],
                 textStyle: {
@@ -644,6 +618,7 @@ angular.module('controllers', [])
 
             //变化数据写这
             options: [
+
               //5m
               {
 
@@ -696,6 +671,17 @@ angular.module('controllers', [])
                 series: [
                   {
                     data: allresult['4']
+                  }
+                ]
+              },
+              {
+                // title: {
+                //     text: '20m深度处粮温'
+
+                // },
+                series: [
+                  {
+                    data: allresult['5']
                   }
                 ]
               }
@@ -755,7 +741,7 @@ angular.module('controllers', [])
                   fontWeight: 'lighter'
                 },
 
-              data: ['>35℃', '[35℃,30℃)', '[30℃,25℃)']
+              data: ['>35℃', '[35℃,25℃)', '[25℃,15℃)']
             },
             grid: {
               left: '3%',
@@ -803,38 +789,38 @@ angular.module('controllers', [])
                 type: 'bar',
                 stack: '总量',
                 barWidth: 30,
-                label: {
-                  normal: {
-                    show: true,
-                    position: 'insideRight'
-                  }
-                },
+                // label: {
+                //     normal: {
+                //         show: true,
+                //         position: 'insideRight'
+                //     }
+                // },
                 data: chart2datas["h"]
               },
               {
-                name: '[35℃,30℃)',
+                name: '[35℃,25℃)',
                 type: 'bar',
                 stack: '总量',
                 barWidth: 30,
-                label: {
-                  normal: {
-                    show: true,
-                    position: 'insideRight'
-                  }
-                },
+                // label: {
+                //     normal: {
+                //         show: true,
+                //         position: 'insideRight'
+                //     }
+                // },
                 data: chart2datas["m"]
               },
               {
-                name: '[30℃,25℃)',
+                name: '[25℃,15℃)',
                 type: 'bar',
                 stack: '总量',
                 barWidth: 30,
-                label: {
-                  normal: {
-                    show: true,
-                    position: 'insideRight'
-                  }
-                },
+                // label: {
+                //     normal: {
+                //         show: true,
+                //         position: 'insideRight'
+                //     }
+                // },
                 data: chart2datas["l"]
               }
             ]
@@ -1881,3 +1867,198 @@ angular.module('controllers', [])
         }
 
       }])
+    .controller('LineCtrl', ['$scope','$ionicPopover','$cordovaDatePicker','PopupService',
+    function ($scope,$ionicPopover,$cordovaDatePicker,PopupService) {
+
+      $scope.barns=["一号仓","二号仓","三号仓"];
+      $scope.startTime="请选择起始时间";
+      $scope.endTime="请选择终止时间";
+      $scope.barn="请选择仓号";
+      var oneDay=1000*3600*24;
+      $scope.date=(new Date()).getTime()-10*oneDay;
+      var data1=[];
+      var data2=[];
+      var data3=[];
+      var data4=[];
+      var data5=[];
+      var xData=[];
+      var option={};
+      var category=[];
+      var lineChart=echarts.init(document.getElementById("lineChart"));
+      var selectedBarn="";
+      var date1="";
+      var date2="";
+      var length=0;
+
+      $scope.popover = $ionicPopover.fromTemplateUrl('my-popover.html', {
+        scope: $scope
+      });
+      // .fromTemplateUrl() 方法
+      $ionicPopover.fromTemplateUrl('my-popover.html', {
+        scope: $scope
+      }).then(function(popover) {
+        $scope.popover = popover;
+      });
+      $scope.openPopover = function($event) {
+        $scope.popover.show($event);
+      };
+      $scope.closePopover = function() {
+        $scope.popover.hide();
+      };
+
+      $scope.selectBarn=function (i) {
+        $scope.closePopover();
+        $scope.barn=$scope.barns[i];
+        selectedBarn=$scope.barns[i];
+      };
+
+      function formatDate(date) {
+        return  date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+      }
+
+      var options = {
+        date: new Date(),
+        mode: 'date', // or 'time'
+        titleText: '请选择日期',
+        androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+      };
+      $scope.selectTime=function(flag){
+        $cordovaDatePicker.show(options).then(function(date){
+            var dateTime=formatDate(date);
+          //  alert(formatDate(new Date(date.getTime())));
+            if(flag==1){
+              $scope.startTime=dateTime;
+              $scope.date=date.getTime();
+              date1=date.getTime();
+            }
+            if(flag==2){
+              $scope.endTime=dateTime;
+              date2=date.getTime();
+            }
+            if(date1!="" && date2!="" && selectedBarn!=""){
+              if(date1<date2){
+                length=Math.round((date2-date1)/oneDay)+1;
+                lineChart.clear();
+                getData();
+                setMyOption();
+                lineChart.setOption(option);
+              }else{
+                PopupService.setContent("终止时间应该晚于起始时间");
+                PopupService.showAlert();
+              }
+            }
+        });
+      };
+
+
+      getData();
+      setMyOption();
+      lineChart.setOption(option);
+
+     function getData() {
+       data1=[];
+       data2=[];
+       data3=[];
+       data4=[];
+       data5=[];
+       xData=[];
+     //  var date=new Date()-1000*3600*24*20;
+       for(var i=0;i<length;i++){
+         var dataY=Math.round(Math.random() * 10);
+         var dataX=i*oneDay;
+         data1.push(dataY+25);
+         data2.push(dataY+22);
+         data3.push(dataY+19);
+         data4.push(dataY+16);
+         data5.push(dataY+27);
+         xData.push(formatDate(new Date(Math.round($scope.date+dataX))));
+       }
+       category=xData.map(function (str) {
+         return str.replace('2017-', '').replace('-','/');
+       });
+     }
+
+// 指定图表的配置项和数据
+      function setMyOption() {
+        option = {
+          backgroundColor:'#edf9f5',
+          title:{
+            text:'层均温变化图',
+            top:10
+          },
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            left:10,
+            top:40,
+            data:['一层','二层','三层','四层','五层']
+          },
+          grid: {
+            left:30,
+            top:100,
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            name:'时间',
+            nameLocation:'middle',
+            nameGap:30,
+            boundaryGap: false,
+            data: category
+          },
+          yAxis: {
+            type: 'value',
+            min:10,
+            name:'层均温',
+            nameLocation:'middle',
+            nameGap:30,
+            splitLine:{
+              lineStyle:{
+                color:'#aaa'
+              }
+            }
+          },
+          dataZoom: [
+            {
+              type: 'inside',
+              xAxisIndex: [0]
+            }
+          ],
+          series: [
+
+            {
+              name:'一层',
+              type:'line',
+              smooth: true,
+              data:data1
+            },
+            {
+              name:'二层',
+              type:'line',
+              smooth: true,
+              data:data2
+            },
+            {
+              name:'三层',
+              type:'line',
+              smooth: true,
+              data:data3
+            },
+            {
+              name:'四层',
+              type:'line',
+              smooth: true,
+              data:data4
+            },
+            {
+              name:'五层',
+              type:'line',
+              smooth: true,
+              data:data5
+            }
+          ]
+        };
+      }
+
+    }])

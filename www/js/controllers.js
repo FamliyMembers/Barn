@@ -167,6 +167,7 @@ angular.module('controllers', [])
       $scope.title = $stateParams.title;
 
       LoadingService.show();
+      document.getElementById('third').style.display = "none";
 
       $scope.doRefresh = function () {
         $scope.items = [];
@@ -191,12 +192,36 @@ angular.module('controllers', [])
           console.log('success', response);
         })
       }
+      $scope.listFunc = function () {
+        var id = $stateParams.id;
+        console.log('id----', id);
+        var url = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
+        $http.get(url).success(function (response) {
+          var datas = response[0].list;
+          $scope.deviceId = response[0].deviceId;
+          $scope.barnAverage = response[0].barnAverage;
+          $scope.maxBarnValue = response[0].maxBarnValue;
+          $scope.minBarnValue = response[0].minBarnValue;
+
+          console.log('response[0].list', datas);
+          $scope.records = datas;
+          // $scope.layers = [];
+          // for(var i=0;i<datas.length;i++){
+          //   $scope.layers.push(i +1);
+          // }
+          // console.log('layers', $scope.layers);
+          console.log('getSummaryData---success', response);
+        })
+
+
+      }
 
       //试验button的切换页面的功能
       $scope.doChangeEcharts = function () {
         if (value == 1) {
 
           document.getElementById('second').style.display = "none";
+          document.getElementById('third').style.display = "none";
           document.getElementById('first').style.display = "block";
           $scope.label = "粮温数据";
           value = value - 1;
@@ -205,6 +230,7 @@ angular.module('controllers', [])
         else {
           value = value + 1;
           document.getElementById('second').style.display = "block";
+          document.getElementById('third').style.display = "block";
           document.getElementById('first').style.display = "none";
           $scope.label = "异常数据汇总";
           console.log('hello，else被调用，此时的value值已经改变，变成了', value);
@@ -239,7 +265,12 @@ angular.module('controllers', [])
           4: 0,
           5: 0
         }
+        for (var i = 0; i < 6; i++) {
+
+        }
         var allresult = {//allresult是图标1的数据，1为5m，2为10m,3-15,4-20,5-25以此类推
+
+
           0: [],
           1: [],
           2: [],
@@ -247,7 +278,7 @@ angular.module('controllers', [])
           4: [],
           5: []   //可以设置一个五维数组，第一个为层数，其他的为x,y,data，depth
         };
-        console.log(chartdata.slice(chartdata.length - 4))
+        // console.log(chartdata.slice(chartdata.length - 4))
         for (var i = 0; i < chartdata.length; i++) {
 
           //更新时间在这儿
@@ -282,7 +313,7 @@ angular.module('controllers', [])
           }
 
           var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-          console.log('item', i, item);
+          // console.log('item', i, item);
           allresult[chartdata[i].depth].push(item);
         }
         $scope.barnTemperature = barnTemandhum[0];
@@ -290,7 +321,7 @@ angular.module('controllers', [])
         $scope.airTemperature = airTemandhum[0];
         $scope.airHumidity = airTemandhum[1];
         console.log('temandhum------', airTemandhum, barnTemandhum);
-
+        console.log('allresult', allresult);
         var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
           l: [],//25-30
           m: [],//30-35
@@ -735,7 +766,7 @@ angular.module('controllers', [])
           ],
           legend: {
 
-            bottom: 0,
+            top: '90%',
             right: 0,
             textStyle:
             {
@@ -749,6 +780,8 @@ angular.module('controllers', [])
             left: '3%',
             right: '4%',
             bottom: '10%',
+            width: '90%',
+            height: '85%',         //这个位置是修改里面的图标的大小的
             top: 10,
             containLabel: true
           },
@@ -849,13 +882,13 @@ angular.module('controllers', [])
         cancelButtonColor: '#000000'
       };
 
-       $scope.selectTime = function () {
+      $scope.selectTime = function () {
 
         $cordovaDatePicker.show(options).then(function (date) {
           alert(date);
         });
-       }
-      
+      }
+
 
     }
 

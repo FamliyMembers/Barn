@@ -1,0 +1,39 @@
+<ion-view hide-back-button="false">
+  <ion-nav-title>温度报表</ion-nav-title>
+  <ion-content id="line">
+    <div>
+      <label>
+       <span style="color: #108678">仓号：</span>
+        <input type="button" value={{barn}}
+               style="background-color: transparent;padding: 3px 5px"
+               ng-click="openPopover($event)">
+      </label>
+    </div>
+    <div>
+      <label>
+        <span>起始时间：</span>
+        <input type="button" value={{startTime}}
+               style="background-color: transparent;padding: 3px 10px"
+               ng-click="selectTime(1)"/>
+      </label>
+    </div>
+    <div>
+      <label>
+        <span>终止时间：</span>
+        <input type="button" value={{endTime}}
+               style="background-color: transparent;padding: 3px 10px"
+               ng-click="selectTime(2)"/>
+      </label>
+    </div>
+    <div id="lineChart" style="width: 90%;height: 300px"></div>
+    <script id="my-popover.html" type="text/ng-template">
+      <ion-popover-view style="margin-top: 5px;margin-left: 15px">
+        <ion-content>
+          <ion-list>
+            <ion-item ng-repeat="item in barns" ng-click="selectBarn($index)">{{item}}</ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-popover-view>
+    </script>
+  </ion-content>
+</ion-view>

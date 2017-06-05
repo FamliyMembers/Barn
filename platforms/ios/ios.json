@@ -17,6 +17,10 @@
                             "count": 1
                         },
                         {
+                            "xml": "<feature name=\"DatePicker\"><param name=\"ios-package\" value=\"DatePicker\" /></feature>",
+                            "count": 1
+                        },
+                        {
                             "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
                             "count": 1
                         },
@@ -50,6 +54,9 @@
             "PACKAGE_NAME": "com.ionicframework.barn788889"
         },
         "cordova-plugin-console": {
+            "PACKAGE_NAME": "com.ionicframework.barn788889"
+        },
+        "cordova-plugin-datepicker": {
             "PACKAGE_NAME": "com.ionicframework.barn788889"
         },
         "cordova-plugin-device": {
@@ -95,6 +102,14 @@
             ]
         },
         {
+            "id": "cordova-plugin-datepicker.DatePicker",
+            "file": "plugins/cordova-plugin-datepicker/www/ios/DatePicker.js",
+            "pluginId": "cordova-plugin-datepicker",
+            "clobbers": [
+                "datePicker"
+            ]
+        },
+        {
             "id": "cordova-plugin-device.device",
             "file": "plugins/cordova-plugin-device/www/device.js",
             "pluginId": "cordova-plugin-device",
@@ -131,6 +146,7 @@
     "plugin_metadata": {
         "cordova-plugin-app-version": "0.1.9",
         "cordova-plugin-console": "1.0.5",
+        "cordova-plugin-datepicker": "0.9.3",
         "cordova-plugin-device": "1.1.4",
         "cordova-plugin-splashscreen": "4.0.3",
         "cordova-plugin-statusbar": "2.2.1",

@@ -324,3 +324,15 @@ ul.home-depository-nav li{
     height: 60px;
 }
 
+#line div{
+  margin-top: 20px;
+  margin-left: 10px;
+}
+#line input{
+  display: inline;
+  border: 1px solid #108678;
+}
+#line span{
+  color: #108678;
+  font-size: 16px;
+}

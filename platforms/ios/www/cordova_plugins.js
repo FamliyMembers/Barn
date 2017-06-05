@@ -25,6 +25,14 @@ module.exports = [
         ]
     },
     {
+        "id": "cordova-plugin-datepicker.DatePicker",
+        "file": "plugins/cordova-plugin-datepicker/www/ios/DatePicker.js",
+        "pluginId": "cordova-plugin-datepicker",
+        "clobbers": [
+            "datePicker"
+        ]
+    },
+    {
         "id": "cordova-plugin-device.device",
         "file": "plugins/cordova-plugin-device/www/device.js",
         "pluginId": "cordova-plugin-device",
@@ -63,6 +71,7 @@ module.exports.metadata =
 {
     "cordova-plugin-app-version": "0.1.9",
     "cordova-plugin-console": "1.0.5",
+    "cordova-plugin-datepicker": "0.9.3",
     "cordova-plugin-device": "1.1.4",
     "cordova-plugin-splashscreen": "4.0.3",
     "cordova-plugin-statusbar": "2.2.1",

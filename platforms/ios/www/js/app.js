@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic','controllers','directives','services','ngCordova'])
 
-    .run(function($ionicPlatform,$location,$ionicHistory,$ionicPopup,$rootScope,$timeout,$state,$cordovaAppVersion,$cordovaBadge,$cordovaNetwork,$cordovaToast) {
+    .run(function($ionicPlatform,$location,$ionicHistory,$ionicPopup,$rootScope,$timeout,$state,$cordovaAppVersion,$cordovaNetwork,$cordovaToast) {
         $ionicPlatform.ready(function () {
 
             if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -31,19 +31,6 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
             $cordovaAppVersion.getVersionNumber().then(function(version) {
                 localStorage.appVersion=version;
             });
-            /*document.addEventListener('deviceready', function () {
-                $cordovaBadge.set(3).then(function() {
-                    // 有权限, 已设置.
-                }, function(err) {
-                    // 无权限
-                });
-                $cordovaBadge.get().then(function(badge) {
-                    alert(badge);
-                }, function(err) {
-                    // 无权限
-                });
-
-            }, false);*/
             window.plugins.jPushPlugin.init();
             window.plugins.jPushPlugin.openNotificationInAndroidCallback=function(data){
                 /* alert(data.title);
@@ -99,9 +86,7 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 localStorage.alarmId=alarmId;
                 localStorage.receiveType=1;
                 $state.go("tabs.confirmwarn",{detail:detail,alarmId:alarmId,type:1});*/
-
                 $state.go("tabs.warn",{},{reload:true});
-
 
             };
             window.plugins.jPushPlugin.setDebugMode(true);
@@ -246,6 +231,15 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                     }
                 }
             })
+            .state('tabs.line', {
+              url: "/line",
+              views: {
+                'table-tab': {
+                  templateUrl: "templates/table-line.html",
+                  controller: "LineCtrl"
+                }
+              }
+            })
             .state('tabs.risk', {
                 url: "/risk",
                 views: {
@@ -314,6 +308,24 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 'person-tab': {
                   templateUrl: "templates/person-update.html",
                   controller: "UpdateCtrl"
+                }
+              }
+            })
+            .state('tabs.test', {
+              url: "/test",
+              views: {
+                'person-tab': {
+                  templateUrl: "templates/person-test.html",
+                  controller: "TestCtrl"
+                }
+              }
+            })
+             .state('tabs.search-history', {
+              url: "/search-history",
+              views: {
+                'table-tab': {
+                  templateUrl: "templates/search-history.html",
+                  controller: "searchHistoryCtrl"
                 }
               }
             })

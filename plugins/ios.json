@@ -13,6 +13,9 @@
         "cordova-plugin-console": {
             "PACKAGE_NAME": "com.ionicframework.barn788889"
         },
+        "cordova-plugin-datepicker": {
+            "PACKAGE_NAME": "com.ionicframework.barn788889"
+        },
         "cordova-plugin-device": {
             "PACKAGE_NAME": "com.ionicframework.barn788889"
         },

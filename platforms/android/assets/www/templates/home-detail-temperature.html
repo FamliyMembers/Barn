@@ -1,7 +1,7 @@
 <ion-view style="background:white" cache-view="false">
   <ion-nav-title>{{title}}</ion-nav-title>
   <ion-content ng-controller="getEchartsData" overflow-scroll="true" style="overflow:hidden;">
-    <ion-refresher pulling-text="下拉刷新" on-refresh="doRefresh()"></ion-refresher>
+    <ion-refresher pulling-text="下拉刷新" spinner="bubbles" on-refresh="doRefresh()"></ion-refresher>
 
     <ion-slide-box active-slide="myActiveSlide"  on-slide-changed="slideHasChanged(index)"  does-continue="true" auto-play="true"  show-pager="true"  style="height:10%;border-right:1px solid #D6D7D8;">
       <ion-slide  >

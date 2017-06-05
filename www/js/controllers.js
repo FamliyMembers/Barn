@@ -57,7 +57,7 @@ angular.module('controllers', [])
                         var myNews=0;
                         $rootScope.total=resp.data.length;
                         for(i=0;i<resp.data.length;i++){
-                            if(resp.data[i].status=="false"){
+                            if(resp.data[i].status=="true"){
                                 myNews++;
                             }
 
@@ -91,11 +91,11 @@ angular.module('controllers', [])
                     PopupService.setContent("用户名或密码不能为空");
                     PopupService.showAlert();
                     return;
-                }else if(isNaN(parseInt($scope.name))){
+                }/*else if(isNaN(parseInt($scope.name))){
                     PopupService.setContent("用户名必须为数字");
                     PopupService.showAlert();
                     return;
-                }
+                }*/
                 LoadingService.show();
 
                 $http.get('https://123.56.27.166:8443/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
@@ -114,7 +114,6 @@ angular.module('controllers', [])
                           //  document.getElementById("loginLoading").style.display="none";
                           //  document.getElementById("login").style.display="block";
                             LoadingService.hide();
-                           // alert("用户名或密码错误");
                             PopupService.setContent("用户名或密码错误");
                             PopupService.showAlert();
                         }
@@ -161,13 +160,13 @@ angular.module('controllers', [])
 
         }])
 
-    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams','LoadingService',
-
+    .controller('TemperatureCtrl', ['$scope', '$location', '$http', '$stateParams', 'LoadingService',
       function ($scope, $location, $http, $stateParams, LoadingService) {
 
         $scope.title = $stateParams.title;
 
         LoadingService.show();
+        document.getElementById('third').style.display = "none";
 
         $scope.doRefresh = function () {
           $scope.items = [];
@@ -183,8 +182,8 @@ angular.module('controllers', [])
 
           var id = $stateParams.id;
           console.log('id----', id);
-          var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID="+id;
-          //var url = './js/yu.json';
+          var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=" + id;
+          //var url = './js/test.json';
           $http.get(url).success(function (response) {
             LoadingService.hide();
             $scope.datas = response;
@@ -192,12 +191,36 @@ angular.module('controllers', [])
             console.log('success', response);
           })
         }
+        $scope.listFunc = function () {
+          var id = $stateParams.id;
+          console.log('id----', id);
+          var url = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
+          $http.get(url).success(function (response) {
+            var datas = response[0].list;
+            $scope.deviceId = response[0].deviceId;
+            $scope.barnAverage = response[0].barnAverage;
+            $scope.maxBarnValue = response[0].maxBarnValue;
+            $scope.minBarnValue = response[0].minBarnValue;
+
+            console.log('response[0].list', datas);
+            $scope.records = datas;
+            // $scope.layers = [];
+            // for(var i=0;i<datas.length;i++){
+            //   $scope.layers.push(i +1);
+            // }
+            // console.log('layers', $scope.layers);
+            console.log('getSummaryData---success', response);
+          })
+
+
+        }
 
         //试验button的切换页面的功能
         $scope.doChangeEcharts = function () {
           if (value == 1) {
 
             document.getElementById('second').style.display = "none";
+            document.getElementById('third').style.display = "none";
             document.getElementById('first').style.display = "block";
             $scope.label = "粮温数据";
             value = value - 1;
@@ -206,6 +229,7 @@ angular.module('controllers', [])
           else {
             value = value + 1;
             document.getElementById('second').style.display = "block";
+            document.getElementById('third').style.display = "block";
             document.getElementById('first').style.display = "none";
             $scope.label = "异常数据汇总";
             console.log('hello，else被调用，此时的value值已经改变，变成了', value);
@@ -214,7 +238,8 @@ angular.module('controllers', [])
         //drawChart函数功能部分
         function drawChart(chartdata) {
 
-          var temandhum = []; //装载温度和湿度的数据，BNID=30的四个
+          var airTemandhum = [];
+          var barnTemandhum = [];
           var statistic25 = {//所有25度在每一层的个数
 
             1: 0,
@@ -239,7 +264,12 @@ angular.module('controllers', [])
             4: 0,
             5: 0
           }
+          for (var i = 0; i < 6; i++) {
+
+          }
           var allresult = {//allresult是图标1的数据，1为5m，2为10m,3-15,4-20,5-25以此类推
+
+
             0: [],
             1: [],
             2: [],
@@ -247,25 +277,21 @@ angular.module('controllers', [])
             4: [],
             5: []   //可以设置一个五维数组，第一个为层数，其他的为x,y,data，depth
           };
+          // console.log(chartdata.slice(chartdata.length - 4))
           for (var i = 0; i < chartdata.length; i++) {
-
-            //tem为一个临时变量，存储名为data的object，如果此object为undefined，则不予显示，非空则赋值给temp
-            // var tem = chartdata[i].data[0];
-            // console.log('tem', tem);
 
             //更新时间在这儿
             $scope.dateNow = chartdata[0].timestamp;
 
             var temp = chartdata[i].data;
-            console.log('-----!----类型是', chartdata[i].data);
-            console.log('-----1----typeof', typeof (temp));
-            if(temp === null||temp === undefined ){  //data字段就没有了，为undefined
+
+            if (temp === null || temp === undefined) {  //data字段就没有了，为undefined
               temp = 101;
             }
-            else{
+            else {
               temp = parseFloat(temp);
             }
-            console.log('-----2-----typeof', typeof (temp));
+
 
             if (temp > 15 && temp <= 25) {//25-30度每一层的个数
               statistic25[chartdata[i].depth]++;
@@ -277,20 +303,24 @@ angular.module('controllers', [])
               statistic35[chartdata[i].depth]++;
             }
 
-            if (chartdata[i].BNID == 30) {
-              temandhum.push(chartdata[i].data);
+            if (chartdata[i].deviceId == 1) {
+              airTemandhum.push(chartdata[i].data);
+            }
+
+            if (chartdata[i].type == 10 || chartdata[i].type == 11) {
+              barnTemandhum.push(chartdata[i].data);
             }
 
             var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-            console.log('item', i, item);
+            // console.log('item', i, item);
             allresult[chartdata[i].depth].push(item);
           }
-          $scope.barnTemperature = temandhum[0];
-          $scope.barnHumidity = temandhum[1];
-          $scope.airTemperature = temandhum[2];
-          $scope.airHumidity = temandhum[3];
-          console.log('temandhum------', temandhum);
-
+          $scope.barnTemperature = barnTemandhum[0];
+          $scope.barnHumidity = barnTemandhum[1];
+          $scope.airTemperature = airTemandhum[0];
+          $scope.airHumidity = airTemandhum[1];
+          console.log('temandhum------', airTemandhum, barnTemandhum);
+          console.log('allresult', allresult);
           var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
             l: [],//25-30
             m: [],//30-35
@@ -403,7 +433,7 @@ angular.module('controllers', [])
                 borderWidth: 1,
                 formatter: function (obj) {
                   var value = obj.value;
-                  if (value[2] == 999){ //如果无效点，data为-999
+                  if (value[2] == 999) { //如果无效点，data为-999
                     return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
                       + obj.seriesName
                       + '</div>'
@@ -544,8 +574,8 @@ angular.module('controllers', [])
                   { max: 0, color: '#2B6894' },
                   { min: 0, max: 15, color: '#84CBF0' }, // 不指定 max，表示 max 为无限大（Infinity）。
                   { min: 15, max: 30, color: '#FEEE50' },
-                  { min: 30, max:100,color: '#E43125' },
-                  { value:101, label: '无效点', color: 'grey'}// 表示 value 等于 123 的情况。
+                  { min: 30, max: 100, color: '#E43125' },
+                  { value: 101, label: '无效点', color: 'grey' }// 表示 value 等于 123 的情况。
                   // 不指定 min，表示 min 为无限大（-Infinity）。
                 ],
                 textStyle: {
@@ -556,7 +586,7 @@ angular.module('controllers', [])
               xAxis: {
                 name: '西向',
                 nameGap: 5,
-                inverse:true,
+                inverse: true,
 
                 nameTextStyle: {
                   color: '#6B6F72',
@@ -577,7 +607,7 @@ angular.module('controllers', [])
               yAxis: [{
                 name: '北向',
                 type: 'value',
-                position:'right',
+                position: 'right',
                 nameLocation: 'end',
                 nameGap: 5,
                 // nameRotate: 90,
@@ -603,8 +633,10 @@ angular.module('controllers', [])
                   xAxisIndex: 0,
                   yAxisIndex: 0,
                   itemStyle: itemStyle,
-                  symbolSize: function (value) {
-                    if (value[2] > 30)
+                  symbolSize: function (value) {  //修改点的大小的
+                    if (value[2] == 101)
+                    { return Math.round(10); }
+                    else if (value[2] > 30)
                     { return Math.round(30); }
                     else if (value[2] < 20)
                     { return Math.round(10); }
@@ -733,7 +765,7 @@ angular.module('controllers', [])
             ],
             legend: {
 
-              bottom: 0,
+              top: '90%',
               right: 0,
               textStyle:
                 {
@@ -747,6 +779,8 @@ angular.module('controllers', [])
               left: '3%',
               right: '4%',
               bottom: '10%',
+              width: '90%',
+              height: '85%',         //这个位置是修改里面的图标的大小的
               top: 10,
               containLabel: true
             },
@@ -916,51 +950,61 @@ angular.module('controllers', [])
               .then(function(resp){
                 //  document.getElementById("loading").style.display="none";
                 $scope.items=[];
-                if(resp.data[0].state==1){
-                  // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                if(resp.data.length==0){
                   $scope.loadFailedText="已没有更多数据";
-                }else {
-                  var storageId=resp.data[0].storage_id;
-                  $scope.loadFailedText="";
-                  for (i = 0; i < resp.data.length; i++) {
-                    var depotName, num, type,description;
-                    depotName = resp.data[i].id + "号仓";
-                    num = resp.data[i].id;
-                    description = resp.data[i].description;
-                    if (resp.data[i].type == 0) {
-                      type = "circle";
-                    }
-                    if (resp.data[i].type == 1) {
-                      type = "square";
-                    }
-                    if(resp.data.length%2==0){
-                      if(i==resp.data.length-2 || i==resp.data.length-1){
-                        $scope.borderBottom.push("transparent");
-                      }else{
-                        $scope.borderBottom.push("1px solid #bcbcbc");
-                      }
-                    }else{
-                      if(i==resp.data.length-1){
-                        $scope.borderBottom.push("transparent");
-                      }else{
-                        $scope.borderBottom.push("1px solid #bcbcbc");
-                      }
-                    }
-
-                    $scope.items.push({depotName: depotName, num: num, type: type,description:description});
-                    if (type == "circle") {
-                      $scope.depotType.push("img/icon-circle-depot.png");
-                    }
-                    if (type == "square") {
-                      $scope.depotType.push("img/icon-square-depot.png");
-                    }
-                    $scope.size[i] = resp.data[i].size.split("/");
-                    $scope.long[i] = $scope.size[i][0];
-                    $scope.width[i] = $scope.size[i][1];
-                    $scope.height[i] = 5;
+                }else{
+                  if(resp.data[0].state==1){
+                    // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                    $scope.loadFailedText="已没有更多数据";
                   }
-                  getIntro(storageId);
+                  else {
+                    var storageId=resp.data[0].storage_id;
+                    $scope.loadFailedText="";
+                    for (i = 0; i < resp.data.length; i++) {
+                      var depotName, num, type,description;
+                      depotName = resp.data[i].id + "号仓";
+                      num = resp.data[i].id;
+                      description = resp.data[i].description;
+                      if (resp.data[i].type == 0) {
+                        type = "circle";
+                      }
+                      if (resp.data[i].type == 1) {
+                        type = "square";
+                      }
+                      if(resp.data.length%2==0){
+                        if(i==resp.data.length-2 || i==resp.data.length-1){
+                          $scope.borderBottom.push("transparent");
+                        }else{
+                          $scope.borderBottom.push("1px solid #bcbcbc");
+                        }
+                      }else{
+                        if(i==resp.data.length-1){
+                          $scope.borderBottom.push("transparent");
+                        }else{
+                          $scope.borderBottom.push("1px solid #bcbcbc");
+                        }
+                      }
 
+                      $scope.items.push({depotName: depotName, num: num, type: type,description:description});
+                      if (type == "circle") {
+                        $scope.depotType.push("img/icon-circle-depot.png");
+                      }
+                      if (type == "square") {
+                        $scope.depotType.push("img/icon-square-depot.png");
+                      }
+                      $scope.size[i] = resp.data[i].size.split("/");
+                      $scope.long[i] = $scope.size[i][0];
+                      $scope.width[i] = $scope.size[i][1];
+                      if($scope.size[i].length<=2){
+                        $scope.height[i] = 5;
+                      }else{
+                        $scope.height[i] = $scope.size[i][2];
+                      }
+
+                    }
+                    getIntro(storageId);
+
+                  }
                 }
 
               },function(error){
@@ -1211,12 +1255,6 @@ angular.module('controllers', [])
               $scope.display="none";
             }
             var userId=localStorage.getItem("userId");
-           /* PopupService.setContent("领取失败");
-            var myTap=function () {
-              alert("点击事件发生了");
-            };
-            PopupService.showPopup(myTap); */
-
             $scope.items=[];
             $scope.itemClass1=[];
             $scope.itemClass2=[];
@@ -1301,59 +1339,61 @@ angular.module('controllers', [])
                 //  document.getElementById("warn").style.display="block";
                 LoadingService.hide();
                 $scope.items=[];
-                if(resp.data[0].state==1){
-                  // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                if(resp.data.length==0){
                   $scope.loadFailedText="当前数据库中没有任何告警信息"
                 }else{
-                  $scope.loadFailedText="";
-                  var news=0;
-                  var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
-                  for(i=0;i<resp.data.length;i++){
+                  if(resp.data[0].state==1){
+                    // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                    $scope.loadFailedText="当前数据库中没有任何告警信息"
+                  }else{
+                    $scope.loadFailedText="";
+                    var news=0;
+                    var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
+                    for(i=0;i<resp.data.length;i++){
 
-                    title=resp.data[i].BNID+"号仓报警";
-                    detail=resp.data[i].BNID+"号仓库"+resp.data[i].alarm_msg;
-                    date=resp.data[i].create_time.split(" ")[0];
-                    alarmId=resp.data[i].id;
-                    confirmId=resp.data[i].confirm_UID;
-                    if(resp.data[i].create_time.split(" ")[1].split(":")[0]>12){
-                      duration="pm";
-                    }else{
-                      duration="am";
-                    }
-                    time=resp.data[i].create_time.split(" ")[1].split(".")[0]+" "+duration;
-                    if(resp.data[i].status=="false"){
-                      flag=0;
-                      itemClass1="";
-                      itemClass2="item warn-right-item";
-                      news++
-                    }else{
-                      flag=1;
-                      itemClass1="lightgray-bg";
-                      itemClass2="item warn-right-item lightgray-bg";
-                    }
-                    $scope.items.push({date:date, time:time,title:title,detail:detail,
-                      flag:flag,alarmId:alarmId,confirmId:confirmId,
-                      itemClass1:itemClass1,itemClass2:itemClass2});
+                      title=resp.data[i].BNID+"号仓报警";
+                      detail=resp.data[i].BNID+"号仓库"+resp.data[i].alarm_msg;
+                      date=resp.data[i].create_time.split(" ")[0];
+                      alarmId=resp.data[i].id;
+                      confirmId=resp.data[i].confirm_UID;
+                      if(resp.data[i].create_time.split(" ")[1].split(":")[0]>12){
+                        duration="pm";
+                      }else{
+                        duration="am";
+                      }
+                      time=resp.data[i].create_time.split(" ")[1].split(".")[0]+" "+duration;
+                      if(resp.data[i].status=="true"){
+                        flag=0;
+                        itemClass1="";
+                        itemClass2="item warn-right-item";
+                        news++
+                      }else{
+                        flag=1;
+                        itemClass1="lightgray-bg";
+                        itemClass2="item warn-right-item lightgray-bg";
+                      }
+                      $scope.items.push({date:date, time:time,title:title,detail:detail,
+                        flag:flag,alarmId:alarmId,confirmId:confirmId,
+                        itemClass1:itemClass1,itemClass2:itemClass2});
 
+                    }
+                    $rootScope.badges.news=news;
+                    if($rootScope.badges.news>99){
+                      $rootScope.badges.news="99+"
+                    }
+                    /*$scope.items.sort(function(a,b){
+                     return a.flag-b.flag});
+                     for(i=0;i<$scope.items.length;i++){
+                     if ($scope.items[i].flag == 0) {
+                     $scope.itemClass1.push("");
+                     $scope.itemClass2.push("item warn-right-item");
+                     } else {
+                     $scope.itemClass1.push("lightgray-bg");
+                     $scope.itemClass2.push("item warn-right-item lightgray-bg");
+                     }
+                     } */
                   }
-                  $rootScope.badges.news=news;
-                  if($rootScope.badges.news>99){
-                    $rootScope.badges.news="99+"
-                  }
-                  /*$scope.items.sort(function(a,b){
-                   return a.flag-b.flag});
-                   for(i=0;i<$scope.items.length;i++){
-                   if ($scope.items[i].flag == 0) {
-                   $scope.itemClass1.push("");
-                   $scope.itemClass2.push("item warn-right-item");
-                   } else {
-                   $scope.itemClass1.push("lightgray-bg");
-                   $scope.itemClass2.push("item warn-right-item lightgray-bg");
-                   }
-                   } */
                 }
-
-
               },function(error){
                 LoadingService.hide();
                 PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新页面");
@@ -1467,7 +1507,7 @@ angular.module('controllers', [])
             $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByAlarmSumId?alarmSumId='+$scope.alarmId)
               .then(function(resp){
                 var flag;
-                if(resp.data[0].status=="false"){
+                if(resp.data[0].status=="true"){
                   flag=0;
                 }else{
                   flag=1;
@@ -1861,7 +1901,6 @@ angular.module('controllers', [])
 
           $cordovaDatePicker.show(options1).then(function(date1){
             $cordovaDatePicker.show(options2).then(function(date2){
-              alert(date1+date2);
             });
           });
         }

@@ -230,10 +230,10 @@
             <th>层最低温</th>
           </tr>
           <tr class="table-barn-border" ng-repeat="x in records">
-            <td class="table-barn-border">1</td>
-            <td class="table-barn-border">{{ x.levelAverage.toFixed(2) }}</td>
-            <td class="table-barn-border">{{ x.maxLevelValue }}</td>
-            <td class="table-barn-border">{{ x.minLevelValue }}</td>
+            <td class="table-barn-border">{{ x[0] }}</td>
+            <td class="table-barn-border">{{ x[1].toFixed(2) }}</td>
+            <td class="table-barn-border">{{ x[2] }}</td>
+            <td class="table-barn-border">{{ x[3] }}</td>
           </tr>
 
 

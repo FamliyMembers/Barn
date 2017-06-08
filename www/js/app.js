@@ -205,7 +205,7 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 }
             })
             .state('tabs.detail', {
-                url: "/detail/:number:long:width:height:description",
+                url: "/detail/:title:number:long:width:height:description",
                 views: {
                     'home-tab': {
                         templateUrl: "templates/home-depository-detail.html",

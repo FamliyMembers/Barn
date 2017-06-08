@@ -325,7 +325,7 @@ ul.home-depository-nav li{
 }
 
 #line div{
-  margin-top: 20px;
+  margin-top: 15px;
   margin-left: 10px;
 }
 .select{
@@ -333,15 +333,18 @@ ul.home-depository-nav li{
   padding: 5px 10px;
   display: inline;
 }
+.not-select{
+  border: 1px solid grey;
+  padding: 5px 10px;
+  display: inline;
+  color: grey;
+  font-size: 16px;
+}
 #line input{
   display: inline;
   border:transparent;
   background-color: transparent;
   padding: 3px 5px;
-}
-#line span{
-  color: #108678;
-  font-size: 16px;
 }
 .table-barn-border {
 

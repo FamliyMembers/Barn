@@ -98,12 +98,12 @@ angular.module('controllers', [])
                 }*/
                 LoadingService.show();
 
-                $http.get('https://123.56.27.166:8443/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
+                $http.get('http://123.56.27.166:8080/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
                     .then(function(resp){
                         if(resp.data.state==1){
                             localStorage.userId=$scope.name;
                             LoginService.set();
-                            window.plugins.jPushPlugin.setAlias($scope.name);
+                         //   window.plugins.jPushPlugin.setAlias($scope.name);
                             if(document.getElementById("remember").checked==true){
                                 localStorage.password=$scope.password;
                             }else{
@@ -895,10 +895,15 @@ angular.module('controllers', [])
                     $scope.loadFailedText="";
                     for (i = 0; i < resp.data.length; i++) {
                       var depotName, num, type,description;
-                      depotName = resp.data[i].id + "号仓";
+                      if(parseInt(resp.data[i].description.slice(0,1))){
+                        depotName = resp.data[i].description.slice(0,2) + "仓";
+                        description = resp.data[i].description.slice(2);
+                      }else{
+                        depotName = resp.data[i].description.slice(0,1) + "仓";
+                        description = resp.data[i].description.slice(1);
+                      }
                       num = resp.data[i].id;
-                      description = resp.data[i].description;
-                      if (resp.data[i].type == 0) {
+                      if (resp.data[i].type == 2) {
                         type = "circle";
                       }
                       if (resp.data[i].type == 1) {
@@ -970,7 +975,7 @@ angular.module('controllers', [])
             $scope.click = function(num,description,i){
 
                 $state.go('tabs.detail',
-                    {number:num,long:$scope.long[i],width:$scope.width[i],height:$scope.height[i],description:description});
+                    {title:$scope.items[i].depotName,number:num,long:$scope.long[i],width:$scope.width[i],height:$scope.height[i],description:description});
             };
 
             $scope.doRefresh = function() {
@@ -990,7 +995,7 @@ angular.module('controllers', [])
             $scope.long = $stateParams.long;
             $scope.width = $stateParams.width;
             $scope.height = $stateParams.height;
-            $scope.table.title = number+ "号仓";
+            $scope.table.title = $stateParams.title;
             $scope.noMore = false;
             $scope.loadText = "继续拖动，查看小仓库";
             $scope.items = [];
@@ -1193,77 +1198,6 @@ angular.module('controllers', [])
             $scope.itemClass2=[];
             $scope.loadFailedText="";
             LoadingService.show();
-           /* $scope.enter=function(){
-                LoadingService.show();
-                $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmByUID?UID='+userId,{cache:false})
-                    .then(function(resp){
-                        //  document.getElementById("warnLoading").style.display="none";
-                        //  document.getElementById("warn").style.display="block";
-                        LoadingService.hide();
-                        $scope.items=[];
-                      if(resp.data[0].state==1){
-                        // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
-                        $scope.loadFailedText="当前数据库中没有任何告警信息"
-                      }else{
-                        $scope.loadFailedText="";
-                        var news=0;
-                        var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
-                        for(i=0;i<resp.data.length;i++){
-
-                          title=resp.data[i].BNID+"号仓报警";
-                          detail=resp.data[i].BNID+"号"+resp.data[i].alarm_name;
-                          date=resp.data[i].time.split(" ")[0];
-                          alarmId=resp.data[i].id;
-                          confirmId=resp.data[i].confirm_UID;
-                          if(resp.data[i].time.split(" ")[1].split(":")[0]>12){
-                            duration="pm";
-                          }else{
-                            duration="am";
-                          }
-                          time=resp.data[i].time.split(" ")[1].split(".")[0]+" "+duration;
-                          if(resp.data[i].status=="true"){
-                            flag=0;
-                            itemClass1="";
-                            itemClass2="item warn-right-item";
-                            news++
-                          }else{
-                            flag=1;
-                            itemClass1="lightgray-bg";
-                            itemClass2="item warn-right-item lightgray-bg";
-                          }
-                          $scope.items.push({date:date, time:time,title:title,detail:detail,
-                            flag:flag,alarmId:alarmId,confirmId:confirmId,
-                            itemClass1:itemClass1,itemClass2:itemClass2});
-
-                        }
-                        $rootScope.badges.news=news;
-                        if($rootScope.badges.news>99){
-                          $rootScope.badges.news="99+"
-                        }
-                        /!*$scope.items.sort(function(a,b){
-                         return a.flag-b.flag});
-                         for(i=0;i<$scope.items.length;i++){
-                         if ($scope.items[i].flag == 0) {
-                         $scope.itemClass1.push("");
-                         $scope.itemClass2.push("item warn-right-item");
-                         } else {
-                         $scope.itemClass1.push("lightgray-bg");
-                         $scope.itemClass2.push("item warn-right-item lightgray-bg");
-                         }
-                         } *!/
-                      }
-
-
-                    },function(error){
-                        LoadingService.hide();
-                        PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新页面");
-                        PopupService.showAlert();
-                        if($scope.items.length==0){
-                            $scope.loadFailedText="数据加载失败";
-                        }
-
-                    });
-            };*/
           $scope.enter=function(){
             LoadingService.show();
             $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId,{cache:false})
@@ -1839,103 +1773,191 @@ angular.module('controllers', [])
         }
 
       }])
-    .controller('LineCtrl', ['$scope','$ionicPopover','$cordovaDatePicker','PopupService',
-    function ($scope,$ionicPopover,$cordovaDatePicker,PopupService) {
+    .controller('LineCtrl', ['$scope','$ionicPopover','$cordovaDatePicker','PopupService','$http',
+    function ($scope,$ionicPopover,$cordovaDatePicker,PopupService,$http) {
 
       $scope.barns=["一号仓","二号仓","三号仓"];
+      $scope.charts=["层均温历史汇总","三温历史汇总"];
       $scope.startTime="请选择起始时间";
       $scope.endTime="请选择终止时间";
-      $scope.barn="请选择仓号";
+      $scope.barn=$scope.barns[0];
+      $scope.chart=$scope.charts[0];
       var oneDay=1000*3600*24;
       $scope.date=(new Date()).getTime()-10*oneDay;
-      var data1=[];
-      var data2=[];
-      var data3=[];
-      var data4=[];
-      var data5=[];
+      var myData=[];
       var xData=[];
       var option={};
       var category=[];
       var lineChart=echarts.init(document.getElementById("lineChart"));
-      var selectedBarn="";
-      var date1="";
-      var date2="";
+      var selectedBarn=$scope.charts[0];
+      var selectedChart="";
+      var date1=0;
+      var date2=0;
       var length=0;
+      var dateTime="";
+      var yLabel="层均温";
+      var chartTitle="层均温变化图";
+      var maxLevels=['一层','二层','三层','四层','五层','六层'];
+      var levels=['一层','二层','三层','四层','五层'];
+      var series= [];
 
-      $scope.popover = $ionicPopover.fromTemplateUrl('my-popover.html', {
+      $scope.barnPopover = $ionicPopover.fromTemplateUrl('barn-popover.html', {
         scope: $scope
       });
       // .fromTemplateUrl() 方法
-      $ionicPopover.fromTemplateUrl('my-popover.html', {
+      $ionicPopover.fromTemplateUrl('barn-popover.html', {
         scope: $scope
       }).then(function(popover) {
-        $scope.popover = popover;
+        $scope.barnPopover = popover;
       });
-      $scope.openPopover = function($event) {
-        $scope.popover.show($event);
+      $scope.openBarnPopover = function($event) {
+        $scope.barnPopover.show($event);
       };
-      $scope.closePopover = function() {
-        $scope.popover.hide();
+      $scope.closeBarnPopover = function() {
+        $scope.barnPopover.hide();
       };
 
       $scope.selectBarn=function (i) {
-        $scope.closePopover();
+        $scope.closeBarnPopover();
         $scope.barn=$scope.barns[i];
         selectedBarn=$scope.barns[i];
+      };
+
+      $scope.chartPopover = $ionicPopover.fromTemplateUrl('chart-popover.html', {
+        scope: $scope
+      });
+      $ionicPopover.fromTemplateUrl('chart-popover.html', {
+        scope: $scope
+      }).then(function(popover) {
+        $scope.chartPopover = popover;
+      });
+      $scope.openChartPopover = function($event) {
+        $scope.chartPopover.show($event);
+      };
+      $scope.closeChartPopover = function() {
+        $scope.chartPopover.hide();
+      };
+
+      $scope.selectChart=function (i) {
+        $scope.closeChartPopover();
+        $scope.chart=$scope.charts[i];
+        selectedChart=$scope.chart[i];
+        if(i==0){
+          yLabel="层均温";
+          chartTitle=selectedBarn+"层均温变化图";
+        }else{
+          yLabel="三温";
+          chartTitle=selectedBarn+"三温变化图";
+        }
+      };
+
+      $scope.selectComplete=function () {
+        if(date1==""){
+          PopupService.setContent("请选择起始日期");
+          PopupService.showAlert();
+        }else if(date2=="") {
+          PopupService.setContent("请选择终止日期");
+          PopupService.showAlert();
+        }else{
+          lineChart.clear();
+          getData();
+        }
       };
 
       function formatDate(date) {
         return  date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
       }
 
-      var options = {
-        date: new Date(),
+      var options1 = {
+        date: new Date(new Date()-oneDay),
         mode: 'date', // or 'time'
-        titleText: '请选择日期',
+        minDate:new Date()-oneDay*2,
+        maxDate: new Date()-oneDay,
+        titleText: '起始日期',
         androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
       };
-      $scope.selectTime=function(flag){
-        $cordovaDatePicker.show(options).then(function(date){
-            var dateTime=formatDate(date);
+      var options2 = {};
+      $scope.selectTime1=function(){
+        $cordovaDatePicker.show(options1).then(function(date){
+              dateTime=formatDate(date);
           //  alert(formatDate(new Date(date.getTime())));
-            if(flag==1){
               $scope.startTime=dateTime;
               $scope.date=date.getTime();
               date1=date.getTime();
-            }
-            if(flag==2){
-              $scope.endTime=dateTime;
-              date2=date.getTime();
-            }
-            if(date1!="" && date2!="" && selectedBarn!=""){
-              if(date1<date2){
-                length=Math.round((date2-date1)/oneDay)+1;
-                lineChart.clear();
-                getData();
-                setMyOption();
-                lineChart.setOption(option);
-              }else{
-                PopupService.setContent("终止时间应该晚于起始时间");
-                PopupService.showAlert();
+              var interval=10;
+              if((date1+oneDay*10)>(new Date()).getTime()){
+                interval=((new Date()).getTime()-date1)/oneDay;
               }
-            }
+              document.getElementById("end").style.disabled="";
+              document.getElementById("end").style.color="#108678";
+              document.getElementById("end").getElementsByTagName('div')[0].className="select";
+              document.getElementById("end").getElementsByTagName('input')[0].style.color="#000000";
+              options2 = {
+                date: new Date(),
+                mode: 'date', // or 'time'
+                titleText: '终止日期',
+                minDate:date1+oneDay,
+                maxDate:date1+oneDay*interval,
+                androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+              };
         });
       };
 
+      $scope.selectTime2=function(){
+        $cordovaDatePicker.show(options2).then(function(date){
+            dateTime=formatDate(date);
+            $scope.endTime=dateTime;
+            date2=date.getTime();
+        });
+      };
 
-      getData();
       setMyOption();
       lineChart.setOption(option);
 
      function getData() {
-       data1=[];
-       data2=[];
-       data3=[];
-       data4=[];
-       data5=[];
+       myData=[];
        xData=[];
-     //  var date=new Date()-1000*3600*24*20;
-       for(var i=0;i<length;i++){
+       levels=[];
+       var fromTimestamp=$scope.startTime+" "+"16:41:42";
+       var toTimestamp=$scope.endTime+" "+"16:41:42";
+       $http.get('http://123.56.27.166:8080/barn_application/node/getGrainAverageByTimeRange?BNID=16&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
+         .then(function(resp){
+           levels=[];
+           for(var j=0;j<resp.data[0].list.length;j++){
+             levels.push(maxLevels[j]);
+             myData[j]=new Array();
+           }
+            for(var i=0;i<resp.data.length;i++){
+              for(j=0;j<resp.data[i].list.length;j++){
+                var levelAverage=resp.data[i].list[j].levelAverage.toFixed(2);
+                myData[j].push(levelAverage);
+              }
+              var dateTime=resp.data[i].timestamp.split(" ");
+              var time="";
+              if(dateTime.length>1){
+                time=dateTime[1].split(":")[0]+":"+dateTime[1].split(":")[1];
+              }
+              xData.push(dateTime[0]+" "+time);
+            }
+           category=xData.map(function (str) {
+             return str.replace('2017-', '').replace('-','/');
+           });
+            for(i=0;i<myData.length;i++){
+              var oneSeries= {
+                name:levels[i],
+                type:'line',
+                smooth: true,
+                data:myData[i]
+              };
+              series.push(oneSeries);
+            }
+
+           setMyOption();
+           lineChart.setOption(option);
+         },function(error){
+
+         });
+      /* for(var i=0;i<length;i++){
          var dataY=Math.round(Math.random() * 10);
          var dataX=i*oneDay;
          data1.push(dataY+25);
@@ -1944,10 +1966,7 @@ angular.module('controllers', [])
          data4.push(dataY+16);
          data5.push(dataY+27);
          xData.push(formatDate(new Date(Math.round($scope.date+dataX))));
-       }
-       category=xData.map(function (str) {
-         return str.replace('2017-', '').replace('-','/');
-       });
+       }*/
      }
 
 // 指定图表的配置项和数据
@@ -1955,7 +1974,7 @@ angular.module('controllers', [])
         option = {
           backgroundColor:'#edf9f5',
           title:{
-            text:'层均温变化图',
+            text:chartTitle,
             top:10
           },
           tooltip: {
@@ -1964,7 +1983,7 @@ angular.module('controllers', [])
           legend: {
             left:10,
             top:40,
-            data:['一层','二层','三层','四层','五层']
+            data:levels
           },
           grid: {
             left:30,
@@ -1981,8 +2000,7 @@ angular.module('controllers', [])
           },
           yAxis: {
             type: 'value',
-            min:10,
-            name:'层均温',
+            name: yLabel,
             nameLocation:'middle',
             nameGap:30,
             splitLine:{
@@ -1997,39 +2015,7 @@ angular.module('controllers', [])
               xAxisIndex: [0]
             }
           ],
-          series: [
-
-            {
-              name:'一层',
-              type:'line',
-              smooth: true,
-              data:data1
-            },
-            {
-              name:'二层',
-              type:'line',
-              smooth: true,
-              data:data2
-            },
-            {
-              name:'三层',
-              type:'line',
-              smooth: true,
-              data:data3
-            },
-            {
-              name:'四层',
-              type:'line',
-              smooth: true,
-              data:data4
-            },
-            {
-              name:'五层',
-              type:'line',
-              smooth: true,
-              data:data5
-            }
-          ]
+          series: series
         };
       }
 

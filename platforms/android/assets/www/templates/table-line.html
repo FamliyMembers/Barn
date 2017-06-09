@@ -44,19 +44,19 @@
               font-size: 15px;text-align:center;
               padding:10px;width: 20%"
               ng-click="selectComplete()">确认</p>
-    <div id="lineChart" style="width: 90%;height: 300px"></div>
+    <div id="lineChart" style="width: 90%;height: 400px"></div>
     <script id="barn-popover.html" type="text/ng-template">
-      <ion-popover-view style="width:100px;margin-top: 5px;margin-left: 15px;height: 200px">
+      <ion-popover-view style="width:150px;margin-top: 5px;margin-left: 15px;height: 200px">
         <ion-content>
           <ion-list>
             <ion-item ng-repeat="item in barns"
-                      ng-click="selectBarn($index)">{{item}}</ion-item>
+                      ng-click="selectBarn($index)">{{item.barnName}}</ion-item>
           </ion-list>
         </ion-content>
       </ion-popover-view>
     </script>
     <script id="chart-popover.html" type="text/ng-template">
-      <ion-popover-view style="margin-top: 5px;margin-left: 15px;height: 150px">
+      <ion-popover-view style="width:100px;margin-top: 5px;margin-left: 15px;height: 150px">
         <ion-content>
           <ion-list>
             <ion-item ng-repeat="item in charts"

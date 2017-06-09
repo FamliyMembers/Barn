@@ -91,19 +91,15 @@ angular.module('controllers', [])
                     PopupService.setContent("用户名或密码不能为空");
                     PopupService.showAlert();
                     return;
-                }/*else if(isNaN(parseInt($scope.name))){
-                    PopupService.setContent("用户名必须为数字");
-                    PopupService.showAlert();
-                    return;
-                }*/
+                }
                 LoadingService.show();
 
-                $http.get('http://123.56.27.166:8080/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
+                $http.get('https://123.56.27.166:8443/barn_application/user/login?UID='+$scope.name+'&password='+$.md5($scope.password))
                     .then(function(resp){
                         if(resp.data.state==1){
                             localStorage.userId=$scope.name;
                             LoginService.set();
-                         //   window.plugins.jPushPlugin.setAlias($scope.name);
+                            window.plugins.jPushPlugin.setAlias($scope.name);
                             if(document.getElementById("remember").checked==true){
                                 localStorage.password=$scope.password;
                             }else{
@@ -111,8 +107,6 @@ angular.module('controllers', [])
                             }
                             getInfo();
                         }else{
-                          //  document.getElementById("loginLoading").style.display="none";
-                          //  document.getElementById("login").style.display="block";
                             LoadingService.hide();
                             PopupService.setContent("用户名或密码错误");
                             PopupService.showAlert();
@@ -1776,11 +1770,10 @@ angular.module('controllers', [])
     .controller('LineCtrl', ['$scope','$ionicPopover','$cordovaDatePicker','PopupService','$http',
     function ($scope,$ionicPopover,$cordovaDatePicker,PopupService,$http) {
 
-      $scope.barns=["一号仓","二号仓","三号仓"];
-      $scope.charts=["层均温历史汇总","三温历史汇总"];
+      $scope.barns=[];
+      $scope.charts=["层均温","三温"];
       $scope.startTime="请选择起始时间";
       $scope.endTime="请选择终止时间";
-      $scope.barn=$scope.barns[0];
       $scope.chart=$scope.charts[0];
       var oneDay=1000*3600*24;
       $scope.date=(new Date()).getTime()-10*oneDay;
@@ -1789,17 +1782,18 @@ angular.module('controllers', [])
       var option={};
       var category=[];
       var lineChart=echarts.init(document.getElementById("lineChart"));
-      var selectedBarn=$scope.charts[0];
-      var selectedChart="";
       var date1=0;
       var date2=0;
-      var length=0;
+      var colors=['#FF0000','#00FF00','#0000FF','#FFFF00','#00FFFF','#FF00FF'];
       var dateTime="";
       var yLabel="层均温";
-      var chartTitle="层均温变化图";
+      var chartTitle=$scope.chart+'变化图';
       var maxLevels=['一层','二层','三层','四层','五层','六层'];
-      var levels=['一层','二层','三层','四层','五层'];
+      var levels=[];
       var series= [];
+      var barnId=0;
+      var fromTimestamp="2017-6-6"+" "+"16:41:42";
+      var toTimestamp="2017-6-8"+" "+"16:41:42";
 
       $scope.barnPopover = $ionicPopover.fromTemplateUrl('barn-popover.html', {
         scope: $scope
@@ -1819,8 +1813,8 @@ angular.module('controllers', [])
 
       $scope.selectBarn=function (i) {
         $scope.closeBarnPopover();
-        $scope.barn=$scope.barns[i];
-        selectedBarn=$scope.barns[i];
+        $scope.barn=$scope.barns[i].barnName;
+        barnId=$scope.barns[i].barnId;
       };
 
       $scope.chartPopover = $ionicPopover.fromTemplateUrl('chart-popover.html', {
@@ -1841,15 +1835,23 @@ angular.module('controllers', [])
       $scope.selectChart=function (i) {
         $scope.closeChartPopover();
         $scope.chart=$scope.charts[i];
-        selectedChart=$scope.chart[i];
-        if(i==0){
-          yLabel="层均温";
-          chartTitle=selectedBarn+"层均温变化图";
-        }else{
-          yLabel="三温";
-          chartTitle=selectedBarn+"三温变化图";
-        }
+        yLabel=$scope.chart;
+        chartTitle=$scope.chart+'变化图';
       };
+
+      var getBarns=function () {
+        $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID='+localStorage.userId)
+          .then(function(resp){
+            for(var i=0;i<resp.data.length;i++){
+              $scope.barns.push({barnId:resp.data[i].BNID,barnName:resp.data[i].description})
+            }
+            $scope.barn=$scope.barns[0].barnName;
+            barnId=$scope.barns[0].barnId;
+          },function(error){
+
+          });
+      };
+      getBarns();
 
       $scope.selectComplete=function () {
         if(date1==""){
@@ -1860,18 +1862,28 @@ angular.module('controllers', [])
           PopupService.showAlert();
         }else{
           lineChart.clear();
-          getData();
+         if($scope.chart=='层均温'){
+         getLevelAverageData();
+         }else{
+         getBarnTemperatureData();
+         }
         }
+        /*lineChart.clear();
+        if($scope.chart=='层均温'){
+          getLevelAverageData();
+        }else{
+          getBarnTemperatureData();
+        }*/
+
       };
 
       function formatDate(date) {
         return  date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
       }
-
       var options1 = {
         date: new Date(new Date()-oneDay),
         mode: 'date', // or 'time'
-        minDate:new Date()-oneDay*2,
+        minDate:new Date(2017,5,6).getTime(),
         maxDate: new Date()-oneDay,
         titleText: '起始日期',
         androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
@@ -1912,48 +1924,71 @@ angular.module('controllers', [])
       };
 
       setMyOption();
-      lineChart.setOption(option);
+      lineChart.setOption(option,true);
 
-     function getData() {
+     function getLevelAverageData() {
        myData=[];
        xData=[];
        levels=[];
-       var fromTimestamp=$scope.startTime+" "+"16:41:42";
-       var toTimestamp=$scope.endTime+" "+"16:41:42";
-       $http.get('http://123.56.27.166:8080/barn_application/node/getGrainAverageByTimeRange?BNID=16&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
+       series=[];
+       fromTimestamp=$scope.startTime+" "+"16:41:42";
+       toTimestamp=$scope.endTime+" "+"16:41:42";
+       $http.get('http://123.56.27.166:8080/barn_application/node/getGrainAverageByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
          .then(function(resp){
-           levels=[];
            for(var j=0;j<resp.data[0].list.length;j++){
              levels.push(maxLevels[j]);
              myData[j]=new Array();
            }
             for(var i=0;i<resp.data.length;i++){
-              for(j=0;j<resp.data[i].list.length;j++){
-                var levelAverage=resp.data[i].list[j].levelAverage.toFixed(2);
-                myData[j].push(levelAverage);
-              }
               var dateTime=resp.data[i].timestamp.split(" ");
               var time="";
               if(dateTime.length>1){
                 time=dateTime[1].split(":")[0]+":"+dateTime[1].split(":")[1];
               }
-              xData.push(dateTime[0]+" "+time);
+              xData.push(dateTime[0]+"\n"+time);
+              for(j=0;j<resp.data[i].list.length;j++){
+                var levelAverage=resp.data[i].list[j].levelAverage.toFixed(2);
+                myData[j].push(levelAverage);
+              }
+
             }
            category=xData.map(function (str) {
              return str.replace('2017-', '').replace('-','/');
            });
-            for(i=0;i<myData.length;i++){
-              var oneSeries= {
-                name:levels[i],
-                type:'line',
-                smooth: true,
-                data:myData[i]
-              };
-              series.push(oneSeries);
-            }
+           /*for(i=0;i<myData.length;i++){
+             var data=[];
+             for(j=0;j<myData[i].length;j++){
+               data[j]=new Array();
+               data[j].push(category[j]);
+               data[j].push(myData[i][j]);
+             }
+             var oneSeries= {
+               name:levels[i],
+               type:'line',
+               smooth: true,
+               data:data
+             };
+             series.push(oneSeries);
+           }*/
+
+           for(i=0;i<myData.length;i++){
+             var oneSeries= {
+               name:levels[i],
+               type:'line',
+               smooth: true,
+               itemStyle: {
+                 normal: {
+                   // 设置线条的颜色
+                   color: colors[i]
+                 }
+               },
+               data:myData[i]
+             };
+             series.push(oneSeries);
+           }
 
            setMyOption();
-           lineChart.setOption(option);
+           lineChart.setOption(option,true);
          },function(error){
 
          });
@@ -1968,6 +2003,102 @@ angular.module('controllers', [])
          xData.push(formatDate(new Date(Math.round($scope.date+dataX))));
        }*/
      }
+
+      function getBarnTemperatureData() {
+        myData=[];
+        xData=[];
+        series=[];
+        levels=['仓温','气温','粮温'];
+        fromTimestamp=$scope.startTime+" "+"16:41:42";
+        toTimestamp=$scope.endTime+" "+"16:41:42";
+        $http.get('http://123.56.27.166:8080/barn_application/node/getBarnTemperatureByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
+          .then(function(resp){
+            for(var i=0;i<resp.data.length;i++){
+              myData.push(resp.data[i].data.toFixed(2));
+            }
+            var oneSeries= {
+              name:levels[0],
+              type:'line',
+              smooth: true,
+              itemStyle: {
+                normal: {
+                  // 设置线条的颜色
+                  color: colors[0]
+                }
+              },
+              data:myData
+            };
+            series.push(oneSeries);
+
+            getTemperatureData();
+          },function(error){
+
+          });
+      }
+
+      function getTemperatureData() {
+        myData=[];
+        $http.get('http://123.56.27.166:8080/barn_application/node/getTemperatureByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
+          .then(function(resp){
+            for(var i=0;i<resp.data.length;i++){
+              myData.push(resp.data[i].data.toFixed(2));
+            }
+            var oneSeries= {
+              name:levels[1],
+              type:'line',
+              smooth: true,
+              itemStyle: {
+                normal: {
+                  // 设置线条的颜色
+                  color: colors[1]
+                }
+              },
+              data:myData
+            };
+            series.push(oneSeries);
+
+            getGrainTemperatureData();
+          },function(error){
+
+          });
+      }
+
+      function getGrainTemperatureData() {
+        myData=[];
+        $http.get('http://123.56.27.166:8080/barn_application/node/getGrainAverageByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
+          .then(function(resp){
+            for(var i=0;i<resp.data.length;i++){
+              var dateTime=resp.data[i].timestamp.split(" ");
+              var time="";
+              if(dateTime.length>1){
+                time=dateTime[1].split(":")[0]+":"+dateTime[1].split(":")[1];
+              }
+              xData.push(dateTime[0]+"\n"+time);
+              myData.push(resp.data[i].barnAverage.toFixed(2));
+            }
+            var oneSeries= {
+              name:levels[2],
+              type:'line',
+              smooth: true,
+              itemStyle: {
+                normal: {
+                  // 设置线条的颜色
+                  color: colors[2]
+                }
+              },
+              data:myData
+            };
+            series.push(oneSeries);
+            category=xData.map(function (str) {
+              return str.replace('2017-', '').replace('-','/');
+            });
+
+            setMyOption();
+            lineChart.setOption(option,true);
+          },function(error){
+
+          });
+      }
 
 // 指定图表的配置项和数据
       function setMyOption() {
@@ -1988,15 +2119,16 @@ angular.module('controllers', [])
           grid: {
             left:30,
             top:100,
+            height:'65%',
             containLabel: true
           },
           xAxis: {
             type: 'category',
             name:'时间',
             nameLocation:'middle',
-            nameGap:30,
+            nameGap:40,
             boundaryGap: false,
-            data: category
+            data:category
           },
           yAxis: {
             type: 'value',

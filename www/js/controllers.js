@@ -2175,9 +2175,9 @@ angular.module('controllers', [])
           yAxis:{
             type:'value',
             boundaryGap:['0','100%'],
-            name: '三温',
+            name: yLabel,
             nameLocation:'middle',
-            nameGap:40,
+            nameGap:30,
             splitLine:{
               lineStyle:{
                 color:'#aaa'

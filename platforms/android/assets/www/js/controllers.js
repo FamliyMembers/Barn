@@ -54,11 +54,11 @@ angular.module('controllers', [])
             $rootScope.getNews=function(){
                 $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+localStorage.userId)
                     .then(function(resp){
-                        var myNews=0;
+                      $rootScope.myNews=0;
                         $rootScope.total=resp.data.length;
                         for(i=0;i<resp.data.length;i++){
                             if(resp.data[i].status=="true"){
-                                myNews++;
+                              $rootScope.myNews++;
                             }
 
                         }
@@ -1695,7 +1695,7 @@ angular.module('controllers', [])
           context.fill();
         }
       };
-      var notyet=$rootScope.badges.news;
+      var notyet=$rootScope.myNews;
       var already=$rootScope.total-notyet;
 
       $scope.myvalue=already/(already+notyet);
@@ -1792,8 +1792,9 @@ angular.module('controllers', [])
       var levels=[];
       var series= [];
       var barnId=0;
-      var fromTimestamp="2017-6-6"+" "+"16:41:42";
-      var toTimestamp="2017-6-8"+" "+"16:41:42";
+      var symbolShow=false;
+      var fromTimestamp="2017-6-7"+" "+"16:41:42";
+      var toTimestamp="2017-6-8"+" "+"10:41:42";
 
       $scope.barnPopover = $ionicPopover.fromTemplateUrl('barn-popover.html', {
         scope: $scope
@@ -1940,38 +1941,46 @@ angular.module('controllers', [])
              myData[j]=new Array();
            }
             for(var i=0;i<resp.data.length;i++){
-              var dateTime=resp.data[i].timestamp.split(" ");
+              /*var dateTime=resp.data[i].timestamp.split(" ");
               var time="";
               if(dateTime.length>1){
                 time=dateTime[1].split(":")[0]+":"+dateTime[1].split(":")[1];
               }
-              xData.push(dateTime[0]+"\n"+time);
+              xData.push(dateTime[0]+"\n"+time);*/
+              xData.push(resp.data[i].timestamp);
               for(j=0;j<resp.data[i].list.length;j++){
                 var levelAverage=resp.data[i].list[j].levelAverage.toFixed(2);
                 myData[j].push(levelAverage);
               }
 
             }
-           category=xData.map(function (str) {
+           /*category=xData.map(function (str) {
              return str.replace('2017-', '').replace('-','/');
-           });
-           /*for(i=0;i<myData.length;i++){
+           });*/
+           for(i=0;i<myData.length;i++){
              var data=[];
              for(j=0;j<myData[i].length;j++){
                data[j]=new Array();
-               data[j].push(category[j]);
+               data[j].push(xData[j]);
                data[j].push(myData[i][j]);
              }
              var oneSeries= {
                name:levels[i],
                type:'line',
                smooth: true,
-               data:data
+               itemStyle: {
+                 normal: {
+                   // 设置线条的颜色
+                   color: colors[i]
+                 }
+               },
+               data:data,
+               showSymbol: symbolShow
              };
              series.push(oneSeries);
-           }*/
+           }
 
-           for(i=0;i<myData.length;i++){
+          /* for(i=0;i<myData.length;i++){
              var oneSeries= {
                name:levels[i],
                type:'line',
@@ -1985,7 +1994,7 @@ angular.module('controllers', [])
                data:myData[i]
              };
              series.push(oneSeries);
-           }
+           }*/
 
            setMyOption();
            lineChart.setOption(option,true);
@@ -2013,20 +2022,26 @@ angular.module('controllers', [])
         toTimestamp=$scope.endTime+" "+"16:41:42";
         $http.get('http://123.56.27.166:8080/barn_application/node/getBarnTemperatureByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
           .then(function(resp){
+            var data=[];
             for(var i=0;i<resp.data.length;i++){
-              myData.push(resp.data[i].data.toFixed(2));
+              /*myData.push(resp.data[i].data.toFixed(2));
+              xData.push(resp.data[i].timestamp);*/
+              data[i]=new Array();
+              data[i].push(resp.data[i].timestamp);
+              data[i].push(resp.data[i].data.toFixed(2));
             }
             var oneSeries= {
               name:levels[0],
               type:'line',
               smooth: true,
+              showSymbol: symbolShow,
               itemStyle: {
                 normal: {
                   // 设置线条的颜色
                   color: colors[0]
                 }
               },
-              data:myData
+              data:data
             };
             series.push(oneSeries);
 
@@ -2037,23 +2052,26 @@ angular.module('controllers', [])
       }
 
       function getTemperatureData() {
-        myData=[];
         $http.get('http://123.56.27.166:8080/barn_application/node/getTemperatureByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
           .then(function(resp){
+            var data=[];
             for(var i=0;i<resp.data.length;i++){
-              myData.push(resp.data[i].data.toFixed(2));
+              data[i]=new Array();
+              data[i].push(resp.data[i].timestamp);
+              data[i].push(resp.data[i].data.toFixed(2));
             }
             var oneSeries= {
               name:levels[1],
               type:'line',
               smooth: true,
+              showSymbol: symbolShow,
               itemStyle: {
                 normal: {
                   // 设置线条的颜色
                   color: colors[1]
                 }
               },
-              data:myData
+              data:data
             };
             series.push(oneSeries);
 
@@ -2064,10 +2082,9 @@ angular.module('controllers', [])
       }
 
       function getGrainTemperatureData() {
-        myData=[];
         $http.get('http://123.56.27.166:8080/barn_application/node/getGrainAverageByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
           .then(function(resp){
-            for(var i=0;i<resp.data.length;i++){
+            /*for(var i=0;i<resp.data.length;i++){
               var dateTime=resp.data[i].timestamp.split(" ");
               var time="";
               if(dateTime.length>1){
@@ -2076,22 +2093,29 @@ angular.module('controllers', [])
               xData.push(dateTime[0]+"\n"+time);
               myData.push(resp.data[i].barnAverage.toFixed(2));
             }
+            category=xData.map(function (str) {
+              return str.replace('2017-', '').replace('-','/');
+            });*/
+            var data=[];
+            for(var i=0;i<resp.data.length;i++){
+              data[i]=new Array();
+              data[i].push(resp.data[i].timestamp);
+              data[i].push(resp.data[i].barnAverage.toFixed(2));
+            }
             var oneSeries= {
               name:levels[2],
               type:'line',
               smooth: true,
+              showSymbol: symbolShow,
               itemStyle: {
                 normal: {
                   // 设置线条的颜色
                   color: colors[2]
                 }
               },
-              data:myData
+              data:data
             };
             series.push(oneSeries);
-            category=xData.map(function (str) {
-              return str.replace('2017-', '').replace('-','/');
-            });
 
             setMyOption();
             lineChart.setOption(option,true);
@@ -2122,7 +2146,7 @@ angular.module('controllers', [])
             height:'65%',
             containLabel: true
           },
-          xAxis: {
+         /* xAxis: {
             type: 'category',
             name:'时间',
             nameLocation:'middle',
@@ -2135,6 +2159,27 @@ angular.module('controllers', [])
             name: yLabel,
             nameLocation:'middle',
             nameGap:30,
+            splitLine:{
+              lineStyle:{
+                color:'#aaa'
+              }
+            }
+          },*/
+          xAxis:{
+            type:'time',
+            name:'时间',
+            splitLine:{
+              show:false
+            },
+            nameLocation:'middle',
+            nameGap:40
+          },
+          yAxis:{
+            type:'value',
+            boundaryGap:['0','100%'],
+            name: '三温',
+            nameLocation:'middle',
+            nameGap:40,
             splitLine:{
               lineStyle:{
                 color:'#aaa'

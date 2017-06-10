@@ -62,7 +62,7 @@ angular.module('controllers', [])
                             }
 
                         }
-                        $rootScope.badges.news=myNews;
+                        $rootScope.badges.news=$rootScope.myNews;
                         if($rootScope.badges.news>99){
                           $rootScope.badges.news="99+"
                         }
@@ -1940,7 +1940,7 @@ angular.module('controllers', [])
              levels.push(maxLevels[j]);
              myData[j]=new Array();
            }
-            for(var i=0;i<resp.data.length;i++){
+            for(var i=0;i<10;i++){
               /*var dateTime=resp.data[i].timestamp.split(" ");
               var time="";
               if(dateTime.length>1){
@@ -2014,8 +2014,6 @@ angular.module('controllers', [])
      }
 
       function getBarnTemperatureData() {
-        myData=[];
-        xData=[];
         series=[];
         levels=['仓温','气温','粮温'];
         fromTimestamp=$scope.startTime+" "+"16:41:42";

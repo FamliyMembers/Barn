@@ -359,3 +359,24 @@ ul.home-depository-nav li{
   color:white;
   font-size:12px;
 }
+#warn-detail{
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+#warn-detail table{
+  width: 90%;
+  margin: auto;
+}
+#warn-detail td{
+  text-align: center;
+  padding-top: 12px;
+  padding-bottom: 3px;
+  border: 1px solid #108678;
+}
+#warn-detail td i{
+  float: right;
+  position: relative;
+  margin-right: 20px;
+  font-size: 20px;
+  top:-3px;
+}

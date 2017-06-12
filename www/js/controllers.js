@@ -1303,6 +1303,13 @@ angular.module('controllers', [])
             $scope.buttonClass = "green-bg";
             $scope.confirmPerson = "领取人：";
             $scope.confirmDisplay = "none";
+            $scope.alarmType=[];
+            var k=0;
+            var barnId=0;
+            var timestamp="";
+            $scope.warnType=[];
+            $scope.more=[];
+            $scope.moreIcon=[];
           /*  var type=$stateParams.type;
             $scope.detail = $stateParams.detail;
             $scope.flag = $stateParams.flag;
@@ -1368,6 +1375,8 @@ angular.module('controllers', [])
             $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByAlarmSumId?alarmSumId='+$scope.alarmId)
               .then(function(resp){
                 var flag;
+                barnId=resp.data[0].BNID;
+                timestamp=resp.data[0].create_time;
                 if(resp.data[0].status=="true"){
                   flag=0;
                 }else{
@@ -1378,9 +1387,11 @@ angular.module('controllers', [])
                   $scope.buttonClass = "lightgray-bg";
                   document.getElementById("confirm").disabled="disabled";
                   getConfirmPerson(resp.data[0].confirm_UID);
+
                 }else{
                   LoadingService.hide();
                 }
+                getWarnDetail(barnId,timestamp);
 
               },function(error){
                 PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
@@ -1408,6 +1419,41 @@ angular.module('controllers', [])
 
                 });
             }
+          };
+          var getWarnDetail=function (id,time) {
+            $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmDetailByBNID?BNID='+id+'&timestamp='+time)
+              .then(function(resp){
+                var x,y,depth,warnName,temperature;
+                $scope.warnType=[];
+                k=0;
+
+               for(var i=0;i<resp.data.length-1;i++){
+                 x=resp.data[i].location_x;
+                 y=resp.data[i].location_y;
+                 depth=resp.data[i].depth;
+                 temperature=resp.data[i].data;
+                 warnName=resp.data[i].alarm_type_name;
+                 if(i==0){
+                   $scope.warnType[k]=new Array();
+                   $scope.more.push(0);
+                   $scope.moreIcon.push("icon ion-plus");
+                   $scope.warnType[k].push({x:x,y:y,depth:depth,warnName:warnName,temperature:temperature});
+
+                 }else{
+                   if($scope.warnType[k][0].warnName==warnName){
+                     $scope.warnType[k].push({x:x,y:y,depth:depth,warnName:warnName,temperature:temperature});
+                   }else{
+                     k++;
+                     $scope.warnType[k]=new Array();
+                     $scope.more.push(0);
+                     $scope.moreIcon.push("icon ion-plus");
+                     $scope.warnType[k].push({x:x,y:y,depth:depth,warnName:warnName,temperature:temperature});
+                   }
+                 }
+               }
+              },function(error){
+
+              });
           };
             enter();
             /*$scope.confirm=function(){
@@ -1562,6 +1608,16 @@ angular.module('controllers', [])
                 $state.go("tabs.risk");
               //  $ionicHistory.goBack();
             }
+          $scope.showMore=function (flag) {
+              if($scope.moreIcon[flag]=="icon ion-plus"){
+                $scope.more[flag]=1;
+                $scope.moreIcon[flag]="icon ion-minus";
+              }else{
+                $scope.more[flag]=0;
+                $scope.moreIcon[flag]="icon ion-plus";
+              }
+
+          }
 
         }])
     .controller('PersonCtrl',['$scope','$state','$ionicHistory','UserService','LoginService',
@@ -1772,15 +1828,14 @@ angular.module('controllers', [])
 
       $scope.barns=[];
       $scope.charts=["层均温","三温"];
-      $scope.startTime="请选择起始时间";
-      $scope.endTime="请选择终止时间";
+      $scope.startTime="请选择起始日期";
+      $scope.endTime="请选择终止日期";
       $scope.chart=$scope.charts[0];
       var oneDay=1000*3600*24;
       $scope.date=(new Date()).getTime()-10*oneDay;
       var myData=[];
       var xData=[];
       var option={};
-      var category=[];
       var lineChart=echarts.init(document.getElementById("lineChart"));
       var date1=0;
       var date2=0;
@@ -1791,10 +1846,11 @@ angular.module('controllers', [])
       var maxLevels=['一层','二层','三层','四层','五层','六层'];
       var levels=[];
       var series= [];
-      var barnId=0;
+      var barnId=1;
       var symbolShow=false;
-      var fromTimestamp="2017-6-7"+" "+"16:41:42";
+      var fromTimestamp="2017-6-6"+" "+"16:41:42";
       var toTimestamp="2017-6-8"+" "+"10:41:42";
+      var oneSeries={};
 
       $scope.barnPopover = $ionicPopover.fromTemplateUrl('barn-popover.html', {
         scope: $scope
@@ -1816,6 +1872,7 @@ angular.module('controllers', [])
         $scope.closeBarnPopover();
         $scope.barn=$scope.barns[i].barnName;
         barnId=$scope.barns[i].barnId;
+        alert($scope.barns[i].barnId);
       };
 
       $scope.chartPopover = $ionicPopover.fromTemplateUrl('chart-popover.html', {
@@ -1869,7 +1926,7 @@ angular.module('controllers', [])
          getBarnTemperatureData();
          }
         }
-        /*lineChart.clear();
+       /* lineChart.clear();
         if($scope.chart=='层均温'){
           getLevelAverageData();
         }else{
@@ -1932,6 +1989,7 @@ angular.module('controllers', [])
        xData=[];
        levels=[];
        series=[];
+       lineChart.showLoading();
        fromTimestamp=$scope.startTime+" "+"16:41:42";
        toTimestamp=$scope.endTime+" "+"16:41:42";
        $http.get('http://123.56.27.166:8080/barn_application/node/getGrainAverageByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
@@ -1980,6 +2038,8 @@ angular.module('controllers', [])
              series.push(oneSeries);
            }
 
+           lineChart.hideLoading();
+
           /* for(i=0;i<myData.length;i++){
              var oneSeries= {
                name:levels[i],
@@ -2016,19 +2076,20 @@ angular.module('controllers', [])
       function getBarnTemperatureData() {
         series=[];
         levels=['仓温','气温','粮温'];
+        lineChart.showLoading();
         fromTimestamp=$scope.startTime+" "+"16:41:42";
         toTimestamp=$scope.endTime+" "+"16:41:42";
         $http.get('http://123.56.27.166:8080/barn_application/node/getBarnTemperatureByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
           .then(function(resp){
-            var data=[];
+            var data1=[];
             for(var i=0;i<resp.data.length;i++){
               /*myData.push(resp.data[i].data.toFixed(2));
               xData.push(resp.data[i].timestamp);*/
-              data[i]=new Array();
-              data[i].push(resp.data[i].timestamp);
-              data[i].push(resp.data[i].data.toFixed(2));
+              data1[i]=new Array();
+              data1[i].push(resp.data[i].timestamp);
+              data1[i].push(resp.data[i].data.toFixed(2));
             }
-            var oneSeries= {
+            oneSeries= {
               name:levels[0],
               type:'line',
               smooth: true,
@@ -2039,7 +2100,7 @@ angular.module('controllers', [])
                   color: colors[0]
                 }
               },
-              data:data
+              data:data1
             };
             series.push(oneSeries);
 
@@ -2052,13 +2113,13 @@ angular.module('controllers', [])
       function getTemperatureData() {
         $http.get('http://123.56.27.166:8080/barn_application/node/getTemperatureByTimeRange?BNID='+barnId+'&fromTimestamp='+fromTimestamp+'&toTimestamp='+toTimestamp)
           .then(function(resp){
-            var data=[];
+            var data2=[];
             for(var i=0;i<resp.data.length;i++){
-              data[i]=new Array();
-              data[i].push(resp.data[i].timestamp);
-              data[i].push(resp.data[i].data.toFixed(2));
+              data2[i]=new Array();
+              data2[i].push(resp.data[i].timestamp);
+              data2[i].push(resp.data[i].data.toFixed(2));
             }
-            var oneSeries= {
+            oneSeries= {
               name:levels[1],
               type:'line',
               smooth: true,
@@ -2069,7 +2130,7 @@ angular.module('controllers', [])
                   color: colors[1]
                 }
               },
-              data:data
+              data:data2
             };
             series.push(oneSeries);
 
@@ -2094,13 +2155,13 @@ angular.module('controllers', [])
             category=xData.map(function (str) {
               return str.replace('2017-', '').replace('-','/');
             });*/
-            var data=[];
+            var data3=[];
             for(var i=0;i<resp.data.length;i++){
-              data[i]=new Array();
-              data[i].push(resp.data[i].timestamp);
-              data[i].push(resp.data[i].barnAverage.toFixed(2));
+              data3[i]=new Array();
+              data3[i].push(resp.data[i].timestamp);
+              data3[i].push(resp.data[i].barnAverage.toFixed(2));
             }
-            var oneSeries= {
+            oneSeries= {
               name:levels[2],
               type:'line',
               smooth: true,
@@ -2111,9 +2172,10 @@ angular.module('controllers', [])
                   color: colors[2]
                 }
               },
-              data:data
+              data: data3
             };
             series.push(oneSeries);
+            lineChart.hideLoading();
 
             setMyOption();
             lineChart.setOption(option,true);
@@ -2131,7 +2193,10 @@ angular.module('controllers', [])
             top:10
           },
           tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
+            axisPointer: {
+              animation: false
+            }
           },
           legend: {
             left:10,
@@ -2193,5 +2258,6 @@ angular.module('controllers', [])
           series: series
         };
       }
+
 
     }])

@@ -21,7 +21,7 @@
     </div>
     <div id="start" style="font-size:16px;color: #108678">
       <label>
-        <span>起始时间：</span>
+        <span>起始日期：</span>
         <div class="select" ng-click="selectTime1()">
           <input type="button" value={{startTime}}
                  style="background-color: transparent;padding: 3px 10px"/>
@@ -31,7 +31,7 @@
     </div>
     <div id="end" disabled="disabled" style="color: grey;font-size: 16px">
       <label>
-        <span>终止时间：</span>
+        <span>终止日期：</span>
         <div class="not-select" ng-click="selectTime2()">
           <input type="button" value={{endTime}}
                  style="background-color: transparent;padding: 3px 10px;color: grey"/>
@@ -45,25 +45,25 @@
               padding:10px;width: 20%"
               ng-click="selectComplete()">确认</p>
     <div id="lineChart" style="width: 90%;height: 400px"></div>
-    <script id="barn-popover.html" type="text/ng-template">
-      <ion-popover-view style="width:150px;margin-top: 5px;margin-left: 15px;height: 200px">
-        <ion-content>
-          <ion-list>
-            <ion-item ng-repeat="item in barns"
-                      ng-click="selectBarn($index)">{{item.barnName}}</ion-item>
-          </ion-list>
-        </ion-content>
-      </ion-popover-view>
-    </script>
-    <script id="chart-popover.html" type="text/ng-template">
-      <ion-popover-view style="width:100px;margin-top: 5px;margin-left: 15px;height: 150px">
-        <ion-content>
-          <ion-list>
-            <ion-item ng-repeat="item in charts"
-                      ng-click="selectChart($index)">{{item}}</ion-item>
-          </ion-list>
-        </ion-content>
-      </ion-popover-view>
-    </script>
   </ion-content>
+  <script id="barn-popover.html" type="text/ng-template">
+    <ion-popover-view style="width:150px;margin-top: 5px;margin-left: 15px;height: 200px">
+      <ion-content>
+        <ion-list>
+          <ion-item ng-repeat="item in barns"
+                    ng-click="selectBarn($index)">{{item.barnName}}</ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-popover-view>
+  </script>
+  <script id="chart-popover.html" type="text/ng-template">
+    <ion-popover-view style="width:100px;margin-top: 5px;margin-left: 15px;height: 150px">
+      <ion-content>
+        <ion-list>
+          <ion-item ng-repeat="item in charts"
+                    ng-click="selectChart($index)">{{item}}</ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-popover-view>
+  </script>
 </ion-view>

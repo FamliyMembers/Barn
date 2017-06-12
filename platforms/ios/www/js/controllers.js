@@ -103,7 +103,7 @@ angular.module('controllers', [])
             if (resp.data.state == 1) {
               localStorage.userId = $scope.name;
               LoginService.set();
-              // window.plugins.jPushPlugin.setAlias($scope.name);
+              window.plugins.jPushPlugin.setAlias($scope.name);
               if (document.getElementById("remember").checked == true) {
                 localStorage.password = $scope.password;
               } else {
@@ -167,6 +167,7 @@ angular.module('controllers', [])
       $scope.title = $stateParams.title;
 
       LoadingService.show();
+      document.getElementById('third').style.display = "none";
 
       $scope.doRefresh = function () {
         $scope.items = [];
@@ -182,8 +183,8 @@ angular.module('controllers', [])
 
         var id = $stateParams.id;
         console.log('id----', id);
-        var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=" + id;
-        //var url = './js/test.json';
+         var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=" + id;
+        //var url = './js/test66.json';
         $http.get(url).success(function (response) {
           LoadingService.hide();
           $scope.datas = response;
@@ -191,12 +192,34 @@ angular.module('controllers', [])
           console.log('success', response);
         })
       }
+      $scope.listFunc = function () {
+        var id = $stateParams.id;
+        console.log('id----', id);
+        var url = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
+        $http.get(url).success(function (response) {
+          var datas = response[0].list;
+          $scope.deviceId = response[0].deviceId;
+          $scope.barnAverage = response[0].barnAverage;
+          $scope.maxBarnValue = response[0].maxBarnValue;
+          $scope.minBarnValue = response[0].minBarnValue;
+
+          $scope.records = [];
+          for (var i = 0; i < datas.length; i++) {
+            var item = [i + 1, datas[i].levelAverage, datas[i].maxLevelValue, datas[i].minLevelValue];
+            $scope.records.push(item);
+            console.log('item????', item);
+          }
+        })
+
+
+      }
 
       //试验button的切换页面的功能
       $scope.doChangeEcharts = function () {
         if (value == 1) {
 
           document.getElementById('second').style.display = "none";
+          document.getElementById('third').style.display = "none";
           document.getElementById('first').style.display = "block";
           $scope.label = "粮温数据";
           value = value - 1;
@@ -205,6 +228,7 @@ angular.module('controllers', [])
         else {
           value = value + 1;
           document.getElementById('second').style.display = "block";
+          document.getElementById('third').style.display = "block";
           document.getElementById('first').style.display = "none";
           $scope.label = "异常数据汇总";
           console.log('hello，else被调用，此时的value值已经改变，变成了', value);
@@ -215,39 +239,16 @@ angular.module('controllers', [])
 
         var airTemandhum = [];
         var barnTemandhum = [];
-        var statistic25 = {//所有25度在每一层的个数
 
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0,
-          5: 0
-        }
-        var statistic30 = {//每一层级30-35度的个数
+        var statistic25 = {}//所有25度在每一层的个数
+        var statistic30 = {};//每一层级30-35度的个数
+        var statistic35 = {};//所有35度在每一层的个数}
+        //timeline 的data动态创建
+        var timelineData = [];
 
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0,
-          5: 0
-        }
-        var statistic35 = {//所有35度在每一层的个数
+        var allresult = {};
+        // console.log(chartdata.slice(chartdata.length - 4))
 
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0,
-          5: 0
-        }
-        var allresult = {//allresult是图标1的数据，1为5m，2为10m,3-15,4-20,5-25以此类推
-          0: [],
-          1: [],
-          2: [],
-          3: [],
-          4: [],
-          5: []   //可以设置一个五维数组，第一个为层数，其他的为x,y,data，depth
-        };
-        console.log(chartdata.slice(chartdata.length - 4))
         for (var i = 0; i < chartdata.length; i++) {
 
           //更新时间在这儿
@@ -264,12 +265,21 @@ angular.module('controllers', [])
 
 
           if (temp > 15 && temp <= 25) {//25-30度每一层的个数
+            if (!statistic25[chartdata[i].depth]) {
+              statistic25[chartdata[i].depth] = 0;
+            }
             statistic25[chartdata[i].depth]++;
           }
           if (temp > 25 && temp <= 35) {///30-35度每一层的个数
+            if (!statistic30[chartdata[i].depth]) {
+              statistic30[chartdata[i].depth] = 0;
+            }
             statistic30[chartdata[i].depth]++;
           }
-          if (temp > 35) {//>35度每一层的个数
+          if (temp > 35 && temp <= 100) {//>35度每一层的个数
+            if (!statistic35[chartdata[i].depth]) {
+              statistic35[chartdata[i].depth] = 0;
+            }
             statistic35[chartdata[i].depth]++;
           }
 
@@ -282,26 +292,34 @@ angular.module('controllers', [])
           }
 
           var item = [chartdata[i].location_x, chartdata[i].location_y, temp, chartdata[i].depth];
-          console.log('item', i, item);
+          // console.log('item', i, item);
+
+          if (!allresult[chartdata[i].depth]) {
+            allresult[chartdata[i].depth] = [];
+            timelineData.push(chartdata[i].depth + '层');
+          }
           allresult[chartdata[i].depth].push(item);
         }
+
+
         $scope.barnTemperature = barnTemandhum[0];
         $scope.barnHumidity = barnTemandhum[1];
         $scope.airTemperature = airTemandhum[0];
         $scope.airHumidity = airTemandhum[1];
         console.log('temandhum------', airTemandhum, barnTemandhum);
-
+        console.log('allresult', allresult);
         var chart2datas = {   //这个为第二个图标需要的数据，l代表黄颜色，m（medium）代表橙色，h代表红色
           l: [],//25-30
           m: [],//30-35
           h: []//>35
         }
-        for (var i = 1; i < 6; i++) {
-          chart2datas["l"].push(statistic25[i]);
-          chart2datas["m"].push(statistic30[i]);
-          chart2datas["h"].push(statistic35[i]);
+        console.log(timelineData);
+        for (var i = 1; i < timelineData.length; i++) {// to do 动态添加
+          chart2datas["l"].push(statistic25[i] ? statistic25[i] : 0);
+          chart2datas["m"].push(statistic30[i] ? statistic30[i] : 0);
+          chart2datas["h"].push(statistic35[i] ? statistic35[i] : 0);
         }
-
+        console.log(chart2datas);
         //标签为first的echart的js实现
         // 基于准备好的dom，初始化echarts实例
         var myChart1 = echarts.init(document.getElementById('first'));
@@ -376,7 +394,9 @@ angular.module('controllers', [])
                   borderColor: '#aaa'
                 }
               },
-              data: ['一层', '二层', '三层', '四层', '五层']
+              data: timelineData.slice(0, 5)
+
+
             },
             grid: {
               containLabel: true,
@@ -619,75 +639,19 @@ angular.module('controllers', [])
           },
 
           //变化数据写这
-          options: [
-
-            //5m
-            {
-
-              // title: {
-              //     text: '5m深度处粮温'
-              // },
+          options: function(data){
+           var dataOption=[];
+          for(var i=1;i<data.length;i++){
+              dataOption.push({
               series: [
                 {
-                  data: allresult['1']
-                }
-
-
-
-              ]
-            },
-            //10m
-            {
-
-              // title: {
-              //     text: '10m深度处粮温'
-              // },
-              series: [
-                {
-                  data: allresult['2']
-
-                }
-
-
-              ]
-            }, //15m
-            {
-
-              // title: {
-              //     text: '15m深度处粮温'
-              // },
-              series: [
-                {
-                  data: allresult['3']
-                }
-
-
-              ]
-            },
-            //20m
-            {
-              // title: {
-              //     text: '20m深度处粮温'
-
-              // },
-              series: [
-                {
-                  data: allresult['4']
+                  data: allresult[i]
                 }
               ]
-            },
-            {
-              // title: {
-              //     text: '20m深度处粮温'
-
-              // },
-              series: [
-                {
-                  data: allresult['5']
-                }
-              ]
-            }
-          ]
+            })
+          }
+          return dataOption;
+          }(timelineData)
         }
         myChart1.setOption(option1);
         $scope.label = "粮温数据";
@@ -731,11 +695,11 @@ angular.module('controllers', [])
             }
           },
           color: [
-            '#C6381E', '#FF9900', '#FFCC00', '#33CC00', '#0099FF'
+            '#C6381E', '#FF9900', '#FFCC00'//, '#33CC00', '#0099FF'
           ],
           legend: {
 
-            bottom: 0,
+            top: '90%',
             right: 0,
             textStyle:
             {
@@ -743,12 +707,14 @@ angular.module('controllers', [])
               fontWeight: 'lighter'
             },
 
-            data: ['>35℃', '[35℃,25℃)', '[25℃,15℃)']
+            data: ['>35℃', '[35℃,25℃)', '[25℃,15℃)'] //这个要是改的话，下面也得改，seris的name也得相应改变，并且筛选数据的时候的条件也得变
           },
           grid: {
             left: '3%',
             right: '4%',
             bottom: '10%',
+            width: '90%',
+            height: '85%',         //这个位置是修改里面的图标的大小的
             top: 10,
             containLabel: true
           },
@@ -783,7 +749,7 @@ angular.module('controllers', [])
             }
             ,
             type: 'category',
-            data: ['一层', '二层', '三层', '四层', '五层']
+            data: timelineData.slice(0, 5)
           },
           series: [
             {
@@ -849,13 +815,13 @@ angular.module('controllers', [])
         cancelButtonColor: '#000000'
       };
 
-       $scope.selectTime = function () {
+      $scope.selectTime = function () {
 
         $cordovaDatePicker.show(options).then(function (date) {
           alert(date);
         });
-       }
-      
+      }
+
 
     }
 
@@ -876,67 +842,6 @@ angular.module('controllers', [])
       LoadingService.show();
       $rootScope.getNews();
 
-      /* $scope.enter=function(){
-           LoadingService.show();
-           $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID='+$scope.userId)
-               .then(function(resp){
-                 //  document.getElementById("loading").style.display="none";
-                   LoadingService.hide();
-                   $scope.loadFailedText="";
-                   $scope.items=[];
-                   if(resp.data[0].state==1){
-                       // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
-                   }else {
-                       for (i = 0; i < resp.data.length; i++) {
-                           var depotName, num, type,description;
-                           depotName = resp.data[i].BNID + "号仓";
-                           num = resp.data[i].BNID;
-                           description = resp.data[i].description;
-                           if (resp.data[i].BNType == "circle") {
-                               type = "circle";
-                           }
-                           if (resp.data[i].BNType == "rectangle") {
-                               type = "square";
-                           }
-                           if(resp.data.length%2==0){
-                               if(i==resp.data.length-2 || i==resp.data.length-1){
-                                   $scope.borderBottom.push("transparent");
-                               }else{
-                                   $scope.borderBottom.push("1px solid #bcbcbc");
-                               }
-                           }else{
-                               if(i==resp.data.length-1){
-                                   $scope.borderBottom.push("transparent");
-                               }else{
-                                   $scope.borderBottom.push("1px solid #bcbcbc");
-                               }
-                           }
-
-                           $scope.items.push({depotName: depotName, num: num, type: type,description:description});
-                           if (type == "circle") {
-                               $scope.depotType.push("img/icon-circle-depot.png");
-                           }
-                           if (type == "square") {
-                               $scope.depotType.push("img/icon-square-depot.png");
-                           }
-                           $scope.size[i] = resp.data[i].size.split("/");
-                           $scope.long[i] = $scope.size[i][0];
-                           $scope.width[i] = $scope.size[i][1];
-                           $scope.height[i] = $scope.size[i][2];
-                       }
-
-                   }
-
-               },function(error){
-                   LoadingService.hide();
-                   PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
-                   PopupService.showAlert();
-                   if($scope.items.length==0){
-                       $scope.loadFailedText="数据加载失败";
-                   }
-
-               });
-       };*/
       $scope.enter = function () {
         LoadingService.show();
         $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnHouseByUID?UID=' + localStorage.userId)

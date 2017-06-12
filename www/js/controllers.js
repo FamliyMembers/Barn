@@ -103,7 +103,7 @@ angular.module('controllers', [])
             if (resp.data.state == 1) {
               localStorage.userId = $scope.name;
               LoginService.set();
-              // window.plugins.jPushPlugin.setAlias($scope.name);
+              window.plugins.jPushPlugin.setAlias($scope.name);
               if (document.getElementById("remember").checked == true) {
                 localStorage.password = $scope.password;
               } else {
@@ -842,67 +842,6 @@ angular.module('controllers', [])
       LoadingService.show();
       $rootScope.getNews();
 
-      /* $scope.enter=function(){
-           LoadingService.show();
-           $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID='+$scope.userId)
-               .then(function(resp){
-                 //  document.getElementById("loading").style.display="none";
-                   LoadingService.hide();
-                   $scope.loadFailedText="";
-                   $scope.items=[];
-                   if(resp.data[0].state==1){
-                       // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
-                   }else {
-                       for (i = 0; i < resp.data.length; i++) {
-                           var depotName, num, type,description;
-                           depotName = resp.data[i].BNID + "号仓";
-                           num = resp.data[i].BNID;
-                           description = resp.data[i].description;
-                           if (resp.data[i].BNType == "circle") {
-                               type = "circle";
-                           }
-                           if (resp.data[i].BNType == "rectangle") {
-                               type = "square";
-                           }
-                           if(resp.data.length%2==0){
-                               if(i==resp.data.length-2 || i==resp.data.length-1){
-                                   $scope.borderBottom.push("transparent");
-                               }else{
-                                   $scope.borderBottom.push("1px solid #bcbcbc");
-                               }
-                           }else{
-                               if(i==resp.data.length-1){
-                                   $scope.borderBottom.push("transparent");
-                               }else{
-                                   $scope.borderBottom.push("1px solid #bcbcbc");
-                               }
-                           }
-
-                           $scope.items.push({depotName: depotName, num: num, type: type,description:description});
-                           if (type == "circle") {
-                               $scope.depotType.push("img/icon-circle-depot.png");
-                           }
-                           if (type == "square") {
-                               $scope.depotType.push("img/icon-square-depot.png");
-                           }
-                           $scope.size[i] = resp.data[i].size.split("/");
-                           $scope.long[i] = $scope.size[i][0];
-                           $scope.width[i] = $scope.size[i][1];
-                           $scope.height[i] = $scope.size[i][2];
-                       }
-
-                   }
-
-               },function(error){
-                   LoadingService.hide();
-                   PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
-                   PopupService.showAlert();
-                   if($scope.items.length==0){
-                       $scope.loadFailedText="数据加载失败";
-                   }
-
-               });
-       };*/
       $scope.enter = function () {
         LoadingService.show();
         $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnHouseByUID?UID=' + localStorage.userId)

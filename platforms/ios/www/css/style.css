@@ -336,3 +336,24 @@ ul.home-depository-nav li{
   color: #108678;
   font-size: 16px;
 }
+.table-barn-border {
+
+	border:1px solid gray;
+    /*text-align:center;*/
+    /*list-style-type:cjk-ideographic;*/
+    list-style-type:none;
+}
+.table-barn-border-es {
+
+	border:1px solid gray;
+    /*text-align:center;*/
+    list-style-type:cjk-ideographic;
+    
+}
+.table-barn-detail 
+{
+	background-color:#25554E;
+	color:white;
+    font-size:12px;
+}
+

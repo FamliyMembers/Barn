@@ -86,7 +86,7 @@
 		</data>
 		<key>CDVLaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<data>
-		qMf4vAefQSaFwB+jvJLmOXjFHLY=
+		X4u9t6oI6CwJEBnQ7eCysj2QfGE=
 		</data>
 		<key>CDVLaunchScreen.storyboardc/Info.plist</key>
 		<data>
@@ -94,15 +94,19 @@
 		</data>
 		<key>CDVLaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib</key>
 		<data>
-		5Ua28JHqgPIf7oTQZfcA5Y8+P/Y=
+		nQCvlVi14ysZlFyxbq2MNvMl2es=
 		</data>
 		<key>DatePicker.nib</key>
 		<data>
-		+yd90VduNO7N3I/szq1h/Lk4Wzg=
+		5GLf30p4/fDvGwkUu8Cigag6/nc=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		7nUbVTlr7fCBBmKAm1LyTo2HqvQ=
+		bYwxq1HueaiD1Dea/Am4b2YC0Oo=
+		</data>
+		<key>JPushConfig.plist</key>
+		<data>
+		hV8VwXIq/A55F1VORxW2cYQSMOI=
 		</data>
 		<key>LaunchImage-568h@2x.png</key>
 		<data>
@@ -162,7 +166,7 @@
 		</data>
 		<key>MainViewController.nib</key>
 		<data>
-		RKb5/FBMNqV481/cJvu6zQLBkBc=
+		IxmLqaSR8bX8ZkagBtrHq+0aSBQ=
 		</data>
 		<key>PkgInfo</key>
 		<data>
@@ -170,15 +174,15 @@
 		</data>
 		<key>archived-expanded-entitlements.xcent</key>
 		<data>
-		vO/gVYVVkU1zHBaxd4xJ53/ga5k=
+		uVC4UsEAjsaAorNMAW+mHUKgk9o=
 		</data>
 		<key>config.xml</key>
 		<data>
-		SigoMopqRG1egf8Q9feHdIi/SVA=
+		MLNzO0un2Y3vzKTZhs/E/pgW6zM=
 		</data>
 		<key>embedded.mobileprovision</key>
 		<data>
-		zI9U/b7wY+vc3Zw+k09aMLCBgiI=
+		tQFIuTKiWLTbcgCMNBxweegYkfU=
 		</data>
 		<key>www/components/depository-detail-list-item.html</key>
 		<data>
@@ -206,11 +210,11 @@
 		</data>
 		<key>www/cordova_plugins.js</key>
 		<data>
-		XvHAhwyCTs/zfgsdz8KIO1s39yE=
+		lHBCqj1jjWWVh7LoR9pkXM47+Rk=
 		</data>
 		<key>www/css/style.css</key>
 		<data>
-		s7Z6EFcYmLDqUa7gXk7sg92mjes=
+		Y39ZcDwoA2r6H89CSSNcuwuIRvk=
 		</data>
 		<key>www/img/arrowleft.png</key>
 		<data>
@@ -458,11 +462,11 @@
 		</data>
 		<key>www/js/app.js</key>
 		<data>
-		P6VPCu1qA9aaJynZfyujfIfkN0g=
+		k15N6D/K3VhGmh+nuHZOCTyZN10=
 		</data>
 		<key>www/js/controllers.js</key>
 		<data>
-		SUHls2qZm0HOqMG22ICj8DmAB8g=
+		4/nY7tv52dvm/AI6auE7K3EDQ54=
 		</data>
 		<key>www/js/directives.js</key>
 		<data>
@@ -470,7 +474,7 @@
 		</data>
 		<key>www/js/services.js</key>
 		<data>
-		SeaPeUtYzcCh43GobJnAYBJTM0Q=
+		5hyUW5KwL1jwu8aoPByCun3R9ZA=
 		</data>
 		<key>www/js/test.json</key>
 		<data>
@@ -479,6 +483,10 @@
 		<key>www/js/test2.json</key>
 		<data>
 		JO8OhGvVINLj6nVyspQ4UTiAr6k=
+		</data>
+		<key>www/js/test66.json</key>
+		<data>
+		4W2of6XcpIusaHYio+glocJzs30=
 		</data>
 		<key>www/lib/angular-animate/README.md</key>
 		<data>
@@ -948,6 +956,10 @@
 		<data>
 		gexyZjGUVvhbQiJbBzCrImXWv34=
 		</data>
+		<key>www/plugins/jpush-phonegap-plugin/www/JPushPlugin.js</key>
+		<data>
+		a7l8D7elwdo27ICpIRoqIrunlYo=
+		</data>
 		<key>www/service-worker.js</key>
 		<data>
 		7eWASE2J8GRzMLiGkSDtV9vx0Io=
@@ -958,7 +970,7 @@
 		</data>
 		<key>www/templates/home-detail-temperature.html</key>
 		<data>
-		pnr3BinVT9mAFoGX8O4I7s+Mmso=
+		eNlynC4pNQPBXDe/lwpmcVNPPJI=
 		</data>
 		<key>www/templates/home.html</key>
 		<data>
@@ -1251,11 +1263,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			qMf4vAefQSaFwB+jvJLmOXjFHLY=
+			X4u9t6oI6CwJEBnQ7eCysj2QfGE=
 			</data>
 			<key>hash2</key>
 			<data>
-			/4JYRSDPJcz3Yz8d1zvpgm6sF9EjhpGjYb6I1QzSmTU=
+			ZgOoGftsXyeiIiS6gHoKQnSmefUoiSGbQdqzkfMpfXc=
 			</data>
 		</dict>
 		<key>CDVLaunchScreen.storyboardc/Info.plist</key>
@@ -1273,22 +1285,33 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			5Ua28JHqgPIf7oTQZfcA5Y8+P/Y=
+			nQCvlVi14ysZlFyxbq2MNvMl2es=
 			</data>
 			<key>hash2</key>
 			<data>
-			63EbokLY1HNuQyjdXkD7qsjLL6wssFhEZkyZF6cwgBU=
+			cezTi2cyAYuVWGbj96L1Hni/wIbIXX1u3ORAUZF89pU=
 			</data>
 		</dict>
 		<key>DatePicker.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			+yd90VduNO7N3I/szq1h/Lk4Wzg=
+			5GLf30p4/fDvGwkUu8Cigag6/nc=
 			</data>
 			<key>hash2</key>
 			<data>
-			8ZDyNjA3Ypk9ZLQjNDUfcIdWXzPE7HaSI/QmTfQeR10=
+			w+csdtl9fjrUPtLZ17xDR/IpAslsDOOg4muRaEyS9jM=
+			</data>
+		</dict>
+		<key>JPushConfig.plist</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			hV8VwXIq/A55F1VORxW2cYQSMOI=
+			</data>
+			<key>hash2</key>
+			<data>
+			kdeuf57mCrFhfke4vQYYRXZWJVgsfSRn7kG0JdT+tyA=
 			</data>
 		</dict>
 		<key>LaunchImage-568h@2x.png</key>
@@ -1449,44 +1472,44 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			RKb5/FBMNqV481/cJvu6zQLBkBc=
+			IxmLqaSR8bX8ZkagBtrHq+0aSBQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			VJuX3eKkwv5gt1H84nPo2ZE7lUcEeQVZwO8LHt9aPI4=
+			rQx9XHYO876nvsj3qLWw0+OqU05DR+wmlT9MRXlk4hg=
 			</data>
 		</dict>
 		<key>archived-expanded-entitlements.xcent</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			vO/gVYVVkU1zHBaxd4xJ53/ga5k=
+			uVC4UsEAjsaAorNMAW+mHUKgk9o=
 			</data>
 			<key>hash2</key>
 			<data>
-			l3BKiWC0+szu9UOXoI+10KRWJHw2JzWSFaoqJ98iZWw=
+			e/joE7ObU4L5jO1+1JUxZxM/FUkgLPoVg6yex5UVEFk=
 			</data>
 		</dict>
 		<key>config.xml</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			SigoMopqRG1egf8Q9feHdIi/SVA=
+			MLNzO0un2Y3vzKTZhs/E/pgW6zM=
 			</data>
 			<key>hash2</key>
 			<data>
-			3yY0gVY2j9G1KU+HRE+bsdTIy3qijbF+H//1R0O/Wfk=
+			eGLyBsLhL/U6uOGJEOVA5U+OV59UANDo6o3ERHhIS7A=
 			</data>
 		</dict>
 		<key>embedded.mobileprovision</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			zI9U/b7wY+vc3Zw+k09aMLCBgiI=
+			tQFIuTKiWLTbcgCMNBxweegYkfU=
 			</data>
 			<key>hash2</key>
 			<data>
-			IPcdIwFPjxSfSUNKQxm7NxZybV3ls1dLAv0U/uAUHPY=
+			UA7hNjGpHdAw7qq2iVWY3fJYNOOG6Y+hYiyRuR49sj4=
 			</data>
 		</dict>
 		<key>www/components/depository-detail-list-item.html</key>
@@ -1559,22 +1582,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			XvHAhwyCTs/zfgsdz8KIO1s39yE=
+			lHBCqj1jjWWVh7LoR9pkXM47+Rk=
 			</data>
 			<key>hash2</key>
 			<data>
-			apaEBnAuRXjdOsVLIeqOQpYl4ZzTgszvnrvxgFf+paU=
+			/fUfssrcVeqVoPAkFlR3ktCxT8pm7TfUBZDus9m3F68=
 			</data>
 		</dict>
 		<key>www/css/style.css</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			s7Z6EFcYmLDqUa7gXk7sg92mjes=
+			Y39ZcDwoA2r6H89CSSNcuwuIRvk=
 			</data>
 			<key>hash2</key>
 			<data>
-			9j/iWO6KnM9uiyj+zTUv/mSLjmA9qJ38BoAlcoRqvZs=
+			KGby/Eq+t0P7pKmRfqTMff96AH88TypwIwx9+sVPm3c=
 			</data>
 		</dict>
 		<key>www/img/arrowleft.png</key>
@@ -2252,22 +2275,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			P6VPCu1qA9aaJynZfyujfIfkN0g=
+			k15N6D/K3VhGmh+nuHZOCTyZN10=
 			</data>
 			<key>hash2</key>
 			<data>
-			mQTxs4lp+Jt08G2Wx8VoEe/kCuWMg/wpKh+ddmVb8GA=
+			rxDcIYy1LA+ij9Y4Vz9KdhNTHGyXznsbg2HmMefAmaU=
 			</data>
 		</dict>
 		<key>www/js/controllers.js</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			SUHls2qZm0HOqMG22ICj8DmAB8g=
+			4/nY7tv52dvm/AI6auE7K3EDQ54=
 			</data>
 			<key>hash2</key>
 			<data>
-			bAaOHbHUl5V3JvxaiiOjLfYZFE8kjJd/R0IZfiQ68Hw=
+			rf5vC8f33w8TF59oGNllDVx94jN0O3noG7QZByNZdjw=
 			</data>
 		</dict>
 		<key>www/js/directives.js</key>
@@ -2285,11 +2308,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			SeaPeUtYzcCh43GobJnAYBJTM0Q=
+			5hyUW5KwL1jwu8aoPByCun3R9ZA=
 			</data>
 			<key>hash2</key>
 			<data>
-			DQRUCSd9lN1Dh/CPKYnXdkPBSm9qfxqzN/tWUh2Uwfs=
+			Yl9WNdan/XHAAZamKgJymgD1/3glvU2Ev952RIi71To=
 			</data>
 		</dict>
 		<key>www/js/test.json</key>
@@ -2312,6 +2335,17 @@
 			<key>hash2</key>
 			<data>
 			xMY6vH3VTWTofS4IcVRXWfGa9cDb9QTbGvVsXB8I+UY=
+			</data>
+		</dict>
+		<key>www/js/test66.json</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			4W2of6XcpIusaHYio+glocJzs30=
+			</data>
+			<key>hash2</key>
+			<data>
+			GnYlOVHUeHr5WRPQeoAmXo7pyz2HFx4lGyCXC7hmGkw=
 			</data>
 		</dict>
 		<key>www/lib/angular-animate/README.md</key>
@@ -3601,6 +3635,17 @@
 			s8oy4VvWgJx67mjrcY9CWo7fZ0VqTuZEyLnykDMBTXs=
 			</data>
 		</dict>
+		<key>www/plugins/jpush-phonegap-plugin/www/JPushPlugin.js</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			a7l8D7elwdo27ICpIRoqIrunlYo=
+			</data>
+			<key>hash2</key>
+			<data>
+			Tcmzks9k7VXvs3C6bIB7D9SdorBppm/SBxCGG5sjTZc=
+			</data>
+		</dict>
 		<key>www/service-worker.js</key>
 		<dict>
 			<key>hash</key>
@@ -3627,11 +3672,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			pnr3BinVT9mAFoGX8O4I7s+Mmso=
+			eNlynC4pNQPBXDe/lwpmcVNPPJI=
 			</data>
 			<key>hash2</key>
 			<data>
-			OH2RR1mD++F2iMpXo0eDJ9gxTQHTKsy/o/5u/IrLMtk=
+			GXQT5XRNn3xi59mxXWLnjb2aiV+uXYpChL0Ew2OzLS8=
 			</data>
 		</dict>
 		<key>www/templates/home.html</key>

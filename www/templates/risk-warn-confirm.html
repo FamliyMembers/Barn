@@ -18,21 +18,21 @@
             </div>
         </div>
        <div id="warn-detail">
-         <table ng-repeat="type in warnType">
-           <tr ng-show="type.length">
-             <td colspan="5">
-               {{type[0].warnName}}&nbsp;:&nbsp;&nbsp;{{type.length}}&nbsp;&nbsp;&nbsp;
-               <i class={{moreIcon[$index]}} ng-click="showMore($index)"></i>
-             </td>
-           </tr>
-          <tr ng-show="more[$index]">
-             <td>层数</td>
-             <td>坐标X</td>
-             <td>坐标y</td>
-             <td>类型</td>
-             <td>温度</td>
-           </tr>
-           <tbody ng-show="more[$index]">
+         <div ng-repeat="type in warnType">
+           <p>
+             <span>&nbsp;&nbsp;</span>
+             <span>{{type[0].warnName}}&nbsp;:&nbsp;&nbsp;{{type.length}}</span>
+             <i class={{moreIcon[$index]}} ng-click="showMore($index)"></i>
+           </p>
+           <table>
+             <tr ng-show="more[$index]" style="background-color: #108578">
+               <td style="color: white">层数</td>
+               <td style="color: white">排数</td>
+               <td style="color: white">杆号</td>
+               <td style="color: white">类型</td>
+               <td style="color: white">温度</td>
+             </tr>
+             <tbody ng-show="more[$index]">
              <tr ng-repeat="item in type">
                <td>{{item.depth}}</td>
                <td>{{item.x}}</td>
@@ -40,8 +40,9 @@
                <td>{{item.warnName}}</td>
                <td>{{item.temperature}}</td>
              </tr>
-           </tbody>
-         </table>
+             </tbody>
+           </table>
+         </div>
        </div>
     </ion-content>
 </ion-view>

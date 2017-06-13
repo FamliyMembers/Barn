@@ -1187,14 +1187,52 @@ angular.module('controllers', [])
               $scope.display="none";
             }
             var userId=localStorage.getItem("userId");
+            var dateTime="";
+            var url="";
+            var lastTime="";
             $scope.items=[];
+            $scope.newItems=[];
             $scope.itemClass1=[];
             $scope.itemClass2=[];
             $scope.loadFailedText="";
             LoadingService.show();
-          $scope.enter=function(){
+          function formatDate(date) {
+            return  date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+                    +' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+          }
+          $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId,{cache:false})
+            .then(function(resp){
+              if(resp.data.length==0){
+              }else{
+                if(resp.data[0].state==1){
+                }else{
+                  var news=0;
+                  for(i=0;i<resp.data.length;i++){
+                    if(resp.data[i].status=="true"){
+                      news++
+                    }
+                  }
+                  $rootScope.badges.news=news;
+                  if($rootScope.badges.news>99){
+                    $rootScope.badges.news="99+"
+                  }
+                }
+              }
+            },function(error){
+
+            });
+
+          $scope.enter=function(state){
+            if(state==0){
+              dateTime=formatDate(new Date());
+              $scope.newItems=[];
+            }else{
+              dateTime=lastTime;
+            }
             LoadingService.show();
-            $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId,{cache:false})
+          //  url='http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId;
+              url='http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUIDLimitTen?UID='+userId+'&timestamp='+dateTime;
+            $http.get(url,{cache:false})
               .then(function(resp){
                 //  document.getElementById("warnLoading").style.display="none";
                 //  document.getElementById("warn").style.display="block";
@@ -1208,8 +1246,8 @@ angular.module('controllers', [])
                     $scope.loadFailedText="当前数据库中没有任何告警信息"
                   }else{
                     $scope.loadFailedText="";
-                    var news=0;
                     var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
+                    lastTime=resp.data[resp.data.length-1].create_time;
                     for(i=0;i<resp.data.length;i++){
 
                       title=resp.data[i].BNID+"号仓报警";
@@ -1227,33 +1265,31 @@ angular.module('controllers', [])
                         flag=0;
                         itemClass1="";
                         itemClass2="item warn-right-item";
-                        news++
                       }else{
                         flag=1;
                         itemClass1="lightgray-bg";
                         itemClass2="item warn-right-item lightgray-bg";
                       }
-                      $scope.items.push({date:date, time:time,title:title,detail:detail,
+                        $scope.newItems.push({date:date,time:time,title:title,detail:detail,
                         flag:flag,alarmId:alarmId,confirmId:confirmId,
                         itemClass1:itemClass1,itemClass2:itemClass2});
 
                     }
-                    $rootScope.badges.news=news;
-                    if($rootScope.badges.news>99){
-                      $rootScope.badges.news="99+"
-                    }
-                    /*$scope.items.sort(function(a,b){
-                     return a.flag-b.flag});
-                     for(i=0;i<$scope.items.length;i++){
-                     if ($scope.items[i].flag == 0) {
-                     $scope.itemClass1.push("");
-                     $scope.itemClass2.push("item warn-right-item");
-                     } else {
-                     $scope.itemClass1.push("lightgray-bg");
-                     $scope.itemClass2.push("item warn-right-item lightgray-bg");
-                     }
-                     } */
+                  /*  $scope.newItems.sort(function(a,b){
+                      return a.flag-b.flag});
+                    $scope.newItems.sort(function(a,b){
+                      return b.time-a.time});
+                    for(i=0;i<$scope.newItems.length;i++){
+                      if ($scope.newItems[i].flag == 0) {
+                        $scope.itemClass1.push("");
+                        $scope.itemClass2.push("item warn-right-item");
+                      } else {
+                        $scope.itemClass1.push("lightgray-bg");
+                        $scope.itemClass2.push("item warn-right-item lightgray-bg");
+                      }
+                    }*/
                   }
+                  $scope.items=$scope.newItems;
                 }
               },function(error){
                 LoadingService.hide();
@@ -1266,7 +1302,8 @@ angular.module('controllers', [])
               });
           };
 
-            $scope.enter();
+
+            $scope.enter(0);
 
             $scope.goConfirm=function(detail,id){
                 localStorage.alarmDetail=detail;
@@ -1278,8 +1315,12 @@ angular.module('controllers', [])
             };
 
             $scope.doRefresh = function() {
-                $scope.enter();
+                $scope.enter(0);
                 $scope.$broadcast('scroll.refreshComplete');
+            };
+            $scope.loadMore=function () {
+              $scope.enter(1);
+              $scope.$broadcast('scroll.infiniteScrollComplete');
             };
             $scope.back=function(){
               $state.go("tabs.risk");
@@ -1436,7 +1477,7 @@ angular.module('controllers', [])
                  if(i==0){
                    $scope.warnType[k]=new Array();
                    $scope.more.push(0);
-                   $scope.moreIcon.push("icon ion-plus");
+                   $scope.moreIcon.push("icon ion-chevron-right");
                    $scope.warnType[k].push({x:x,y:y,depth:depth,warnName:warnName,temperature:temperature});
 
                  }else{
@@ -1446,7 +1487,7 @@ angular.module('controllers', [])
                      k++;
                      $scope.warnType[k]=new Array();
                      $scope.more.push(0);
-                     $scope.moreIcon.push("icon ion-plus");
+                     $scope.moreIcon.push("icon ion-chevron-right");
                      $scope.warnType[k].push({x:x,y:y,depth:depth,warnName:warnName,temperature:temperature});
                    }
                  }
@@ -1609,12 +1650,22 @@ angular.module('controllers', [])
               //  $ionicHistory.goBack();
             }
           $scope.showMore=function (flag) {
-              if($scope.moreIcon[flag]=="icon ion-plus"){
+              var parent = document.getElementById("warn-detail").getElementsByTagName("div")[flag];
+              var childSpan1=parent.getElementsByTagName("span")[0];
+              var childSpan2=parent.getElementsByTagName("span")[1];
+              var childI=parent.getElementsByTagName("i")[0];
+              if($scope.moreIcon[flag]=="icon ion-chevron-right"){
                 $scope.more[flag]=1;
-                $scope.moreIcon[flag]="icon ion-minus";
+                $scope.moreIcon[flag]="icon ion-chevron-down";
+                childSpan1.style.backgroundColor="#dfb752";
+                childI.style.color="#000000";
+                childSpan2.style.color="#000000";
               }else{
                 $scope.more[flag]=0;
-                $scope.moreIcon[flag]="icon ion-plus";
+                $scope.moreIcon[flag]="icon ion-chevron-right";
+                childSpan1.style.backgroundColor="#cdcdcd";
+                childI.style.color="#cdcdcd";
+                childSpan2.style.color="#666666";
               }
 
           }
@@ -1828,8 +1879,8 @@ angular.module('controllers', [])
 
       $scope.barns=[];
       $scope.charts=["层均温","三温"];
-      $scope.startTime="请选择起始日期";
-      $scope.endTime="请选择终止日期";
+      $scope.startTime="2017-6-6";
+      $scope.endTime="2017-6-15";
       $scope.chart=$scope.charts[0];
       var oneDay=1000*3600*24;
       $scope.date=(new Date()).getTime()-10*oneDay;
@@ -1839,10 +1890,11 @@ angular.module('controllers', [])
       var lineChart=echarts.init(document.getElementById("lineChart"));
       var date1=0;
       var date2=0;
-      var colors=['#FF0000','#00FF00','#0000FF','#FFFF00','#00FFFF','#FF00FF'];
+      var threeColors=['#FC022D','#D2CD00','#036697'];
+      var levelColors=['#ED0909','#E1861B','#7FB90F','#298CBE','#C77EB5'];
       var dateTime="";
-      var yLabel="层均温";
-      var chartTitle=$scope.chart+'变化图';
+      $scope.yLabel="层均温";
+      $scope.chartTitle=$scope.chart+'变化图';
       var maxLevels=['一层','二层','三层','四层','五层','六层'];
       var levels=[];
       var series= [];
@@ -1872,7 +1924,6 @@ angular.module('controllers', [])
         $scope.closeBarnPopover();
         $scope.barn=$scope.barns[i].barnName;
         barnId=$scope.barns[i].barnId;
-        alert($scope.barns[i].barnId);
       };
 
       $scope.chartPopover = $ionicPopover.fromTemplateUrl('chart-popover.html', {
@@ -1893,8 +1944,8 @@ angular.module('controllers', [])
       $scope.selectChart=function (i) {
         $scope.closeChartPopover();
         $scope.chart=$scope.charts[i];
-        yLabel=$scope.chart;
-        chartTitle=$scope.chart+'变化图';
+        $scope.yLabel=$scope.chart;
+        $scope.chartTitle=$scope.chart+'变化图';
       };
 
       var getBarns=function () {
@@ -1926,7 +1977,7 @@ angular.module('controllers', [])
          getBarnTemperatureData();
          }
         }
-       /* lineChart.clear();
+        /*lineChart.clear();
         if($scope.chart=='层均温'){
           getLevelAverageData();
         }else{
@@ -2025,11 +2076,17 @@ angular.module('controllers', [])
              var oneSeries= {
                name:levels[i],
                type:'line',
+               lineStyle:{
+                 normal:{
+                   width:3.5
+                 }
+               },
                smooth: true,
+               symbol:'circle',
                itemStyle: {
                  normal: {
                    // 设置线条的颜色
-                   color: colors[i]
+                   color: levelColors[i]
                  }
                },
                data:data,
@@ -2092,12 +2149,18 @@ angular.module('controllers', [])
             oneSeries= {
               name:levels[0],
               type:'line',
+              lineStyle:{
+                normal:{
+                  width:3.5
+                }
+              },
               smooth: true,
+              symbol:'circle',
               showSymbol: symbolShow,
               itemStyle: {
                 normal: {
                   // 设置线条的颜色
-                  color: colors[0]
+                  color: threeColors[0]
                 }
               },
               data:data1
@@ -2122,12 +2185,18 @@ angular.module('controllers', [])
             oneSeries= {
               name:levels[1],
               type:'line',
+              lineStyle:{
+                normal:{
+                  width:3.5
+                }
+              },
               smooth: true,
+              symbol:'circle',
               showSymbol: symbolShow,
               itemStyle: {
                 normal: {
                   // 设置线条的颜色
-                  color: colors[1]
+                  color: threeColors[1]
                 }
               },
               data:data2
@@ -2164,12 +2233,18 @@ angular.module('controllers', [])
             oneSeries= {
               name:levels[2],
               type:'line',
+              lineStyle:{
+                normal:{
+                  width:3.5
+                }
+              },
               smooth: true,
+              symbol:'circle',
               showSymbol: symbolShow,
               itemStyle: {
                 normal: {
                   // 设置线条的颜色
-                  color: colors[2]
+                  color: threeColors[2]
                 }
               },
               data: data3
@@ -2187,11 +2262,6 @@ angular.module('controllers', [])
 // 指定图表的配置项和数据
       function setMyOption() {
         option = {
-          backgroundColor:'#edf9f5',
-          title:{
-            text:chartTitle,
-            top:10
-          },
           tooltip: {
             trigger: 'axis',
             axisPointer: {
@@ -2199,13 +2269,13 @@ angular.module('controllers', [])
             }
           },
           legend: {
-            left:10,
-            top:40,
+            right:20,
+            bottom:20,
             data:levels
           },
           grid: {
             left:30,
-            top:100,
+            top:20,
             height:'65%',
             containLabel: true
           },
@@ -2235,14 +2305,14 @@ angular.module('controllers', [])
               show:false
             },
             nameLocation:'middle',
-            nameGap:40
+            nameGap:45
           },
           yAxis:{
             type:'value',
             boundaryGap:['0','100%'],
-            name: yLabel,
+            name: $scope.yLabel,
             nameLocation:'middle',
-            nameGap:30,
+            nameGap:40,
             splitLine:{
               lineStyle:{
                 color:'#aaa'

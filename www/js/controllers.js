@@ -2011,7 +2011,7 @@ angular.module('controllers', [])
               }
               document.getElementById("end").style.disabled="";
               document.getElementById("end").style.color="#108678";
-              document.getElementById("end").getElementsByTagName('div')[0].className="select";
+              document.getElementById("end").className="select";
               document.getElementById("end").getElementsByTagName('input')[0].style.color="#000000";
               options2 = {
                 date: new Date(),

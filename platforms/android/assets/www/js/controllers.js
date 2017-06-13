@@ -1176,6 +1176,116 @@ angular.module('controllers', [])
                 $scope.arrow="img/icon-grey-arrow-right.png";
             };
         }])
+    /*.controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope',
+      function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope){
+
+        if($ionicHistory.backView().stateName!="tabs.risk"){
+          $scope.hide=true;
+          $scope.display="block";
+        }else{
+          $scope.hide=false;
+          $scope.display="none";
+        }
+        var userId=localStorage.getItem("userId");
+        $scope.newItems=[];
+        $scope.itemClass1=[];
+        $scope.itemClass2=[];
+        $scope.loadFailedText="";
+        LoadingService.show();
+        $scope.enter=function(){
+          LoadingService.show();
+          $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId,{cache:false})
+            .then(function(resp){
+              //  document.getElementById("warnLoading").style.display="none";
+              //  document.getElementById("warn").style.display="block";
+              LoadingService.hide();
+              $scope.newItems=[];
+              if(resp.data.length==0){
+                $scope.loadFailedText="当前数据库中没有任何告警信息"
+              }else{
+                if(resp.data[0].state==1){
+                  // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
+                  $scope.loadFailedText="当前数据库中没有任何告警信息"
+                }else{
+                  $scope.loadFailedText="";
+                  var news=0;
+                  var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
+                  for(i=0;i<resp.data.length;i++){
+
+                    title=resp.data[i].BNID+"号仓报警";
+                    detail=resp.data[i].BNID+"号仓库"+resp.data[i].alarm_msg;
+                    date=resp.data[i].create_time.split(" ")[0];
+                    alarmId=resp.data[i].id;
+                    confirmId=resp.data[i].confirm_UID;
+                    if(resp.data[i].create_time.split(" ")[1].split(":")[0]>12){
+                      duration="pm";
+                    }else{
+                      duration="am";
+                    }
+                    time=resp.data[i].create_time.split(" ")[1].split(".")[0]+" "+duration;
+                    if(resp.data[i].status=="true"){
+                      flag=0;
+                      itemClass1="";
+                      itemClass2="item warn-right-item";
+                      news++
+                    }else{
+                      flag=1;
+                      itemClass1="lightgray-bg";
+                      itemClass2="item warn-right-item lightgray-bg";
+                    }
+                    $scope.newItems.push({date:date, time:time,title:title,detail:detail,
+                      flag:flag,alarmId:alarmId,confirmId:confirmId,
+                      itemClass1:itemClass1,itemClass2:itemClass2});
+
+                  }
+                  $rootScope.badges.news=news;
+                  if($rootScope.badges.news>99){
+                    $rootScope.badges.news="99+"
+                  }
+                  /!*$scope.items.sort(function(a,b){
+                   return a.flag-b.flag});
+                   for(i=0;i<$scope.items.length;i++){
+                   if ($scope.items[i].flag == 0) {
+                   $scope.itemClass1.push("");
+                   $scope.itemClass2.push("item warn-right-item");
+                   } else {
+                   $scope.itemClass1.push("lightgray-bg");
+                   $scope.itemClass2.push("item warn-right-item lightgray-bg");
+                   }
+                   } *!/
+                }
+              }
+            },function(error){
+              LoadingService.hide();
+              PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新页面");
+              PopupService.showAlert();
+              if($scope.items.length==0){
+                $scope.loadFailedText="数据加载失败";
+              }
+
+            });
+        };
+
+        $scope.enter();
+
+        $scope.goConfirm=function(detail,id){
+          localStorage.alarmDetail=detail;
+          //  localStorage.alarmFlag=flag;
+          localStorage.alarmId=id;
+          localStorage.receiveType=0;
+          //   localStorage.confirmId=confirmId;
+          $state.go("tabs.confirmwarn",{detail:detail,alarmId:id,type:0});
+        };
+
+        $scope.doRefresh = function() {
+          $scope.enter();
+          $scope.$broadcast('scroll.refreshComplete');
+        };
+        $scope.back=function(){
+          $state.go("tabs.risk");
+        }
+
+      }])*/
     .controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope',
         function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope){
 
@@ -1190,7 +1300,6 @@ angular.module('controllers', [])
             var dateTime="";
             var url="";
             var lastTime="";
-            $scope.items=[];
             $scope.newItems=[];
             $scope.itemClass1=[];
             $scope.itemClass2=[];
@@ -1237,7 +1346,6 @@ angular.module('controllers', [])
                 //  document.getElementById("warnLoading").style.display="none";
                 //  document.getElementById("warn").style.display="block";
                 LoadingService.hide();
-                $scope.items=[];
                 if(resp.data.length==0){
                   $scope.loadFailedText="当前数据库中没有任何告警信息"
                 }else{
@@ -1289,7 +1397,6 @@ angular.module('controllers', [])
                       }
                     }*/
                   }
-                  $scope.items=$scope.newItems;
                 }
               },function(error){
                 LoadingService.hide();
@@ -2011,7 +2118,7 @@ angular.module('controllers', [])
               }
               document.getElementById("end").style.disabled="";
               document.getElementById("end").style.color="#108678";
-              document.getElementById("end").getElementsByTagName('div')[0].className="select";
+              document.getElementById("end").className="select";
               document.getElementById("end").getElementsByTagName('input')[0].style.color="#000000";
               options2 = {
                 date: new Date(),

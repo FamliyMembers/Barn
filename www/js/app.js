@@ -3,10 +3,9 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ngCordova'])
+angular.module('starter', ['ionic','controllers','directives','services','ngCordova'])
 
-    .run(function ($ionicPlatform, $location, $ionicHistory, $ionicPopup, $rootScope, $timeout, $state, $cordovaAppVersion, $cordovaNetwork, $cordovaToast, Push) {
-
+    .run(function($ionicPlatform,$location,$ionicHistory,$ionicPopup,$rootScope,$timeout,$state,$cordovaAppVersion,$cordovaNetwork,$cordovaToast) {
         $ionicPlatform.ready(function () {
 
             if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -22,21 +21,72 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
             if (window.StatusBar) {
                 StatusBar.styleDefault();
             }
-            if ($cordovaNetwork.getNetwork() != Connection.WIFI) {
-                $cordovaToast.showLongBottom("检测到当前网络环境为非wifi网络");
+            if($cordovaNetwork.getNetwork()!=Connection.WIFI){
+              $cordovaToast.showLongBottom("检测到当前网络环境为非wifi网络");
             }
 
             if (window.cordova && window.cordova.InAppBrowser) {
-                window.open = window.cordova.InAppBrowser.open;
+              window.open = window.cordova.InAppBrowser.open;
             }
-            $cordovaAppVersion.getVersionNumber().then(function (version) {
-                localStorage.appVersion = version;
+            $cordovaAppVersion.getVersionNumber().then(function(version) {
+                localStorage.appVersion=version;
             });
-            
             window.plugins.jPushPlugin.init();
-            window.plugins.jPushPlugin.receiveNotificationIniOSCallback = function (data) {
-
-                $state.go("tabs.warn", {}, { reload: true });
+            window.plugins.jPushPlugin.openNotificationIniOSCallback=function(data){
+                /* alert(data.title);
+                var keys="";
+                for(var key in data.extras){
+                    keys=keys+"--"+key;
+                }
+               // alert(data.extras);
+               // alert(keys);
+                var detail=data.alert;
+                var alarmId;
+                var deviceId;
+                var address;
+                var alarmType;
+                var time;
+                if(data.extras.alarm_id!=null){
+                    alarmId=data.extras.alarm_id;
+                }else{
+                    alarmId=1;
+                }
+                if(data.extras.device_id!=null){
+                    deviceId=data.extras.device_id;
+                }else{
+                    deviceId=5;
+                }
+                if(data.extras.address!=null){
+                    address=data.extras.address;
+                }else{
+                    address=5;
+                }
+                if(data.extras.alarm_type!=null){
+                    alarmType=data.extras.alarm_type;
+                }else{
+                    alarmType=5;
+                }
+                if(data.extras.timestamp!=null){
+                    time=data.extras.timestamp;
+                }else{
+                    time="2017-04-28 14:12:25";
+                }
+              //  alert(deviceId+"--"+address+"--"+alarmType+"--"+time);
+                localStorage.warnDeviceId=deviceId;
+                localStorage.warnAddress=address;
+                localStorage.warnAlarmType=alarmType;
+                localStorage.warnTime=time;
+                if(data.extras.alarm_id!=null){
+                    alarmId=parseInt(data.extras.alarm_id);
+                }else {
+                  alarmId = 1;
+                }
+                localStorage.alarmDetail=detail;
+                localStorage.alarmFlag=0;
+                localStorage.alarmId=alarmId;
+                localStorage.receiveType=1;
+                $state.go("tabs.confirmwarn",{detail:detail,alarmId:alarmId,type:1});*/
+                $state.go("tabs.warn",{},{reload:true});
 
             };
             window.plugins.jPushPlugin.setDebugMode(true);
@@ -49,10 +99,10 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
             });
         });
 
-        $ionicPlatform.registerBackButtonAction(function (e) {
+        $ionicPlatform.registerBackButtonAction(function(e){
             e.preventDefault();
-            function showConfirm() {
-                var popup = $ionicPopup.show({
+            function showConfirm(){
+                var popup=$ionicPopup.show({
                     title: '提示',
                     subTitle: '确定要退出应用吗？',
                     scope: $rootScope,
@@ -60,7 +110,7 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
                         {
                             text: '取消',
                             type: 'button-clear button-royal',
-                            onTap: function () {
+                            onTap: function(){
                                 return 'cancel';
                             }
 
@@ -68,13 +118,13 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
                         {
                             text: '确认',
                             type: 'button-clear button-royal border-left',
-                            onTap: function (e) {
+                            onTap: function(e){
                                 return 'active';
                             }
                         }
                     ]
                 });
-                popup.then(function (res) {
+                popup.then(function(res){
                     if (res == 'active') {
                         // 退出app
                         ionic.Platform.exitApp();
@@ -84,7 +134,7 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
 
             if (cordova.plugins.Keyboard.isVisible) {
                 cordova.plugins.Keyboard.close();
-            } else {
+            }else {
 
                 if ($location.path() == '/tab/home'
                     || $location.path() == '/tab/table'
@@ -98,10 +148,10 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
 
                     if (cordova.plugins.Keyboard.isVisible) {
                         cordova.plugins.Keyboard.close();
-                    } else if ($ionicHistory.currentView().stateName == "tabs.warn") {
-                        if ($ionicHistory.backView().stateName != "tabs.risk") {
+                    }else if($ionicHistory.currentView().stateName == "tabs.warn"){
+                        if ($ionicHistory.backView().stateName!="tabs.risk"){
                             $state.go("tabs.risk");
-                        } else {
+                        }else {
                             $ionicHistory.goBack();
                         }
                     } else {
@@ -115,10 +165,10 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
             }
 
             return false;
-        }, 101)
+        },101)
 
     })
-    .config(function ($ionicConfigProvider, $stateProvider, $urlRouterProvider) {
+    .config(function($ionicConfigProvider,$stateProvider,$urlRouterProvider){
 
         $ionicConfigProvider.tabs.position("bottom");
         $ionicConfigProvider.tabs.style("standard");
@@ -155,7 +205,7 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
                 }
             })
             .state('tabs.detail', {
-                url: "/detail/:number:long:width:height:description",
+                url: "/detail/:title:number:long:width:height:description",
                 views: {
                     'home-tab': {
                         templateUrl: "templates/home-depository-detail.html",
@@ -182,13 +232,13 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
                 }
             })
             .state('tabs.line', {
-                url: "/line",
-                views: {
-                    'table-tab': {
-                        templateUrl: "templates/table-line.html",
-                        controller: "LineCtrl"
-                    }
+              url: "/line",
+              views: {
+                'table-tab': {
+                  templateUrl: "templates/table-line.html",
+                  controller: "LineCtrl"
                 }
+              }
             })
             .state('tabs.risk', {
                 url: "/risk",
@@ -253,37 +303,28 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
                 }
             })
             .state('tabs.update', {
-                url: "/update",
-                views: {
-                    'person-tab': {
-                        templateUrl: "templates/person-update.html",
-                        controller: "UpdateCtrl"
-                    }
+              url: "/update",
+              views: {
+                'person-tab': {
+                  templateUrl: "templates/person-update.html",
+                  controller: "UpdateCtrl"
                 }
+              }
             })
             .state('tabs.test', {
-                url: "/test",
-                views: {
-                    'person-tab': {
-                        templateUrl: "templates/person-test.html",
-                        controller: "TestCtrl"
-                    }
+              url: "/test",
+              views: {
+                'person-tab': {
+                  templateUrl: "templates/person-test.html",
+                  controller: "TestCtrl"
                 }
-            })
-            .state('tabs.search-history', {
-                url: "/search-history",
-                views: {
-                    'table-tab': {
-                        templateUrl: "templates/search-history.html",
-                        controller: "searchHistoryCtrl"
-                    }
-                }
+              }
             })
 
-        if (localStorage.getItem("start") == 1) {
+        if(localStorage.getItem("start")==1){
             $urlRouterProvider.otherwise("/login");
-        } else {
-            localStorage.setItem("start", 1);
+        }else{
+            localStorage.setItem("start",1);
             $urlRouterProvider.otherwise("/start");
         }
 

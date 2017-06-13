@@ -1,39 +1,69 @@
 <ion-view hide-back-button="false">
-  <ion-nav-title>温度报表</ion-nav-title>
+  <ion-nav-title>历史数据汇总</ion-nav-title>
   <ion-content id="line">
     <div>
       <label>
+        <span style="color: #108678">汇总类型：</span>
+        <div class="select" ng-click="openChartPopover($event)">
+          <input type="button" value={{chart}}>
+          <i class="icon ion-chevron-down"></i>
+        </div>
+      </label>
+    </div>
+    <div>
+      <label>
        <span style="color: #108678">仓号：</span>
-        <input type="button" value={{barn}}
-               style="background-color: transparent;padding: 3px 5px"
-               ng-click="openPopover($event)">
+        <div class="select" ng-click="openBarnPopover($event)">
+          <input type="button" value={{barn}}>
+          <i class="icon ion-chevron-down"></i>
+        </div>
       </label>
     </div>
-    <div>
+    <div id="start" style="font-size:16px;color: #108678">
       <label>
-        <span>起始时间：</span>
-        <input type="button" value={{startTime}}
-               style="background-color: transparent;padding: 3px 10px"
-               ng-click="selectTime(1)"/>
+        <span>起始日期：</span>
+        <div class="select" ng-click="selectTime1()">
+          <input type="button" value={{startTime}}
+                 style="background-color: transparent;padding: 3px 10px"/>
+          <i class="icon ion-chevron-down"></i>
+        </div>
       </label>
     </div>
-    <div>
+    <div id="end" disabled="disabled" style="color: grey;font-size: 16px">
       <label>
-        <span>终止时间：</span>
-        <input type="button" value={{endTime}}
-               style="background-color: transparent;padding: 3px 10px"
-               ng-click="selectTime(2)"/>
+        <span>终止日期：</span>
+        <div class="not-select" ng-click="selectTime2()">
+          <input type="button" value={{endTime}}
+                 style="background-color: transparent;padding: 3px 10px;color: grey"/>
+          <i class="icon ion-chevron-down"></i>
+        </div>
       </label>
     </div>
-    <div id="lineChart" style="width: 90%;height: 300px"></div>
-    <script id="my-popover.html" type="text/ng-template">
-      <ion-popover-view style="margin-top: 5px;margin-left: 15px">
-        <ion-content>
-          <ion-list>
-            <ion-item ng-repeat="item in barns" ng-click="selectBarn($index)">{{item}}</ion-item>
-          </ion-list>
-        </ion-content>
-      </ion-popover-view>
-    </script>
+    <p style="margin:auto;color: white;
+              background-color: #108678;margin-top: 15px;
+              font-size: 15px;text-align:center;
+              padding:10px;width: 20%"
+              ng-click="selectComplete()">确认</p>
+    <div id="lineChart" style="width: 90%;height: 400px"></div>
   </ion-content>
+  <script id="barn-popover.html" type="text/ng-template">
+    <ion-popover-view style="width:150px;margin-top: 5px;margin-left: 15px;height: 200px">
+      <ion-content>
+        <ion-list>
+          <ion-item ng-repeat="item in barns"
+                    ng-click="selectBarn($index)">{{item.barnName}}</ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-popover-view>
+  </script>
+  <script id="chart-popover.html" type="text/ng-template">
+    <ion-popover-view style="width:100px;margin-top: 5px;margin-left: 15px;height: 150px">
+      <ion-content>
+        <ion-list>
+          <ion-item ng-repeat="item in charts"
+                    ng-click="selectChart($index)">{{item}}</ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-popover-view>
+  </script>
 </ion-view>

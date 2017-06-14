@@ -320,8 +320,8 @@ ul.home-depository-nav li{
     font-size: 10px;
 }
 .spinner svg {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
 }
 
 #line div div{
@@ -357,7 +357,7 @@ ul.home-depository-nav li{
   border:transparent;
   background-color: transparent;
   padding: 0 7px;
-  width: 95px;
+  width: 100px;
 }
 #line .select input{
   border-right: 1px solid #108678;
@@ -409,6 +409,7 @@ ul.home-depository-nav li{
 }
 #warn-detail p span:nth-child(odd){
   background-color: #cdcdcd;
+  font-size: 20px;
 }
 #warn-detail p span:nth-child(even){
   padding-left: 20px;

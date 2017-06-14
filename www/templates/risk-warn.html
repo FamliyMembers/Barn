@@ -1,4 +1,4 @@
-<ion-view hide-back-button="false" cache-view="false" hide-nav-bar={{hide}}>
+<ion-view hide-back-button="false" hide-nav-bar={{hide}}>
     <ion-nav-title>粮仓预警</ion-nav-title>
     <ion-content>
       <div class="page-title" style="padding-top:3px;padding-bottom: 15px;display: {{display}}">
@@ -10,7 +10,7 @@
        <ion-refresher pulling-text="下拉刷新" spinner="bubbles" refreshing-text="刷新完成" on-refresh="doRefresh()"></ion-refresher>
        <div class="warn-left-nav" id="warn">
          <ul>
-           <li ng-repeat="item in newItems | orderBy:'flag'" class={{item.itemClass1}}>
+           <li ng-repeat="item in items | orderBy:'flag'" class={{item.itemClass1}}>
              <p>{{item.date}}</p>
              <p>{{item.time}}</p>
            </li>
@@ -18,7 +18,7 @@
          </ul>
        </div>
        <div class="list warn-right-nav">
-          <span ng-repeat="item in newItems | orderBy:'flag'" class={{item.itemClass2}} ng-click="goConfirm(item.detail,item.alarmId)">
+          <span ng-repeat="item in items | orderBy:'flag'" class={{item.itemClass2}} ng-click="goConfirm(item.detail,item.alarmId,$index)">
               <violation-list-item
                 top-text={{item.title}}
                 badge-show="true"
@@ -27,10 +27,12 @@
               </violation-list-item>
           </span>
        </div>
-      <div style="clear: both;text-align: center;color: #108678;margin-bottom: 20px;
-                  padding: 15px;background-color: #f0f0f0;font-size: 18px"
-           ng-click="loadMore()" ng-show="newItems.length">
-        点击加载更多
+      <div style="clear: both;text-align: center;
+                  margin-bottom: 20px;padding: 15px;
+                  background-color: #f0f0f0;font-size: 18px"
+           ng-click="loadMore()" ng-show="items.length">
+        <span style="color: #108678;" ng-show="!loadMoreShow">点击加载更多</span>
+        <ion-spinner icon="ios" class="spinner-balanced" ng-show="loadMoreShow"></ion-spinner>
       </div>
         <div style="text-align: center;margin-top: 120px">
             <p style="color: #a2a2a2;font-size: 18px;width: 50%;margin: auto">{{loadFailedText}}</p>

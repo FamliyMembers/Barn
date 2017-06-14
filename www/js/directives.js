@@ -11,15 +11,17 @@ angular.module('directives', [])
                 itemText: '@',
                 iconLeft: '@',
                 iconRight: '@',
+                iconRightShow:'@',
                 badgeText: '@',
                 badgeShow: '@',
                 extraText: '@',
                 textShow: '@'
             },
             link: function($scope,$element,$attrs){
-                $scope.badgeShow=false;
-                $scope.textShow=false;
+                $scope.badgeShow=0;
+                $scope.textShow=0;
                 $scope.iconRight="img/icon-grey-arrow-right.png";
+                $scope.iconRightShow=1;
             }
         };
     }])

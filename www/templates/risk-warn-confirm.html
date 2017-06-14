@@ -18,11 +18,11 @@
             </div>
         </div>
        <div id="warn-detail">
-         <div ng-repeat="type in warnType">
+         <div ng-repeat="type in warnType" ng-click="showMore($index)">
            <p>
              <span>&nbsp;&nbsp;</span>
              <span>{{type[0].warnName}}&nbsp;:&nbsp;&nbsp;{{type.length}}</span>
-             <i class={{moreIcon[$index]}} ng-click="showMore($index)"></i>
+             <i class={{moreIcon[$index]}}></i>
            </p>
            <table>
              <tr ng-show="more[$index]" style="background-color: #108578">

@@ -76,8 +76,8 @@ angular.module('controllers', [])
             },1000*60);
 
         }])
-    .controller('LoginCtrl', ['$scope', '$state','$http','PopupService','LoadingService','UserService','LoginService',
-        function ($scope,$state,$http,PopupService,LoadingService,UserService,LoginService) {
+    .controller('LoginCtrl', ['$scope', '$state','$http','PopupService','LoadingService','UserService','LoginService','BarnService',
+        function ($scope,$state,$http,PopupService,LoadingService,UserService,LoginService,BarnService) {
             $scope.ctrlScope = $scope;
             if(localStorage.getItem("password")=="" || localStorage.password==null){
                 $scope.name = "";
@@ -123,6 +123,7 @@ angular.module('controllers', [])
             var getInfo=function(){
                 $http.get('http://123.56.27.166:8080/barn_application/user/getUserByUID?UID='+$scope.name)
                     .then(function(resp){
+                        UserService.person.userAccount=localStorage.userId;
                         UserService.person.userName=resp.data.name;
                         UserService.person.userAddress=resp.data.address;
                         UserService.person.userAge=resp.data.age;
@@ -140,9 +141,8 @@ angular.module('controllers', [])
             var getRole=function(){
                 $http.get('http://123.56.27.166:8080/barn_application/user/getAuthority?UID='+$scope.name)
                     .then(function(resp){
-                        LoadingService.hide();
                         UserService.person.userRole=resp.data.role_name;
-                        $state.go("tabs.home");
+                        getBarns();
                     },function(error){
 
                         LoadingService.hide();
@@ -150,6 +150,20 @@ angular.module('controllers', [])
                         PopupService.showAlert();
                     });
             };
+            var getBarns=function () {
+              $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID='+localStorage.userId)
+                .then(function(resp){
+                  LoadingService.hide();
+                  var barns=[];
+                  for(var i=0;i<resp.data.length;i++){
+                    barns.push({barnId:resp.data[i].BNID,barnName:resp.data[i].description})
+                  }
+                  BarnService.setBarns(barns);
+                  $state.go("tabs.home");
+                },function(error){
+
+                });
+            }
 
 
         }])
@@ -168,10 +182,7 @@ angular.module('controllers', [])
         };
 
 
-        //value作为标志数据，可以进行切换两个图表的标志
         var value = 0;
-
-        //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
         $scope.getEchartsData = function () {
 
           var id = $stateParams.id;
@@ -978,6 +989,46 @@ angular.module('controllers', [])
             };
 
         }])
+    .controller('TableCtrl',['$scope','$state',
+      function($scope,$state){
+        $scope.items=[
+          {icon:"img/table-icon-plan.png",name:"计划完成报表"},
+          {icon:"img/table-icon-drug.png",name:"仓库管理报表"},
+          {icon:"img/table-icon-detail.png",name:"历史数据汇总"},
+          {icon:"img/table-icon-total.png",name:"历史数据查询"}
+        ];
+        $scope.icons=["img/table-icon-plan.png","img/table-icon-drug.png","img/table-icon-detail.png","img/table-icon-total.png"];
+        $scope.iconsLight=["img/table-icon-plan-light.png","img/table-icon-drug-light.png","img/table-icon-detail-light.png","img/table-icon-total-light.png"];
+        $scope.nextPage=["","","tabs.line",""];
+        $scope.goNextPage=function (n) {
+          $state.go($scope.nextPage[n]);
+        };
+        $scope.onTouch=function (n) {
+          var parent=document.getElementById("table").getElementsByTagName("div")[n];
+          var yellowBar=parent.getElementsByTagName("span")[0];
+          var name=parent.getElementsByTagName("span")[1];
+          var arrow=parent.getElementsByTagName("i")[0];
+          parent.style.backgroundColor="#108578";
+          $scope.items[n].icon=$scope.iconsLight[n];
+          yellowBar.style.backgroundColor="#e0b752";
+          name.style.color="#ffffff";
+          arrow.style.color="#ffffff";
+
+        };
+        $scope.onRelease=function (n) {
+          var parent=document.getElementById("table").getElementsByTagName("div")[n];
+          var yellowBar=parent.getElementsByTagName("span")[0];
+          var name=parent.getElementsByTagName("span")[1];
+          var arrow=parent.getElementsByTagName("i")[0];
+          parent.style.backgroundColor="#f8faf9";
+          $scope.items[n].icon=$scope.icons[n];
+          yellowBar.style.backgroundColor="";
+          name.style.color="#000000";
+          arrow.style.color="#b9b9bb";
+
+        };
+
+      }])
     .controller('DetailCtrl',['$scope','$state','$stateParams','$window','$timeout','$http','PopupService','LoadingService','UserService',
         function($scope,$state,$stateParams,$window,$timeout,$http,PopupService,LoadingService,UserService){
 
@@ -1176,118 +1227,8 @@ angular.module('controllers', [])
                 $scope.arrow="img/icon-grey-arrow-right.png";
             };
         }])
-    /*.controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope',
-      function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope){
-
-        if($ionicHistory.backView().stateName!="tabs.risk"){
-          $scope.hide=true;
-          $scope.display="block";
-        }else{
-          $scope.hide=false;
-          $scope.display="none";
-        }
-        var userId=localStorage.getItem("userId");
-        $scope.newItems=[];
-        $scope.itemClass1=[];
-        $scope.itemClass2=[];
-        $scope.loadFailedText="";
-        LoadingService.show();
-        $scope.enter=function(){
-          LoadingService.show();
-          $http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId,{cache:false})
-            .then(function(resp){
-              //  document.getElementById("warnLoading").style.display="none";
-              //  document.getElementById("warn").style.display="block";
-              LoadingService.hide();
-              $scope.newItems=[];
-              if(resp.data.length==0){
-                $scope.loadFailedText="当前数据库中没有任何告警信息"
-              }else{
-                if(resp.data[0].state==1){
-                  // 因为后台可能会返回空数据，所以要做一个判断，防止程序崩溃
-                  $scope.loadFailedText="当前数据库中没有任何告警信息"
-                }else{
-                  $scope.loadFailedText="";
-                  var news=0;
-                  var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
-                  for(i=0;i<resp.data.length;i++){
-
-                    title=resp.data[i].BNID+"号仓报警";
-                    detail=resp.data[i].BNID+"号仓库"+resp.data[i].alarm_msg;
-                    date=resp.data[i].create_time.split(" ")[0];
-                    alarmId=resp.data[i].id;
-                    confirmId=resp.data[i].confirm_UID;
-                    if(resp.data[i].create_time.split(" ")[1].split(":")[0]>12){
-                      duration="pm";
-                    }else{
-                      duration="am";
-                    }
-                    time=resp.data[i].create_time.split(" ")[1].split(".")[0]+" "+duration;
-                    if(resp.data[i].status=="true"){
-                      flag=0;
-                      itemClass1="";
-                      itemClass2="item warn-right-item";
-                      news++
-                    }else{
-                      flag=1;
-                      itemClass1="lightgray-bg";
-                      itemClass2="item warn-right-item lightgray-bg";
-                    }
-                    $scope.newItems.push({date:date, time:time,title:title,detail:detail,
-                      flag:flag,alarmId:alarmId,confirmId:confirmId,
-                      itemClass1:itemClass1,itemClass2:itemClass2});
-
-                  }
-                  $rootScope.badges.news=news;
-                  if($rootScope.badges.news>99){
-                    $rootScope.badges.news="99+"
-                  }
-                  /!*$scope.items.sort(function(a,b){
-                   return a.flag-b.flag});
-                   for(i=0;i<$scope.items.length;i++){
-                   if ($scope.items[i].flag == 0) {
-                   $scope.itemClass1.push("");
-                   $scope.itemClass2.push("item warn-right-item");
-                   } else {
-                   $scope.itemClass1.push("lightgray-bg");
-                   $scope.itemClass2.push("item warn-right-item lightgray-bg");
-                   }
-                   } *!/
-                }
-              }
-            },function(error){
-              LoadingService.hide();
-              PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新页面");
-              PopupService.showAlert();
-              if($scope.items.length==0){
-                $scope.loadFailedText="数据加载失败";
-              }
-
-            });
-        };
-
-        $scope.enter();
-
-        $scope.goConfirm=function(detail,id){
-          localStorage.alarmDetail=detail;
-          //  localStorage.alarmFlag=flag;
-          localStorage.alarmId=id;
-          localStorage.receiveType=0;
-          //   localStorage.confirmId=confirmId;
-          $state.go("tabs.confirmwarn",{detail:detail,alarmId:id,type:0});
-        };
-
-        $scope.doRefresh = function() {
-          $scope.enter();
-          $scope.$broadcast('scroll.refreshComplete');
-        };
-        $scope.back=function(){
-          $state.go("tabs.risk");
-        }
-
-      }])*/
-    .controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope',
-        function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope){
+    .controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope','BarnService',
+        function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope,BarnService){
 
             if($ionicHistory.backView().stateName!="tabs.risk"){
               $scope.hide=true;
@@ -1296,15 +1237,20 @@ angular.module('controllers', [])
               $scope.hide=false;
               $scope.display="none";
             }
+          $scope.$on('$ionicView.beforeEnter', function() {
+            $scope.items=[];
+            $scope.items=$rootScope.warnItems;
+          });
+            var barns=BarnService.getBarns();
             var userId=localStorage.getItem("userId");
             var dateTime="";
             var url="";
             var lastTime="";
-            $scope.newItems=[];
+            $rootScope.warnItems=[];
             $scope.itemClass1=[];
             $scope.itemClass2=[];
             $scope.loadFailedText="";
-            LoadingService.show();
+            $scope.loadMoreShow=0;
           function formatDate(date) {
             return  date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
                     +' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
@@ -1333,18 +1279,18 @@ angular.module('controllers', [])
 
           $scope.enter=function(state){
             if(state==0){
+              LoadingService.show();
               dateTime=formatDate(new Date());
-              $scope.newItems=[];
+              $rootScope.warnItems=[];
+              $scope.items=[];
             }else{
               dateTime=lastTime;
+              $scope.loadMoreShow=1;
             }
-            LoadingService.show();
           //  url='http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId;
               url='http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUIDLimitTen?UID='+userId+'&timestamp='+dateTime;
             $http.get(url,{cache:false})
               .then(function(resp){
-                //  document.getElementById("warnLoading").style.display="none";
-                //  document.getElementById("warn").style.display="block";
                 LoadingService.hide();
                 if(resp.data.length==0){
                   $scope.loadFailedText="当前数据库中没有任何告警信息"
@@ -1357,9 +1303,13 @@ angular.module('controllers', [])
                     var title,detail,date,time,flag,duration,alarmId,confirmId,itemClass1,itemClass2;
                     lastTime=resp.data[resp.data.length-1].create_time;
                     for(i=0;i<resp.data.length;i++){
+                      for(var j=0;j<barns.length;j++){
+                        if(resp.data[i].BNID==barns[j].barnId){
+                          title=barns[j].barnName;
+                        }
+                      }
 
-                      title=resp.data[i].BNID+"号仓报警";
-                      detail=resp.data[i].BNID+"号仓库"+resp.data[i].alarm_msg;
+                      detail=title+resp.data[i].alarm_msg;
                       date=resp.data[i].create_time.split(" ")[0];
                       alarmId=resp.data[i].id;
                       confirmId=resp.data[i].confirm_UID;
@@ -1378,11 +1328,12 @@ angular.module('controllers', [])
                         itemClass1="lightgray-bg";
                         itemClass2="item warn-right-item lightgray-bg";
                       }
-                        $scope.newItems.push({date:date,time:time,title:title,detail:detail,
+                      $rootScope.warnItems.push({date:date,time:time,title:title,detail:detail,
                         flag:flag,alarmId:alarmId,confirmId:confirmId,
                         itemClass1:itemClass1,itemClass2:itemClass2});
-
                     }
+                    $scope.loadMoreShow=0;
+                    $scope.items=$rootScope.warnItems;
                   /*  $scope.newItems.sort(function(a,b){
                       return a.flag-b.flag});
                     $scope.newItems.sort(function(a,b){
@@ -1412,13 +1363,13 @@ angular.module('controllers', [])
 
             $scope.enter(0);
 
-            $scope.goConfirm=function(detail,id){
+            $scope.goConfirm=function(detail,id,i){
                 localStorage.alarmDetail=detail;
               //  localStorage.alarmFlag=flag;
                 localStorage.alarmId=id;
                 localStorage.receiveType=0;
              //   localStorage.confirmId=confirmId;
-                $state.go("tabs.confirmwarn",{detail:detail,alarmId:id,type:0});
+                $state.go("tabs.confirmwarn",{detail:detail,alarmId:id,type:0,index:i});
             };
 
             $scope.doRefresh = function() {
@@ -1452,6 +1403,7 @@ angular.module('controllers', [])
             $scope.confirmPerson = "领取人：";
             $scope.confirmDisplay = "none";
             $scope.alarmType=[];
+            var index=$stateParams.index;
             var k=0;
             var barnId=0;
             var timestamp="";
@@ -1689,6 +1641,9 @@ angular.module('controllers', [])
                        $scope.confirmPerson=$scope.confirmPerson+UserService.person.userName;
                        $scope.confirmDisplay = "block";*/
                       PopupService.setContent("领取成功");
+                      $rootScope.warnItems[index].flag=1;
+                      $rootScope.warnItems[index].itemClass1="lightgray-bg";
+                      $rootScope.warnItems[index].itemClass2="item warn-right-item lightgray-bg";
                       var myTap=function () {
                         enter();
                       };
@@ -1798,6 +1753,13 @@ angular.module('controllers', [])
             $scope.person.age=UserService.userAge;
             $scope.person.address=UserService.userAddress;*/
         }])
+    .controller('PersonAboutCtrl',['$scope',
+      function($scope){
+
+        $scope.version=localStorage.appVersion;
+        $scope.copyRight="Copyright @2016-2018 Tianjin Fuliang Technology Co.,Ltd."
+
+      }])
 
     .controller('StatisticCtrl',['$scope','$state','$http','$rootScope',function ($scope,$state,$http,$rootScope) {
 
@@ -1961,14 +1923,14 @@ angular.module('controllers', [])
 
         var options1 = {
           date: new Date(),
-          mode: 'date', // or 'time'
-          titleText: '请选择日期',
+          mode: 'date',
+          titleText: '请选择系统日期',
           androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
         };
         var options2 = {
           date: new Date(),
-          mode: 'time', // or 'time'
-          titleText: '请选择时间',
+          mode: 'time',
+          titleText: '请选择系统时间',
           is24Hour: true,
           androidTheme : window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
         };
@@ -1981,13 +1943,13 @@ angular.module('controllers', [])
         }
 
       }])
-    .controller('LineCtrl', ['$scope','$ionicPopover','$cordovaDatePicker','PopupService','$http',
-    function ($scope,$ionicPopover,$cordovaDatePicker,PopupService,$http) {
+    .controller('LineCtrl', ['$scope','$ionicPopover','$cordovaDatePicker','PopupService','$http','BarnService',
+    function ($scope,$ionicPopover,$cordovaDatePicker,PopupService,$http,BarnService) {
 
       $scope.barns=[];
       $scope.charts=["层均温","三温"];
-      $scope.startTime="2017-6-6";
-      $scope.endTime="2017-6-15";
+      $scope.startTime="请选择";
+      $scope.endTime="请选择";
       $scope.chart=$scope.charts[0];
       var oneDay=1000*3600*24;
       $scope.date=(new Date()).getTime()-10*oneDay;
@@ -2008,7 +1970,7 @@ angular.module('controllers', [])
       var barnId=1;
       var symbolShow=false;
       var fromTimestamp="2017-6-6"+" "+"16:41:42";
-      var toTimestamp="2017-6-8"+" "+"10:41:42";
+      var toTimestamp="2017-6-13"+" "+"10:41:42";
       var oneSeries={};
 
       $scope.barnPopover = $ionicPopover.fromTemplateUrl('barn-popover.html', {
@@ -2056,17 +2018,11 @@ angular.module('controllers', [])
       };
 
       var getBarns=function () {
-        $http.get('http://123.56.27.166:8080/barn_application/barn/getBNIDByUID?UID='+localStorage.userId)
-          .then(function(resp){
-            for(var i=0;i<resp.data.length;i++){
-              $scope.barns.push({barnId:resp.data[i].BNID,barnName:resp.data[i].description})
-            }
-            $scope.barn=$scope.barns[0].barnName;
-            barnId=$scope.barns[0].barnId;
-          },function(error){
-
-          });
+          $scope.barns=BarnService.getBarns();
+          $scope.barn=BarnService.getBarns()[0].barnName;
+          barnId=BarnService.getBarns()[0].barnId;
       };
+
       getBarns();
 
       $scope.selectComplete=function () {
@@ -2156,7 +2112,7 @@ angular.module('controllers', [])
              levels.push(maxLevels[j]);
              myData[j]=new Array();
            }
-            for(var i=0;i<10;i++){
+            for(var i=0;i<resp.data.length;i++){
               /*var dateTime=resp.data[i].timestamp.split(" ");
               var time="";
               if(dateTime.length>1){
@@ -2185,7 +2141,7 @@ angular.module('controllers', [])
                type:'line',
                lineStyle:{
                  normal:{
-                   width:3.5
+                   width:3
                  }
                },
                smooth: true,
@@ -2258,7 +2214,7 @@ angular.module('controllers', [])
               type:'line',
               lineStyle:{
                 normal:{
-                  width:3.5
+                  width:3
                 }
               },
               smooth: true,
@@ -2294,7 +2250,7 @@ angular.module('controllers', [])
               type:'line',
               lineStyle:{
                 normal:{
-                  width:3.5
+                  width:3
                 }
               },
               smooth: true,
@@ -2342,7 +2298,7 @@ angular.module('controllers', [])
               type:'line',
               lineStyle:{
                 normal:{
-                  width:3.5
+                  width:3
                 }
               },
               smooth: true,

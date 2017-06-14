@@ -1,35 +1,18 @@
 <ion-view hide-back-button="true">
     <ion-nav-title>数据报表</ion-nav-title>
     <ion-content>
-        <div class="list">
-            <a class="item" href="">
-               <table-list-item
-                       icon-left="img/table-icon-plan.png"
-                       item-text="计划完成报表"
-                       icon-right="img/icon-grey-arrow-right.png">
-               </table-list-item>
-            </a>
-            <a class="item" href="">
-                <table-list-item
-                        icon-left="img/table-icon-drug.png"
-                        item-text="仓库管理报表"
-                        icon-right="img/icon-grey-arrow-right.png">
-                </table-list-item>
-            </a>
-            <a class="item green-yellow-bg" href="#/tab/line">
-                <table-list-item
-                        icon-left="img/table-icon-detail-light.png"
-                        item-text="历史数据汇总报表"
-                        icon-right="img/icon-white-arrow-right.png">
-                </table-list-item>
-            </a>
-            <a class="item" href="">
-                <table-list-item
-                        icon-left="img/table-icon-total.png"
-                        item-text="历史数据查询报表"
-                        icon-right="img/icon-grey-arrow-right.png">
-                </table-list-item>
-            </a>
+      <div style="margin-top: 20px" id="table">
+        <div ng-repeat="item in items" ng-click="goNextPage($index)"
+             on-touch="onTouch($index)"
+             on-release="onRelease($index)"
+             style="border-bottom: 1px solid #dedede;
+                  background-color: #f8faf9;padding: 12px 0">
+          <span style="font-size: 23px">&nbsp;</span>
+          <img src={{item.icon}} width="25px" height="25px" style="position: relative;top: 6px;left: 8px"/>
+          <span ng-bind="item.name" style="padding-left: 14px;font-size: 15px"></span>
+          <i class="icon ion-chevron-right"
+             style="color: #b9b9bb;font-size: 18px;float: right;margin-right: 25px"></i>
         </div>
+      </div>
     </ion-content>
 </ion-view>

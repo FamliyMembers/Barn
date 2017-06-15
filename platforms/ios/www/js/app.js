@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic','controllers','directives','services','ngCordova'])
 
-    .run(function($ionicPlatform,$location,$ionicHistory,$ionicPopup,$rootScope,$timeout,$state,$cordovaAppVersion,$cordovaNetwork,$cordovaToast) {
+    .run(function($ionicPlatform,$location,$ionicHistory,$ionicPopup,$rootScope,$timeout,$state,$cordovaAppVersion,$cordovaNetwork,$cordovaToast,BarnService,$http) {
         $ionicPlatform.ready(function () {
 
             if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -227,7 +227,8 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 url: "/table",
                 views: {
                     'table-tab': {
-                        templateUrl: "templates/table.html"
+                        templateUrl: "templates/table.html",
+                        controller: "TableCtrl"
                     }
                 }
             })
@@ -259,7 +260,7 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 }
             })
             .state('tabs.confirmwarn', {
-                url: "/confirmwarn/:detail:alarmId:type",
+                url: "/confirmwarn/:detail:alarmId:type:index",
                 views: {
                     'risk-tab': {
                         templateUrl: "templates/risk-warn-confirm.html",
@@ -292,6 +293,15 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                         controller: "PersonCtrl"
                     }
                 }
+            })
+            .state('tabs.personabout', {
+              url: "/personabout",
+              views: {
+                'person-tab': {
+                  templateUrl: "templates/person-about.html",
+                  controller: "PersonAboutCtrl"
+                }
+              }
             })
             .state('tabs.personinfo', {
                 url: "/personinfo",

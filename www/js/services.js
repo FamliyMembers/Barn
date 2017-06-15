@@ -17,7 +17,7 @@ angular.module('services', [])
         }
     }])
     .factory('UserService',[function(){
-      var userName,userSex,userAge,userAddress,userRole,userPhone;
+      var userName,userSex,userAge,userAddress,userRole,userPhone,userAccount;
 
       return{
         person:{
@@ -26,7 +26,20 @@ angular.module('services', [])
           userAge:userAge,
           userAddress:userAddress,
           userRole:userRole,
-          userPhone:userPhone
+          userPhone:userPhone,
+          userAccount:userAccount
+        }
+      }
+    }])
+    .factory('BarnService',[function(){
+      var barns=[];
+
+      return{
+        setBarns:function (paramBarns) {
+          barns=paramBarns;
+        },
+        getBarns:function () {
+          return barns;
         }
       }
     }])

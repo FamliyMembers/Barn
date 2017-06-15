@@ -966,6 +966,13 @@ angular.module('controllers', [])
                 LoadingService.hide();
                 $scope.intro.name=resp.data[0].name;
                 $scope.intro.location=resp.data[0].location;
+                $scope.intro.description=resp.data[0].description;
+                $scope.intro.num=resp.data[0].barn_count;
+                $scope.intro.square=resp.data[0].total_area;
+                $scope.intro.volume=resp.data[0].total_capacity;
+                $scope.intro.province=resp.data[0].province;
+                $scope.intro.city=resp.data[0].city;
+                $scope.intro.zone=resp.data[0].zone;
 
               },function(error){
                 LoadingService.hide();
@@ -980,7 +987,10 @@ angular.module('controllers', [])
             $scope.click = function(num,description,i){
 
                 $state.go('tabs.detail',
-                    {title:$scope.items[i].depotName,number:num,long:$scope.long[i],width:$scope.width[i],height:$scope.height[i],description:description});
+                    { zone:$scope.intro.zone,province:$scope.intro.province,city:$scope.intro.city,
+                      title:$scope.items[i].depotName,number:num,
+                      long:$scope.long[i],width:$scope.width[i],height:$scope.height[i],
+                      description:description});
             };
 
             $scope.doRefresh = function() {
@@ -1041,6 +1051,9 @@ angular.module('controllers', [])
             $scope.width = $stateParams.width;
             $scope.height = $stateParams.height;
             $scope.table.title = $stateParams.title;
+            $scope.table.province = $stateParams.province;
+            $scope.table.city = $stateParams.city;
+            $scope.table.zone = $stateParams.zone;
             $scope.noMore = false;
             $scope.loadText = "继续拖动，查看小仓库";
             $scope.items = [];
@@ -1101,7 +1114,8 @@ angular.module('controllers', [])
                 $scope.noMore = false;
                 $scope.display="block";
                 $scope.loadFailedText="";
-                var leftBigText,rightGrayText,barnId;
+                $scope.grainProperty=resp.data[0].grain_property;
+                var leftBigText,leftSmallText,rightGrayText,rightBlackText,barnId;
                 if(resp.data.length<=1){
                   $scope.noMore = true;
                   $scope.loadText = "已没有更多数据";
@@ -1115,10 +1129,12 @@ angular.module('controllers', [])
                   if(i==4)leftBigText="小仓五";*/
 
                   leftBigText=resp.data[i].description;
+                  leftSmallText='（种类/'+resp.data[i].grain_type+'）';
                   rightGrayText="最大库存"+resp.data[i].volume+"t";
+                  rightBlackText='当前库存'+resp.data[i].grain_current_volume+'t';
                   barnId = resp.data[i].BNID;
                   getManagerInfo(barnId);
-                  $scope.items.push( {leftBigText:leftBigText,leftSmallText:'（种类/稻谷）',rightGrayText:rightGrayText,rightBlackText:'当前库存700t',barnId:barnId})
+                  $scope.items.push( {leftBigText:leftBigText,leftSmallText:leftSmallText,rightGrayText:rightGrayText,rightBlackText:rightBlackText,barnId:barnId})
                 }
                 getManagerInfo($scope.items[0].barnId);
               },function(error){
@@ -1735,7 +1751,7 @@ angular.module('controllers', [])
         }])
     .controller('PersonCtrl',['$scope','$state','$ionicHistory','UserService','LoginService',
         function($scope,$state,$ionicHistory,UserService,LoginService){
-            $scope.version="当前"+localStorage.appVersion;
+           // $scope.version="当前"+localStorage.appVersion;
             $scope.userName=UserService.person.userName;
             $scope.logout=function(){
                 $ionicHistory.clearCache();
@@ -1756,8 +1772,11 @@ angular.module('controllers', [])
     .controller('PersonAboutCtrl',['$scope',
       function($scope){
 
+        var container=document.getElementById("about-container");
         $scope.version=localStorage.appVersion;
-        $scope.copyRight="Copyright @2016-2018 Tianjin Fuliang Technology Co.,Ltd."
+        $scope.copyRight="Copyright @2016-2018 Tianjin Fuliang Technology Co.,Ltd.";
+        $scope.height=(window.screen.height-100)+"px";
+        container.style.height=$scope.height;
 
       }])
 

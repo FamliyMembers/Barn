@@ -1818,8 +1818,11 @@ angular.module('controllers', [])
   .controller('PersonAboutCtrl', ['$scope',
     function ($scope) {
 
+      var container = document.getElementById("about-container");
       $scope.version = localStorage.appVersion;
-      $scope.copyRight = "Copyright @2016-2018 Tianjin Fuliang Technology Co.,Ltd."
+      $scope.copyRight = "Copyright @2016-2018 Tianjin Fuliang Technology Co.,Ltd.";
+      $scope.height = (window.screen.height - 100) + "px";
+      container.style.height = $scope.height;
 
     }])
 

@@ -366,18 +366,43 @@ ul.home-depository-nav li{
   border-right: 1px solid #666666;
 }
 
-.table-barn-border {
+.table-barn-border tr:nth-child(odd) {
 
-  border:1px solid gray;
+  border:2px solid #F3F3F3;
+  background-color:#D4D4D4;
+  color:#396A64;
+  text-align:center;
+  /*list-style-type:cjk-ideographic;*/
+  list-style-type:none;
+}
+.table-barn-border tr:nth-child(even) {
+
+  border:2px solid #F3F3F3;
+  background-color:#BECDCD;
+  color:#396A64;
+  text-align:center;
+  /*list-style-type:cjk-ideographic;*/
+  list-style-type:none;
+}
+.table-barn-border td {
+
+  border:2px solid #F3F3F3;
   text-align:center;
   /*list-style-type:cjk-ideographic;*/
   list-style-type:none;
 }
 .table-barn-detail
 {
-  background-color:#25554E;
+  border:2px solid #F3F3F3;
+  background-color:#396A64;
   color:white;
-  font-size:12px;
+  font-size:14px;
+}
+.table-warn-p
+{
+  color:black;
+  font-size:14px;
+  margin:0;
 }
 #warn-detail{
   margin-bottom: 30px;

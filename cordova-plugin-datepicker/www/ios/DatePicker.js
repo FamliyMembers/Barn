@@ -1,4 +1,3 @@
-cordova.define("cordova-plugin-datepicker.DatePicker", function(require, exports, module) {
 /**
   Phonegap DatePicker Plugin
   https://github.com/sectore/phonegap3-ios-datepicker-plugin
@@ -149,5 +148,3 @@ if (!window.plugins) {
 if (!window.plugins.datePicker) {
     window.plugins.datePicker = datePicker;
 }
-
-});

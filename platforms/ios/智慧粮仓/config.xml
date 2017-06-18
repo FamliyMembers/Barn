@@ -21,9 +21,6 @@
     <feature name="Console">
         <param name="ios-package" value="CDVLogger" />
     </feature>
-    <feature name="DatePicker">
-        <param name="ios-package" value="DatePicker" />
-    </feature>
     <feature name="Device">
         <param name="ios-package" value="CDVDevice" />
     </feature>
@@ -40,6 +37,9 @@
     </feature>
     <feature name="JPushPlugin">
         <param name="ios-package" value="JPushPlugin" />
+    </feature>
+    <feature name="DatePicker">
+        <param name="ios-package" value="DatePicker" />
     </feature>
     <name>智慧粮仓</name>
     <description>An awesome Ionic/Cordova app.</description>

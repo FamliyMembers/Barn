@@ -172,21 +172,29 @@ angular.module('controllers', [])
     function ($scope, $location, $http, $stateParams, LoadingService) {
 
       $scope.title = $stateParams.title;
-
-      var id = $stateParams.id;
       $scope.time = "";
+      var id = $stateParams.id;
+      var timeFromSearch = $stateParams.timestamp;
+      console.log("从上一级获取到的timestamp--------", timeFromSearch);
+
+      //时间字符串比较大小
       var isOK = 0;
+      // var time2 = new Date(timeFromSearch).getTime();
+      if (timeFromSearch) {
+        isOK = 0;
+      } else {
+        isOK = 1;
+      }
+      //其实不用去判断，因为第二个需要填写timestamp的接口已经包含了取最近的一次的调用。所以即使是取现在的时间的数据的话也不用换接口了。
+
       LoadingService.show();
 
-      // document.getElementById('first-BarnInfo').style.display = "none";
-      // document.getElementById('second').style.display = "none";
       document.getElementById('second-alarm').style.display = "none";
 
       $scope.doRefresh = function () {
         $scope.items = [];
         $scope.$broadcast('scroll.refreshComplete');
       };
-
 
       //value作为标志数据，可以进行切换两个图表的标志
       var value = 0;
@@ -196,20 +204,24 @@ angular.module('controllers', [])
 
 
         console.log('getEchartsDataid----', id);
-        var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=" + id;
+        if (isOK == 1) {
+          var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=" + id;
+        } else {
+          var url = "http://123.56.27.166:8080/barn_application/node/getLatestDataByTimestamp?BNID=" + id + "&timestamp=" + timeFromSearch;
+        }
         //var url = './js/test66.json';
         $http.get(url).success(function (response) {
           LoadingService.hide();
           $scope.datas = response;
           drawChart(response);
-          console.log('success', response);
-
+          // console.log('success', response);
+          console.log("当前点点点点图的url为-----", url);
           console.log('warnTableFuncid----', id);
           var url2 = "http://123.56.27.166:8080/barn_application/alarm/getAlarmDetailByBNID?BNID=" + id + "&timestamp=" + $scope.time;
           $http.get(url2).success(function (responses) {
             var data = responses;
             console.log("url2", url2);
-            console.log("alarm", responses);
+            // console.log("alarm", responses);
             console.log("time的值是啥", $scope.time);
             console.log("time类型", typeof ($scope.time));
             $scope.highTemp = 0;
@@ -254,28 +266,10 @@ angular.module('controllers', [])
           for (var i = 0; i < datas.length; i++) {
             var item = [i + 1, datas[i].levelAverage, datas[i].maxLevelValue, datas[i].minLevelValue];
             $scope.records.push(item);
-            console.log('listFuncitem?????????', item);
+            // console.log('listFuncitem?????????', item);
           }
         })
       }
-
-      // $scope.warnTableFunc = function () {
-      //   // var id = $stateParams.id;
-      //   console.log('warnTableFuncid----', id);
-      //   var url = "http://123.56.27.166:8080/barn_application/alarm/getAlarmDetailByBNID?BNID=15&timestamp=2017-06-11%2013:11:39";
-      //   $http.get(url).success(function (response) {
-      //     var datas = response;
-      //     console.log("alarm", response);
-      //     console.log("time的值是啥", $scope.time);
-      //     console.log("time类型", typeof ($scope.time));
-      //     console.log("url", url);
-      //     $scope.records = [];
-      //     for (var i = 0; i < datas.length - 1; i++) {
-      //       var item = [datas[i].location_x, datas[i].location_y, datas[i].depth, datas[i].data, datas[i].alarm_type_name];
-      //       $scope.records.push(item);
-      //     }
-      //   })
-      // }
 
       //试验button的切换页面的功能
       $scope.doChangeEcharts = function () {
@@ -316,7 +310,6 @@ angular.module('controllers', [])
         $scope.dateNow = chartdata[0].timestamp;
         $scope.time = chartdata[0].timestamp;
         console.log("时间戳为", $scope.time);
-        if ($scope.time) { isOK = 1; }
 
         for (var i = 0; i < chartdata.length; i++) {
 
@@ -1059,7 +1052,7 @@ angular.module('controllers', [])
       ];
       $scope.icons = ["img/table-icon-plan.png", "img/table-icon-drug.png", "img/table-icon-detail.png", "img/table-icon-total.png"];
       $scope.iconsLight = ["img/table-icon-plan-light.png", "img/table-icon-drug-light.png", "img/table-icon-detail-light.png", "img/table-icon-total-light.png"];
-      $scope.nextPage = ["", "", "tabs.line", ""];
+      $scope.nextPage = ["", "", "tabs.line", "tabs.searchHistory"];
       $scope.goNextPage = function (n) {
         $state.go($scope.nextPage[n]);
       };
@@ -1233,6 +1226,7 @@ angular.module('controllers', [])
         }, 1000);
         $scope.$broadcast('scroll.infiniteScrollComplete');
       };
+
 
       $scope.viewTemperature = function (text, id) {
         $state.go('tabs.temperature',
@@ -1958,6 +1952,8 @@ angular.module('controllers', [])
           if (nowVersion != localStorage.appVersion) {
             $scope.versionText = $scope.versionText + nowVersion;
             $scope.display = "block";
+            //打印不出来localStorage.appVersion
+            console.log("localStorage.appVersion", localStorage.appVersion);
           } else {
             $scope.versionText = "当前版本已为最新";
             $scope.display = "none";
@@ -1970,16 +1966,17 @@ angular.module('controllers', [])
         });
 
       $scope.update = function () {
-        var type = $cordovaNetwork.getNetwork();
+        // var type = $cordovaNetwork.getNetwork();
         var continueLoad = function () {
-          window.open('https://fir.im/barn1', '_system');
+          window.open(' https://fir.im/ct4y', '_system');
         };
-        if (type != Connection.WIFI) {
-          PopupService.setContent("检测到您的手机处于非wifi网络环境，是否继续更新？");
-          PopupService.showYNPopup(continueLoad);
-        } else {
-          continueLoad();
-        }
+        continueLoad();
+        // if (type != Connection.WIFI) {
+        //   PopupService.setContent("检测到您的手机处于非wifi网络环境，是否继续更新？");
+        //   PopupService.showYNPopup(continueLoad);
+        // } else {
+        //   continueLoad();
+        // }
       }
 
     }])
@@ -2123,7 +2120,8 @@ angular.module('controllers', [])
         minDate: new Date(2017, 5, 6).getTime(),
         maxDate: new Date() - oneDay,
         titleText: '起始日期',
-        androidTheme: window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+        locale: "zh_cn",
+        //androidTheme: window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
       };
       var options2 = {};
       $scope.selectTime1 = function () {
@@ -2147,7 +2145,8 @@ angular.module('controllers', [])
             titleText: '终止日期',
             minDate: date1 + oneDay,
             maxDate: date1 + oneDay * interval,
-            androidTheme: window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+            locale: "zh_cn",
+            //androidTheme: window.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
           };
         });
       };
@@ -2457,5 +2456,116 @@ angular.module('controllers', [])
         };
       }
 
+
+    }])
+  .controller('searchHistoryCtrl', ['$scope', '$state', '$ionicPopover', '$cordovaDatePicker', 'PopupService', '$http', 'BarnService',
+    function ($scope, $state, $ionicPopover, $cordovaDatePicker, PopupService, $http, BarnService) {
+
+      $scope.barns = [];//选择仓号后面选择好了的仓名称
+      //datepicker开始
+      $scope.startTime = "请选择";
+      var text = "平房仓1";
+      var id = 1;
+      var oneDay = 1000 * 3600 * 24;;//?
+      var date1 = 0;//?
+      var myTimestamp = "2017-6-6" + " " + "16:41:42";  //默认还没有获取任何时间的时候的timestamp值就是这个
+      $scope.date = (new Date()).getTime() - 10 * oneDay;
+      var dateTime = "";
+      function formatDate(date) {
+        // return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+        date = date.getFullYear()
+          + "-"
+          + (date.getMonth() + 1)
+          + "-"
+          + (date.getDate())
+          + " "
+          + (date.getHours())
+          + ":"
+          + (date.getMinutes());
+        return date;
+      }
+
+      $scope.nowSystemTime = "2017-6-6" + " " + "16:41:42";
+      function getNowFormatDate() {
+        var date = new Date();
+        var seperator1 = "-";
+        var seperator2 = ":";
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+          month = "0" + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+          strDate = "0" + strDate;
+        }
+        var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+          + " " + date.getHours() + seperator2 + date.getMinutes()
+          + seperator2 + date.getSeconds();
+        return currentdate;
+      }
+      $scope.nowSystemTime = getNowFormatDate();
+      console.log('当前系统时间为----', $scope.nowSystemTime);
+      var nowTime = new Date($scope.nowSystemTime).getTime();
+
+      var options1 = {
+        date: new Date(new Date() - oneDay),
+        mode: 'datetime', // or 'time'
+        minDate: new Date(2017, 5, 6).getTime(),
+        maxDate: new Date(),
+        titleText: '起始日期',
+        locale: "zh_cn"
+      };
+      $scope.selectTime1 = function () {
+        $cordovaDatePicker.show(options1).then(function (date) {
+          dateTime = formatDate(date);
+          //  alert(formatDate(new Date(date.getTime())));
+          $scope.startTime = dateTime;
+          myTimestamp = $scope.startTime + ":00";
+          console.log("myTimestamp--------", myTimestamp);
+          $scope.date = date.getTime();
+          date1 = date.getTime();
+          var interval = 10;
+          if ((date1 + oneDay * 10) > (new Date()).getTime()) {
+            interval = ((new Date()).getTime() - date1) / oneDay;
+          }
+        });
+      };
+      //选择仓名称弹出
+      $scope.barnPopover = $ionicPopover.fromTemplateUrl('barn-popover.html', {
+        scope: $scope
+      });
+      // .fromTemplateUrl() 方法
+      $ionicPopover.fromTemplateUrl('barn-popover.html', {
+        scope: $scope
+      }).then(function (popover) {
+        $scope.barnPopover = popover;
+      });
+      $scope.openBarnPopover = function ($event) {
+        $scope.barnPopover.show($event);
+      };
+      $scope.closeBarnPopover = function () {
+        $scope.barnPopover.hide();
+      };
+
+      $scope.selectBarn = function (i) {
+        $scope.closeBarnPopover();
+        $scope.barn = $scope.barns[i].barnName;  //这是仓名
+        barnId = $scope.barns[i].barnId;       //仓id
+        console.log("仓名称------", $scope.barn);
+        console.log("仓id-------", barnId);
+        text = $scope.barn;
+        id = barnId;
+      };
+      var getBarns = function () {
+        $scope.barns = BarnService.getBarns();
+        $scope.barn = BarnService.getBarns()[0].barnName;
+        barnId = BarnService.getBarns()[0].barnId;
+      };
+      getBarns();
+
+      $scope.searchClick = function () {
+        $state.go('tabs.temperature1',
+          { title: text, id: id, timestamp: myTimestamp });
+      }
 
     }])

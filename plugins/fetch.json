@@ -56,14 +56,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-datepicker": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-datepicker"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-jcore": {
         "source": {
             "type": "registry",
@@ -82,5 +74,13 @@
         "variables": {
             "APP_KEY": "dec68a97c85cdb1fd2b80313"
         }
+    },
+    "cordova-plugin-datepicker": {
+        "source": {
+            "type": "local",
+            "path": "/Users/lijialu/ios/Barn/cordova-plugin-datepicker"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

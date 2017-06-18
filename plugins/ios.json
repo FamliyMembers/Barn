@@ -13,9 +13,6 @@
         "cordova-plugin-console": {
             "PACKAGE_NAME": "com.ionicframework.barn788888"
         },
-        "cordova-plugin-datepicker": {
-            "PACKAGE_NAME": "com.ionicframework.barn788888"
-        },
         "cordova-plugin-device": {
             "PACKAGE_NAME": "com.ionicframework.barn788888"
         },
@@ -33,6 +30,9 @@
         },
         "jpush-phonegap-plugin": {
             "APP_KEY": "dec68a97c85cdb1fd2b80313",
+            "PACKAGE_NAME": "com.ionicframework.barn788888"
+        },
+        "cordova-plugin-datepicker": {
             "PACKAGE_NAME": "com.ionicframework.barn788888"
         }
     },

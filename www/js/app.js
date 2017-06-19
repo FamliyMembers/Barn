@@ -222,6 +222,15 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                     }
                 }
             })
+            .state('tabs.temperature1', {
+              url: "/temperature1/:title:id:timestamp",
+              views: {
+                'table-tab': {
+                  templateUrl: "templates/home-detail-temperature.html",
+                  controller: "TemperatureCtrl"
+                }
+              }
+            })
 
             .state('tabs.table', {
                 url: "/table",
@@ -238,6 +247,15 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 'table-tab': {
                   templateUrl: "templates/table-line.html",
                   controller: "LineCtrl"
+                }
+              }
+            })
+            .state('tabs.searchHistory', {
+              url: "/searchHistory",
+              views: {
+                'table-tab': {
+                  templateUrl: "templates/table-searchHistory.html",
+                  controller: "searchHistoryCtrl"
                 }
               }
             })

@@ -73,6 +73,8 @@ angular.module('directives', [])
                     $scope.iconLeft="img/personinfo-icon-sex.png";
                 }else if($scope.leftSmallText.indexOf('豆')>-1){
                    $scope.iconLeft="img/personinfo-icon-address.png";
+               }else{
+                 $scope.iconLeft="img/personinfo-icon-name.png";
                }
 
               $scope.myCall=function () {

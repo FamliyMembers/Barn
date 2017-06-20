@@ -1317,6 +1317,8 @@ angular.module('controllers', [])
             var dateTime="";
             var url="";
             var lastTime="";
+            var div=document.getElementById("warn-load");
+          $scope.noMore = false;
             $rootScope.warnItems=[];
             $scope.itemClass1=[];
             $scope.itemClass2=[];
@@ -1355,7 +1357,6 @@ angular.module('controllers', [])
               $rootScope.warnItems=[];
             }else{
               dateTime=lastTime;
-              $scope.loadMoreShow=1;
             }
           //  url='http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId;
               url='http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUIDLimitTen?UID='+userId+'&timestamp='+dateTime;
@@ -1403,6 +1404,7 @@ angular.module('controllers', [])
                         itemClass1:itemClass1,itemClass2:itemClass2});
                     }
                     $scope.loadMoreShow=0;
+                    div.className="load";
                     $scope.items=$rootScope.warnItems;
                   /*  $scope.newItems.sort(function(a,b){
                       return a.flag-b.flag});
@@ -1446,13 +1448,18 @@ angular.module('controllers', [])
                 $scope.enter(0);
                 $scope.$broadcast('scroll.refreshComplete');
             };
+            $scope.loadAnimation=function () {
+              div.className = "load load-animation";
+            };
             $scope.loadMore=function () {
-              $scope.enter(1);
-              $scope.$broadcast('scroll.infiniteScrollComplete');
+              $scope.loadMoreShow=1;
+              setTimeout(function () {
+                $scope.enter(1);
+              },500);
             };
             $scope.back=function(){
               $state.go("tabs.risk");
-            }
+            };
 
         }])
     .controller('WarnConfirmCtrl',['$scope','$stateParams','$http','$ionicHistory','$state','PopupService','$rootScope','LoadingService','UserService',
@@ -1836,28 +1843,6 @@ angular.module('controllers', [])
 
     .controller('StatisticCtrl',['$scope','$state','$http','$rootScope',function ($scope,$state,$http,$rootScope) {
 
-        //获取数据
-        /*$scope.doMessage = function () {
-
-
-            var url = "http://123.56.27.166:8080/barn_application/alarm/getAlarmInfoByBNID?BNID=1";
-            // var url = './templates/police.json';
-            $http.get(url).success(function (response) {
-
-                $scope.datas = response;
-
-                var alreadyLength = 0;
-                for(i=0;i<response.length;i++){
-                    if(response[i].status == "true")
-                        alreadyLength++;
-                }
-                var length1 = Math.round(alreadyLength/response.length*10000)/100.00;
-                var length2 = 100-length1;
-                $scope.message = {already:length1+'%',notyet:length2+'%'};
-                console.log('success!!!!!!', response);
-            })
-            $scope.myvalue = 0.8;
-        }*/
 
       /*$http.get('http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+localStorage.userId)
         .then(function(resp){
@@ -1913,7 +1898,7 @@ angular.module('controllers', [])
           context.fill();
         }
 
-        //获取Canvas对象(画布)
+        /*//获取Canvas对象(画布)
         var canvas2 = document.getElementById("myCanvas2");
         //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
         if (canvas2.getContext) {
@@ -1942,7 +1927,7 @@ angular.module('controllers', [])
           context.closePath();
           context.fillStyle = 'rgba(255,255,255,1)';
           context.fill();
-        }
+        }*/
       };
       var notyet=$rootScope.myNews;
       var already=$rootScope.total-notyet;

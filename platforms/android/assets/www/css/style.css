@@ -457,8 +457,8 @@ ul.home-depository-nav li{
 }
 @keyframes myanimation
 {
-  0%   {padding-bottom: 20px;}
-  100% {padding-bottom: 80px;}
+  0%   {margin-bottom:20px;padding-bottom: 20px;}
+  100% {margin-bottom:80px;padding-bottom: 80px;}
 }
 .load-animation{
   animation: myanimation 2s;

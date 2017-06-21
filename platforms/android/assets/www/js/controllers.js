@@ -1296,8 +1296,8 @@ angular.module('controllers', [])
                 $scope.arrow="img/icon-grey-arrow-right.png";
             };
         }])
-    .controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope','BarnService',
-        function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope,BarnService){
+    .controller('WarnCtrl',['$scope','$state','$http','LoadingService','PopupService','$ionicHistory','$rootScope','BarnService','$ionicScrollDelegate',
+        function($scope,$state,$http,LoadingService,PopupService,$ionicHistory,$rootScope,BarnService,$ionicScrollDelegate){
 
             if($ionicHistory.backView().stateName!="tabs.risk"){
               $scope.hide=true;
@@ -1318,7 +1318,7 @@ angular.module('controllers', [])
             var url="";
             var lastTime="";
             var div=document.getElementById("warn-load");
-          $scope.noMore = false;
+            $scope.noMore = false;
             $rootScope.warnItems=[];
             $scope.itemClass1=[];
             $scope.itemClass2=[];
@@ -1352,9 +1352,10 @@ angular.module('controllers', [])
 
           $scope.enter=function(state){
             if(state==0){
+              $scope.items=[];
+              $rootScope.warnItems=[];
               LoadingService.show();
               dateTime=formatDate(new Date());
-              $rootScope.warnItems=[];
             }else{
               dateTime=lastTime;
             }
@@ -1448,14 +1449,11 @@ angular.module('controllers', [])
                 $scope.enter(0);
                 $scope.$broadcast('scroll.refreshComplete');
             };
-            $scope.loadAnimation=function () {
-              div.className = "load load-animation";
-            };
             $scope.loadMore=function () {
-              $scope.loadMoreShow=1;
-              setTimeout(function () {
+                div.className = "load load-animation";
+                $scope.loadMoreShow=1;
                 $scope.enter(1);
-              },500);
+                $scope.$broadcast('scroll.infiniteScrollComplete');
             };
             $scope.back=function(){
               $state.go("tabs.risk");

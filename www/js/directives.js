@@ -67,11 +67,11 @@ angular.module('directives', [])
                 phoneNum:'@'
             },
             link: function($scope,$element,$attrs){
-               if($scope.leftSmallText=="（种类/稻谷）"){
+               if($scope.leftSmallText.indexOf('稻')>-1){
                    $scope.iconLeft="img/personinfo-icon-name.png";
-               }else if($scope.leftSmallText=="（种类/小麦）"){
+               }else if($scope.leftSmallText.indexOf('麦')>-1){
                     $scope.iconLeft="img/personinfo-icon-sex.png";
-                }else if($scope.leftSmallText=="（种类/大豆）"){
+                }else if($scope.leftSmallText.indexOf('豆')>-1){
                    $scope.iconLeft="img/personinfo-icon-address.png";
                }
 

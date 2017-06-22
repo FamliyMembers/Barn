@@ -12,7 +12,7 @@ angular.module('controllers', [])
         if (toState.name == 'login' || toState.name == 'start') {
           return;
         }
-        // if(!LoginService.get()){
+        // if (!LoginService.get()) {
         //   event.preventDefault();// 取消默认跳转行为
         //   $state.go("login");//跳转到登录界面
         // }
@@ -177,26 +177,24 @@ angular.module('controllers', [])
       var timeFromSearch = $stateParams.timestamp;
       console.log("从上一级获取到的timestamp--------", timeFromSearch);
 
-      //时间字符串比较大小
       var isOK = 0;
-      // var time2 = new Date(timeFromSearch).getTime();
       if (timeFromSearch) {
         isOK = 0;
       } else {
         isOK = 1;
       }
-      //其实不用去判断，因为第二个需要填写timestamp的接口已经包含了取最近的一次的调用。所以即使是取现在的时间的数据的话也不用换接口了。
 
       LoadingService.show();
 
       document.getElementById('second-alarm').style.display = "none";
+      document.getElementById('first-BarnInfo').style.display = "none";
 
       $scope.doRefresh = function () {
         $scope.items = [];
         $scope.$broadcast('scroll.refreshComplete');
       };
 
-      //value作为标志数据，可以进行切换两个图表的标志
+      //value作为标志数据，可以进行切换3个图表的标志
       var value = 0;
 
       //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
@@ -206,14 +204,17 @@ angular.module('controllers', [])
         console.log('getEchartsDataid----', id);
         if (isOK == 1) {
           var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=" + id;
+          var url3 = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
         } else {
           var url = "http://123.56.27.166:8080/barn_application/node/getLatestDataByTimestamp?BNID=" + id + "&timestamp=" + timeFromSearch;
+          var url3 = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id + "&timestamp=" + timeFromSearch;
         }
         //var url = './js/test66.json';
         $http.get(url).success(function (response) {
           LoadingService.hide();
           $scope.datas = response;
           drawChart(response);
+          displayByValue();
           // console.log('success', response);
           console.log("当前点点点点图的url为-----", url);
           console.log('warnTableFuncid----', id);
@@ -255,8 +256,8 @@ angular.module('controllers', [])
       $scope.listFunc = function () {
         // var id = $stateParams.id;
         console.log('listFuncid----', id);
-        var url = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
-        $http.get(url).success(function (response) {
+        var url3 = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
+        $http.get(url3).success(function (response) {
           var datas = response[0].list;
           $scope.deviceId = response[0].deviceId;
           $scope.barnAverage = response[0].barnAverage;
@@ -272,24 +273,81 @@ angular.module('controllers', [])
       }
 
       //试验button的切换页面的功能
-      $scope.doChangeEcharts = function () {
-        if (value == 1) {
-          document.getElementById('second').style.display = "none";
-          document.getElementById('second-alarm').style.display = "none";
-          document.getElementById('first').style.display = "block";
-          document.getElementById('first-BarnInfo').style.display = "block";
-          $scope.label = "粮温数据";
-          value = value - 1;
-          console.log('hello，value=1，显示first，此时的value值已经改变，变成了', value);
+      $scope.clickLeftOrder = function () {
+        switch (value) {
+          case 1:
+            value = value - 1;
+            displayByValue();
+            break;
+          case 2:
+            value = value - 1;
+            displayByValue();
+            break;
+          case 0:
+            value = 2;
+            displayByValue();
+            break;
+          default:
+            break;
         }
-        else {
-          value = value + 1;
-          document.getElementById('second').style.display = "block";
-          document.getElementById('second-alarm').style.display = "block";
-          document.getElementById('first').style.display = "none";
-          document.getElementById('first-BarnInfo').style.display = "none";
-          $scope.label = "异常数据汇总";
-          console.log('hello，value=0，显示second，此时的value值已经改变，变成了', value);
+      }
+      $scope.clickRightOrder = function () {
+        switch (value) {
+          case 0:
+            value = value + 1;
+            displayByValue();
+            break;
+          case 1:
+            value = value + 1;
+            displayByValue();
+            break;
+          case 2:
+            value = 0;
+            displayByValue();
+            break;
+          default:
+            break;
+        }
+      }
+      function displayByValue() {
+        switch (value) {
+          case 0: {
+            //value =0显示main的值
+            document.getElementById('main').style.display = "block";
+            document.getElementById('first').style.display = "none";
+            document.getElementById('first-BarnInfo').style.display = "none";
+            document.getElementById('second').style.display = "none";
+            document.getElementById('second-alarm').style.display = "none";
+            $scope.color = "white"
+            $scope.label = "三维数据展示";
+            console.log('hello，value=0，显示main，此时的value值已经改变，变成了', value);
+            break;
+          }
+          case 1: {
+            document.getElementById('first').style.display = "block";
+            document.getElementById('first-BarnInfo').style.display = "block";
+            document.getElementById('second').style.display = "none";
+            document.getElementById('second-alarm').style.display = "none";
+            document.getElementById('main').style.display = "none";
+            $scope.color = "#25554E"
+            $scope.label = "粮温数据";
+            console.log('hello，value=1，显示first，此时的value值已经改变，变成了', value);
+            break;
+
+          }
+          case 2: {
+            document.getElementById('first').style.display = "none";
+            document.getElementById('first-BarnInfo').style.display = "none";
+            document.getElementById('second').style.display = "block";
+            document.getElementById('second-alarm').style.display = "block";
+            document.getElementById('main').style.display = "none";
+            $scope.color = "#25554E"
+            $scope.label = "异常数据汇总";
+            console.log('hello，value=2，显示second，此时的value值已经改变，变成了', value);
+            break;
+          }
+          default:
+            break;
         }
       }
       //drawChart函数功能部分
@@ -377,7 +435,7 @@ angular.module('controllers', [])
           chart2datas["h"].push(statistic35[i] ? statistic35[i] : 0);
         }
         console.log(chart2datas);
-        //标签为first的echart的js实现
+        //标签为first的图
         // 基于准备好的dom，初始化echarts实例
         var myChart1 = echarts.init(document.getElementById('first'));
         var schema =
@@ -711,15 +769,15 @@ angular.module('controllers', [])
           }(timelineData)
         }
         myChart1.setOption(option1);
-        $scope.label = "粮温数据";
+        // $scope.label = "粮温数据";
         window.onresize = myChart1.resize;
 
 
-        //标签为second的粮温预警的js实现
+        //标签为second的图
         // 基于准备好的dom，初始化echarts实例
         var myChart2 = echarts.init(document.getElementById('second'));
         // 指定图表的配置项和数据
-        var option = {
+        var option2 = {
           // title: {
           //     text: '异常数据汇总',
           //     left: 'center',
@@ -813,7 +871,7 @@ angular.module('controllers', [])
               name: '>35℃',
               type: 'bar',
               stack: '总量',
-              barWidth: 30,
+              barWidth: 20,
               // label: {
               //     normal: {
               //         show: true,
@@ -826,7 +884,7 @@ angular.module('controllers', [])
               name: '[35℃,25℃)',
               type: 'bar',
               stack: '总量',
-              barWidth: 30,
+              barWidth: 20,
               // label: {
               //     normal: {
               //         show: true,
@@ -839,7 +897,7 @@ angular.module('controllers', [])
               name: '[25℃,15℃)',
               type: 'bar',
               stack: '总量',
-              barWidth: 30,
+              barWidth: 20,
               // label: {
               //     normal: {
               //         show: true,
@@ -851,8 +909,97 @@ angular.module('controllers', [])
           ]
         };
         // 使用刚指定的配置项和数据显示图表。
-        myChart2.setOption(option);
+        myChart2.setOption(option2);
         window.onresize = myChart2.resize;
+
+        //标签为main的三维立体图
+        var data = [];
+        //真实数据：
+        for (var i = 0; i < chartdata.length; i++) {
+          var temp = chartdata[i].data;
+          temp = parseFloat(temp);
+          if (chartdata[i].location_x) {
+            var item = [chartdata[i].location_x, chartdata[i].location_y, chartdata[i].depth, temp];
+            console.log('item', i, item);
+            data.push(item);
+          }
+        }
+        var myChart3 = echarts.init(document.getElementById('main'));
+        var option3 = {
+          // title: {
+          //   text: '粮仓温度三维展示',
+          //   textStyle: {
+          //     color: '#25554E',
+          //     //字体大小
+          //     fontSize: 18
+          //   },
+          //   left: 'center',
+          //   top: 30,
+
+          // },
+          visualMap: {
+            show: true,
+            min: 0,
+            max: 30,//控制颜色
+            inRange: {
+              symbolSize: [7, 10], //控制圆点的大小
+              color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'],
+              colorAlpha: [0.5, 1]  //控制透明度
+            }
+          },
+          tooltip: {},  //显示默认形式悬浮框
+          xAxis3D: {
+            type: 'value',
+            name: '西向',
+          },
+          yAxis3D: {
+            type: 'value',
+            name: '北向',
+          },
+          zAxis3D: {
+            type: 'value',
+            name: '深度',
+            nameGap: 10,
+          },
+          grid3D: {
+            right: 0,
+            left: 0,
+            top: 0,
+            boxWidth: 60,
+            boxHeight: 80,
+            boxDepth: 60,
+
+            // environment: '#000',
+            environment: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+              offset: 0, color: '#00aaff' // 天空颜色
+            }, {
+              offset: 0.7, color: '#998866' // 地面颜色
+            }, {
+              offset: 1, color: '#998866' // 地面颜色
+            }], false),
+            axisLine: {
+              lineStyle: {
+                color: 'white'
+              },
+              interval: 0
+            },
+            axisPointer: {
+              lineStyle: {
+                color: 'white'
+              }
+            },
+            viewControl: {
+              // autoRotate: isRotate,
+              distance: 200,
+            }
+          },
+          series: [{
+            type: 'scatter3D',
+            data: data
+          }]
+        };
+        myChart3.setOption(option3);
+        window.onresize = myChart3.resize;
       }
 
     }
@@ -1019,6 +1166,13 @@ angular.module('controllers', [])
             LoadingService.hide();
             $scope.intro.name = resp.data[0].name;
             $scope.intro.location = resp.data[0].location;
+            $scope.intro.description = resp.data[0].description;
+            $scope.intro.num = resp.data[0].barn_count;
+            $scope.intro.square = resp.data[0].total_area;
+            $scope.intro.volume = resp.data[0].total_capacity;
+            $scope.intro.province = resp.data[0].province;
+            $scope.intro.city = resp.data[0].city;
+            $scope.intro.zone = resp.data[0].zone;
 
           }, function (error) {
             LoadingService.hide();
@@ -1033,7 +1187,12 @@ angular.module('controllers', [])
       $scope.click = function (num, description, i) {
 
         $state.go('tabs.detail',
-          { title: $scope.items[i].depotName, number: num, long: $scope.long[i], width: $scope.width[i], height: $scope.height[i], description: description });
+          {
+            zone: $scope.intro.zone, province: $scope.intro.province, city: $scope.intro.city,
+            title: $scope.items[i].depotName, number: num,
+            long: $scope.long[i], width: $scope.width[i], height: $scope.height[i],
+            description: description
+          });
       };
 
       $scope.doRefresh = function () {
@@ -1084,7 +1243,6 @@ angular.module('controllers', [])
     }])
   .controller('DetailCtrl', ['$scope', '$state', '$stateParams', '$window', '$timeout', '$http', 'PopupService', 'LoadingService', 'UserService',
     function ($scope, $state, $stateParams, $window, $timeout, $http, PopupService, LoadingService, UserService) {
-
       var number = $stateParams.number;
       var userId = localStorage.getItem("userId");
       $scope.table = {};
@@ -1094,6 +1252,9 @@ angular.module('controllers', [])
       $scope.width = $stateParams.width;
       $scope.height = $stateParams.height;
       $scope.table.title = $stateParams.title;
+      $scope.table.province = $stateParams.province;
+      $scope.table.city = $stateParams.city;
+      $scope.table.zone = $stateParams.zone;
       $scope.noMore = false;
       $scope.loadText = "继续拖动，查看小仓库";
       $scope.items = [];
@@ -1125,23 +1286,44 @@ angular.module('controllers', [])
                       if(i==0)leftBigText="小仓一";
                       if(i==1)leftBigText="小仓二";
                       if(i==2)leftBigText="小仓三";
-                      if(i==3)leftBigText="小仓四";
-                      if(i==3)leftBigText="小仓五";
 
-                      rightGrayText="最大库存"+resp.data[i].volumn+"t";
-                      barnId = resp.data[i].barn_cell_id;
-                      $scope.items.push( {leftBigText:leftBigText,leftSmallText:'（种类/稻谷）',rightGrayText:rightGrayText,rightBlackText:'当前库存700t',barnId:barnId})
-                  }
-              },function(error){
-                  LoadingService.hide();
-                  PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
-                  PopupService.showAlert();
-                  $scope.display="none";
-                  if($scope.items.length==0){
-                      $scope.loadFailedText="数据加载失败";
-                  }
-              });
-      };*/
+    /*$scope.enter=function(){
+        LoadingService.show();
+        $http.get('http://123.56.27.166:8080/barn_application/barn/getBarnByBNID?BNID='+number)
+            .then(function(resp){
+                $scope.items = [];
+                LoadingService.hide();
+                $scope.loadText = "继续拖动，查看小仓库";
+                $scope.noMore = false;
+                $scope.display="block";
+                $scope.loadFailedText="";
+                var leftBigText,rightGrayText,barnId;
+                if(resp.data.length<=1){
+                  $scope.noMore = true;
+                  $scope.loadText = "已没有更多数据";
+                }
+                for(i=0;i<resp.data.length;i++){
+
+                    if(i==0)leftBigText="小仓一";
+                    if(i==1)leftBigText="小仓二";
+                    if(i==2)leftBigText="小仓三";
+                    if(i==3)leftBigText="小仓四";
+                    if(i==3)leftBigText="小仓五";
+
+                    rightGrayText="最大库存"+resp.data[i].volumn+"t";
+                    barnId = resp.data[i].barn_cell_id;
+                    $scope.items.push( {leftBigText:leftBigText,leftSmallText:'（种类/稻谷）',rightGrayText:rightGrayText,rightBlackText:'当前库存700t',barnId:barnId})
+                }
+            },function(error){
+                LoadingService.hide();
+                PopupService.setContent("服务器连接失败，请检查您的网络，然后下拉刷新重试");
+                PopupService.showAlert();
+                $scope.display="none";
+                if($scope.items.length==0){
+                    $scope.loadFailedText="数据加载失败";
+                }
+            });
+    };*/
 
       $scope.enter = function () {
         LoadingService.show();
@@ -1154,7 +1336,8 @@ angular.module('controllers', [])
             $scope.noMore = false;
             $scope.display = "block";
             $scope.loadFailedText = "";
-            var leftBigText, rightGrayText, barnId;
+            $scope.grainProperty = resp.data[0].grain_property;
+            var leftBigText, leftSmallText, rightGrayText, rightBlackText, barnId;
             if (resp.data.length <= 1) {
               $scope.noMore = true;
               $scope.loadText = "已没有更多数据";
@@ -1168,10 +1351,12 @@ angular.module('controllers', [])
                if(i==4)leftBigText="小仓五";*/
 
               leftBigText = resp.data[i].description;
+              leftSmallText = '（种类/' + resp.data[i].grain_type + '）';
               rightGrayText = "最大库存" + resp.data[i].volume + "t";
+              rightBlackText = '当前库存' + resp.data[i].grain_current_volume + 't';
               barnId = resp.data[i].BNID;
               getManagerInfo(barnId);
-              $scope.items.push({ leftBigText: leftBigText, leftSmallText: '（种类/稻谷）', rightGrayText: rightGrayText, rightBlackText: '当前库存700t', barnId: barnId })
+              $scope.items.push({ leftBigText: leftBigText, leftSmallText: leftSmallText, rightGrayText: rightGrayText, rightBlackText: rightBlackText, barnId: barnId })
             }
             getManagerInfo($scope.items[0].barnId);
           }, function (error) {
@@ -1226,7 +1411,6 @@ angular.module('controllers', [])
         }, 1000);
         $scope.$broadcast('scroll.infiniteScrollComplete');
       };
-
 
       $scope.viewTemperature = function (text, id) {
         $state.go('tabs.temperature',
@@ -1292,14 +1476,18 @@ angular.module('controllers', [])
         $scope.display = "none";
       }
       $scope.$on('$ionicView.beforeEnter', function () {
-        $scope.items = [];
         $scope.items = $rootScope.warnItems;
+      });
+      $scope.$on('$ionicView.beforeLeave', function () {
+        $scope.items = [];
       });
       var barns = BarnService.getBarns();
       var userId = localStorage.getItem("userId");
       var dateTime = "";
       var url = "";
       var lastTime = "";
+      var div = document.getElementById("warn-load");
+      $scope.noMore = false;
       $rootScope.warnItems = [];
       $scope.itemClass1 = [];
       $scope.itemClass2 = [];
@@ -1336,10 +1524,8 @@ angular.module('controllers', [])
           LoadingService.show();
           dateTime = formatDate(new Date());
           $rootScope.warnItems = [];
-          $scope.items = [];
         } else {
           dateTime = lastTime;
-          $scope.loadMoreShow = 1;
         }
         //  url='http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUID?UID='+userId;
         url = 'http://123.56.27.166:8080/barn_application/alarm/getAlarmSumByUIDLimitTen?UID=' + userId + '&timestamp=' + dateTime;
@@ -1389,6 +1575,7 @@ angular.module('controllers', [])
                   });
                 }
                 $scope.loadMoreShow = 0;
+                div.className = "load";
                 $scope.items = $rootScope.warnItems;
                 /*  $scope.newItems.sort(function(a,b){
                     return a.flag-b.flag});
@@ -1432,13 +1619,18 @@ angular.module('controllers', [])
         $scope.enter(0);
         $scope.$broadcast('scroll.refreshComplete');
       };
+      $scope.loadAnimation = function () {
+        div.className = "load load-animation";
+      };
       $scope.loadMore = function () {
-        $scope.enter(1);
-        $scope.$broadcast('scroll.infiniteScrollComplete');
+        $scope.loadMoreShow = 1;
+        setTimeout(function () {
+          $scope.enter(1);
+        }, 500);
       };
       $scope.back = function () {
         $state.go("tabs.risk");
-      }
+      };
 
     }])
   .controller('WarnConfirmCtrl', ['$scope', '$stateParams', '$http', '$ionicHistory', '$state', 'PopupService', '$rootScope', 'LoadingService', 'UserService',
@@ -1791,7 +1983,7 @@ angular.module('controllers', [])
     }])
   .controller('PersonCtrl', ['$scope', '$state', '$ionicHistory', 'UserService', 'LoginService',
     function ($scope, $state, $ionicHistory, UserService, LoginService) {
-      $scope.version = "当前" + localStorage.appVersion;
+      // $scope.version="当前"+localStorage.appVersion;
       $scope.userName = UserService.person.userName;
       $scope.logout = function () {
         $ionicHistory.clearCache();
@@ -1899,36 +2091,36 @@ angular.module('controllers', [])
         context.fill();
       }
 
-      //获取Canvas对象(画布)
-      var canvas2 = document.getElementById("myCanvas2");
-      //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
-      if (canvas2.getContext) {
-        //获取对应的CanvasRenderingContext2D对象(画笔)
-        var context = canvas2.getContext("2d");
-        var value = canvas2.getAttribute("value");
-        var centerSize = [60, 60, 50];
-        //灰色的
-        context.beginPath();
-        context.moveTo(centerSize[0], centerSize[1]);
-        context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2, false);
-        context.closePath();
-        context.fillStyle = '#4DAED5';
-        context.fill();
-        //画红色的圆
-        context.beginPath();
-        context.moveTo(centerSize[0], centerSize[1]);
-        context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2 * value, false);
-        context.closePath();
-        context.fillStyle = '#99E2FC';
-        context.fill();
-        //画里面的白色的圆
-        context.beginPath();
-        context.moveTo(centerSize[0], centerSize[1]);
-        context.arc(centerSize[0], centerSize[1], centerSize[2] - 15, 0, Math.PI * 2, true);
-        context.closePath();
-        context.fillStyle = 'rgba(255,255,255,1)';
-        context.fill();
-      }
+      // //获取Canvas对象(画布)
+      // var canvas2 = document.getElementById("myCanvas2");
+      // //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
+      // if (canvas2.getContext) {
+      //   //获取对应的CanvasRenderingContext2D对象(画笔)
+      //   var context = canvas2.getContext("2d");
+      //   var value = canvas2.getAttribute("value");
+      //   var centerSize = [60, 60, 50];
+      //   //灰色的
+      //   context.beginPath();
+      //   context.moveTo(centerSize[0], centerSize[1]);
+      //   context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2, false);
+      //   context.closePath();
+      //   context.fillStyle = '#4DAED5';
+      //   context.fill();
+      //   //画红色的圆
+      //   context.beginPath();
+      //   context.moveTo(centerSize[0], centerSize[1]);
+      //   context.arc(centerSize[0], centerSize[1], centerSize[2], 0, Math.PI * 2 * value, false);
+      //   context.closePath();
+      //   context.fillStyle = '#99E2FC';
+      //   context.fill();
+      //   //画里面的白色的圆
+      //   context.beginPath();
+      //   context.moveTo(centerSize[0], centerSize[1]);
+      //   context.arc(centerSize[0], centerSize[1], centerSize[2] - 15, 0, Math.PI * 2, true);
+      //   context.closePath();
+      //   context.fillStyle = 'rgba(255,255,255,1)';
+      //   context.fill();
+      // }
     };
     var notyet = $rootScope.myNews;
     var already = $rootScope.total - notyet;
@@ -2466,7 +2658,8 @@ angular.module('controllers', [])
       $scope.startTime = "请选择";
       var text = "平房仓1";
       var id = 1;
-      var oneDay = 1000 * 3600 * 24;;//?
+      var oneDay = 1000 * 3600 * 24;//?
+      var oneMinute = 1000 * 60;
       var date1 = 0;//?
       var myTimestamp = "2017-6-6" + " " + "16:41:42";  //默认还没有获取任何时间的时候的timestamp值就是这个
       $scope.date = (new Date()).getTime() - 10 * oneDay;
@@ -2510,8 +2703,10 @@ angular.module('controllers', [])
       var options1 = {
         date: new Date(new Date() - oneDay),
         mode: 'datetime', // or 'time'
-        minDate: new Date(2017, 5, 6).getTime(),
-        maxDate: new Date(),
+        minDate: new Date(2017, 1, 6).getTime(),//以17-6-1日为最小时间
+        maxDate: new Date() - 30 * oneMinute,
+        allowOldDates: true,
+        allowFutureDates: false,
         titleText: '起始日期',
         locale: "zh_cn"
       };

@@ -447,3 +447,20 @@ ul.home-depository-nav li{
   float: right;
   margin-right: 20px;
 }
+.load{
+  clear: both;
+  text-align: center;
+  background-color: #f0f0f0;
+  font-size: 18px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+@keyframes myanimation
+{
+  0%   {padding-bottom: 20px;}
+  100% {padding-bottom: 80px;}
+}
+.load-animation{
+  animation: myanimation 2s;
+  -webkit-animation:myanimation 2s;
+}

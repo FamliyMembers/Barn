@@ -4,13 +4,13 @@
     <ion-refresher pulling-text="下拉刷新" spinner="bubbles" on-refresh="doRefresh()"></ion-refresher>
 
     <ion-slide-box active-slide="myActiveSlide" on-slide-changed="slideHasChanged(index)" does-continue="true" auto-play="true"
-      show-pager="true" style="height:10%;border-right:1px solid #D6D7D8;">
+      show-pager="true" style="height:12%;border-right:1px solid #D6D7D8;">
       <ion-slide>
-        <div style="background:white;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
+        <div style="background:#F3F3F3;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
           <div style="position:relative;width:50%;height:100%;float:left;border-right:1px solid #D6D7D8;">
             <div style="position:relative;
                       width:30%;
-                      height:50%;
+                      height:40%;
                       left:20%;
                       top:20%;
                       border-radius:5px;
@@ -26,12 +26,12 @@
                     top:25%;
                     right:16%;
                     font-size:18px;
-                    color:#25554E;">{{ airTemperature }}℃</p>
+                    color:#25554E;"><b>{{ airTemperature }}℃</b></p>
           </div>
           <div style="position:relative;width:50%;height:100%;float:left;border-right:1px solid #D6D7D8;">
             <div style="position:relative;
                       width:30%;
-                      height:50%;
+                      height:40%;
                       left:20%;
                       top:20%;
                       border-radius:5px;
@@ -47,16 +47,16 @@
                     top:25%;
                     right:16%;
                     font-size:18px;
-                    color:#25554E;">{{ airHumidity }}%</p>
+                    color:#25554E;"><b>{{ airHumidity }}%</b></p>
           </div>
         </div>
       </ion-slide>
       <ion-slide>
-        <div style="background:white;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
+        <div style="background:#F3F3F3;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
           <div style="position:relative;width:50%;height:100%;float:left;border-right:1px solid #D6D7D8;">
             <div style="position:relative;
                       width:30%;
-                      height:50%;
+                      height:40%;
                       left:20%;
                       top:20%;
                       border-radius:5px;
@@ -71,12 +71,12 @@
                       top:25%;
                       right:16%;
                       font-size:18px;
-                      color:#25554E;">{{ barnTemperature }}℃</p>
+                      color:#25554E;"><b>{{ barnTemperature }}℃</b></p>
           </div>
           <div style="position:relative;width:50%;height:100%;float:left">
             <div style="position:relative;
                         width:30%;
-                        height:50%;
+                        height:40%;
                         left:20%;
                         top:20%;
                         border-radius:5px;
@@ -91,16 +91,16 @@
                         top:25%;
                         right:16%;
                         font-size:18px;
-                        color:#25554E;">{{ barnHumidity }}%</p>
+                        color:#25554E;"><b>{{ barnHumidity }}%</b></p>
           </div>
         </div>
       </ion-slide>
       <ion-slide>
-        <div style="background:white;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
+        <div style="background:#F3F3F3;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
           <div style="position:relative;width:50%;height:100%;float:left;border-right:1px solid #D6D7D8;">
             <div style="position:relative;
                       width:30%;
-                      height:50%;
+                      height:40%;
                       left:20%;
                       top:20%;
                       border-radius:5px;
@@ -116,12 +116,12 @@
                     top:25%;
                     right:16%;
                     font-size:18px;
-                    color:#25554E;">{{ airTemperature }}℃</p>
+                    color:#25554E;"><b>{{ airTemperature }}℃</b></p>
           </div>
           <div style="position:relative;width:50%;height:100%;float:left;border-right:1px solid #D6D7D8;">
             <div style="position:relative;
                       width:30%;
-                      height:50%;
+                      height:40%;
                       left:20%;
                       top:20%;
                       border-radius:5px;
@@ -137,16 +137,16 @@
                     top:25%;
                     right:16%;
                     font-size:18px;
-                    color:#25554E;">{{ airHumidity }}%</p>
+                    color:#25554E;"><b>{{ airHumidity }}%</b></p>
           </div>
         </div>
       </ion-slide>
       <ion-slide>
-        <div style="background:white;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
+        <div style="background:#F3F3F3;width:100%;height:100%;border-bottom:1px solid #D6D7D8;">
           <div style="position:relative;width:50%;height:100%;float:left;border-right:1px solid #D6D7D8;">
             <div style="position:relative;
                       width:30%;
-                      height:50%;
+                      height:40%;
                       left:20%;
                       top:20%;
                       border-radius:5px;
@@ -161,12 +161,12 @@
                       top:25%;
                       right:16%;
                       font-size:18px;
-                      color:#25554E;">{{ barnTemperature }}℃</p>
+                      color:#25554E;"><b>{{ barnTemperature }}℃</b></p>
           </div>
           <div style="position:relative;width:50%;height:100%;float:left">
             <div style="position:relative;
                         width:30%;
-                        height:50%;
+                        height:40%;
                         left:20%;
                         top:20%;
                         border-radius:5px;
@@ -181,7 +181,7 @@
                         top:25%;
                         right:16%;
                         font-size:18px;
-                        color:#25554E;">{{ barnHumidity }}%</p>
+                        color:#25554E;"><b>{{ barnHumidity }}%</b></p>
           </div>
         </div>
       </ion-slide>
@@ -190,25 +190,20 @@
     <div style="position:absolute;
                     width:100%;
                     height:110%;
-                    top:10%;
+                    top:12%;
                     background:#F3F3F3;">
-      <img src='./img/arrowleft.png' width="20" height="25" ng-click='doChangeEcharts()' style="border-style:none; position:absolute;left:25%;top:10px;">
-      </img>
-      <p style=" font-size:18px;color:#25554E;position:absolute;top:12px; left:30%;right:30%; text-align:center;letter-spacing:0px;"
-        ng-model="label"><b>{{label}}</b></p>
-      <img src='./img/arrowright.png' width="20" height="25" ng-click='doChangeEcharts()' style="border-style:none; position:absolute;right:25%;top:10px;">
-      </input>
+
       <!--学弟echarts代码部分-->
       <!--异常数据echarts开始-->
       <div id="second" style="position:absolute;
                                width: 100%;
                                height:40%;
-                               top:50px;">
+                               top:60px;">
       </div>
       <div id="second-alarm" style="position:absolute;
                                width: 100%;
                                height:40%;
-                               top:50%;">
+                               top:55%;">
         <!--告警点合计部分-->
         <div style="position:relative;width:90%;height:60%;left:5%;right:5%">
           <img src='./img/strangeDataCollect.png' width="20" height="25" style="border-style:none; position:absolute;left:0px;top:0px;"></img>
@@ -264,14 +259,14 @@
       <div id="first" style="position:absolute;
                                width: 100%;
                                height:60%;
-                               top:50px;
+                               top:70px;
                                ">
       </div>
       <div id="first-BarnInfo" style="position:absolute;
                                width: 100%;
-                               height:30%;
-                               top:70%;">
-        <table class="table-barn-border" ng-controller="listFunc" style="position:relative;width:80%;height:80%;left:10%;right:10%">
+                               top:75%;
+                               background:#F3F3F3">
+        <table class="table-barn-border" ng-controller="listFunc" style="position:relative;width:90%;height:80%;left:5%;right:5%">
           <!--<caption style="font-size:14px;color:gray">统计信息</caption>-->
           <tr class="table-barn-detail ">
             <th class="table-barn-detail ">仓号</th>
@@ -297,14 +292,28 @@
             <td>{{ x[2] }}</td>
             <td>{{ x[3] }}</td>
           </tr>
-
-
-
         </table>
-
+        <div style="position:absolute;width:100%;height:20px;background:#F3F3F3">
+          
+        </div>
       </div>
       <!--粮温echarts结束-->
-      <p style=" font-size:10px;color:gray; position:absolute;top:35px;text-align:center;left:30%;letter-spacing:0px;">更新于{{dateNow}}</p>
+
+      <!--三维展示图-->
+      <div id="main" style="position:absolute;
+                               width: 100%;
+                               height:79%;
+                               top:0px;
+                               ">
+      </div>
+
+      <img src='./img/arrowleft.png' width="20" height="25" ng-click='clickLeftOrder()' style="border-style:none; position:absolute;left:25%;top:30px;">
+      </img>
+      <p style=" font-size:18px;color:{{ color }};position:absolute;top:32px; left:30%;right:30%; text-align:center;letter-spacing:0px;"
+        ng-model="label"><b>{{label}}</b></p>
+      <img src='./img/arrowright.png' width="20" height="25" ng-click='clickRightOrder()' style="border-style:none; position:absolute;right:25%;top:30px;">
+      </img>
+      <p style=" font-size:10px;color:{{ color }}; position:absolute;text-align:center;left:30%;letter-spacing:0px;top:60px;">更新于{{dateNow}}</p>
     </div>
   </ion-content>
 </ion-view>

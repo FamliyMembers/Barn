@@ -177,26 +177,24 @@ angular.module('controllers', [])
         var timeFromSearch = $stateParams.timestamp;
         console.log("从上一级获取到的timestamp--------", timeFromSearch);
 
-        //时间字符串比较大小
         var isOK = 0;
-        // var time2 = new Date(timeFromSearch).getTime();
         if (timeFromSearch) {
           isOK = 0;
         } else {
           isOK = 1;
         }
-        //其实不用去判断，因为第二个需要填写timestamp的接口已经包含了取最近的一次的调用。所以即使是取现在的时间的数据的话也不用换接口了。
 
         LoadingService.show();
 
         document.getElementById('second-alarm').style.display = "none";
+        document.getElementById('first-BarnInfo').style.display = "none";
 
         $scope.doRefresh = function () {
           $scope.items = [];
           $scope.$broadcast('scroll.refreshComplete');
         };
 
-        //value作为标志数据，可以进行切换两个图表的标志
+        //value作为标志数据，可以进行切换3个图表的标志
         var value = 0;
 
         //取数据，并且传给echarts图标，其中画图表的部分在drawChart函数中
@@ -206,14 +204,17 @@ angular.module('controllers', [])
           console.log('getEchartsDataid----', id);
           if (isOK == 1) {
             var url = "http://123.56.27.166:8080/barn_application/node/getNodeDataByBNID?BNID=" + id;
+            var url3 = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
           } else {
             var url = "http://123.56.27.166:8080/barn_application/node/getLatestDataByTimestamp?BNID=" + id + "&timestamp=" + timeFromSearch;
+            var url3 = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id + "&timestamp=" + timeFromSearch;
           }
           //var url = './js/test66.json';
           $http.get(url).success(function (response) {
             LoadingService.hide();
             $scope.datas = response;
             drawChart(response);
+            displayByValue();
             // console.log('success', response);
             console.log("当前点点点点图的url为-----", url);
             console.log('warnTableFuncid----', id);
@@ -255,8 +256,8 @@ angular.module('controllers', [])
         $scope.listFunc = function () {
           // var id = $stateParams.id;
           console.log('listFuncid----', id);
-          var url = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
-          $http.get(url).success(function (response) {
+          var url3 = "http://123.56.27.166:8080/barn_application/node/getSummaryDataByTimestamp?BNID=" + id;
+          $http.get(url3).success(function (response) {
             var datas = response[0].list;
             $scope.deviceId = response[0].deviceId;
             $scope.barnAverage = response[0].barnAverage;
@@ -272,24 +273,81 @@ angular.module('controllers', [])
         }
 
         //试验button的切换页面的功能
-        $scope.doChangeEcharts = function () {
-          if (value == 1) {
-            document.getElementById('second').style.display = "none";
-            document.getElementById('second-alarm').style.display = "none";
-            document.getElementById('first').style.display = "block";
-            document.getElementById('first-BarnInfo').style.display = "block";
-            $scope.label = "粮温数据";
-            value = value - 1;
-            console.log('hello，value=1，显示first，此时的value值已经改变，变成了', value);
+        $scope.clickLeftOrder = function () {
+          switch (value) {
+            case 1:
+              value = value - 1;
+              displayByValue();
+              break;
+            case 2:
+              value = value - 1;
+              displayByValue();
+              break;
+            case 0:
+              value = 2;
+              displayByValue();
+              break;
+            default:
+              break;
           }
-          else {
-            value = value + 1;
-            document.getElementById('second').style.display = "block";
-            document.getElementById('second-alarm').style.display = "block";
-            document.getElementById('first').style.display = "none";
-            document.getElementById('first-BarnInfo').style.display = "none";
-            $scope.label = "异常数据汇总";
-            console.log('hello，value=0，显示second，此时的value值已经改变，变成了', value);
+        }
+        $scope.clickRightOrder = function () {
+          switch (value) {
+            case 0:
+              value = value + 1;
+              displayByValue();
+              break;
+            case 1:
+              value = value + 1;
+              displayByValue();
+              break;
+            case 2:
+              value = 0;
+              displayByValue();
+              break;
+            default:
+              break;
+          }
+        }
+        function displayByValue() {
+          switch (value) {
+            case 0: {
+              //value =0显示main的值
+              document.getElementById('main').style.display = "block";
+              document.getElementById('first').style.display = "none";
+              document.getElementById('first-BarnInfo').style.display = "none";
+              document.getElementById('second').style.display = "none";
+              document.getElementById('second-alarm').style.display = "none";
+              $scope.color = "white"
+              $scope.label = "三维数据展示";
+              console.log('hello，value=0，显示main，此时的value值已经改变，变成了', value);
+              break;
+            }
+            case 1: {
+              document.getElementById('first').style.display = "block";
+              document.getElementById('first-BarnInfo').style.display = "block";
+              document.getElementById('second').style.display = "none";
+              document.getElementById('second-alarm').style.display = "none";
+              document.getElementById('main').style.display = "none";
+              $scope.color = "#25554E"
+              $scope.label = "粮温数据";
+              console.log('hello，value=1，显示first，此时的value值已经改变，变成了', value);
+              break;
+
+            }
+            case 2: {
+              document.getElementById('first').style.display = "none";
+              document.getElementById('first-BarnInfo').style.display = "none";
+              document.getElementById('second').style.display = "block";
+              document.getElementById('second-alarm').style.display = "block";
+              document.getElementById('main').style.display = "none";
+              $scope.color = "#25554E"
+              $scope.label = "异常数据汇总";
+              console.log('hello，value=2，显示second，此时的value值已经改变，变成了', value);
+              break;
+            }
+            default:
+              break;
           }
         }
         //drawChart函数功能部分
@@ -377,7 +435,7 @@ angular.module('controllers', [])
             chart2datas["h"].push(statistic35[i] ? statistic35[i] : 0);
           }
           console.log(chart2datas);
-          //标签为first的echart的js实现
+          //标签为first的图
           // 基于准备好的dom，初始化echarts实例
           var myChart1 = echarts.init(document.getElementById('first'));
           var schema =
@@ -711,15 +769,15 @@ angular.module('controllers', [])
             }(timelineData)
           }
           myChart1.setOption(option1);
-          $scope.label = "粮温数据";
+          // $scope.label = "粮温数据";
           window.onresize = myChart1.resize;
 
 
-          //标签为second的粮温预警的js实现
+          //标签为second的图
           // 基于准备好的dom，初始化echarts实例
           var myChart2 = echarts.init(document.getElementById('second'));
           // 指定图表的配置项和数据
-          var option = {
+          var option2 = {
             // title: {
             //     text: '异常数据汇总',
             //     left: 'center',
@@ -813,7 +871,7 @@ angular.module('controllers', [])
                 name: '>35℃',
                 type: 'bar',
                 stack: '总量',
-                barWidth: 30,
+                barWidth: 20,
                 // label: {
                 //     normal: {
                 //         show: true,
@@ -826,7 +884,7 @@ angular.module('controllers', [])
                 name: '[35℃,25℃)',
                 type: 'bar',
                 stack: '总量',
-                barWidth: 30,
+                barWidth: 20,
                 // label: {
                 //     normal: {
                 //         show: true,
@@ -839,7 +897,7 @@ angular.module('controllers', [])
                 name: '[25℃,15℃)',
                 type: 'bar',
                 stack: '总量',
-                barWidth: 30,
+                barWidth: 20,
                 // label: {
                 //     normal: {
                 //         show: true,
@@ -851,8 +909,97 @@ angular.module('controllers', [])
             ]
           };
           // 使用刚指定的配置项和数据显示图表。
-          myChart2.setOption(option);
+          myChart2.setOption(option2);
           window.onresize = myChart2.resize;
+
+          //标签为main的三维立体图
+          var data = [];
+          //真实数据：
+          for (var i = 0; i < chartdata.length; i++) {
+            var temp = chartdata[i].data;
+            temp = parseFloat(temp);
+            if (chartdata[i].location_x) {
+              var item = [chartdata[i].location_x, chartdata[i].location_y, chartdata[i].depth, temp];
+              console.log('item', i, item);
+              data.push(item);
+            }
+          }
+          var myChart3 = echarts.init(document.getElementById('main'));
+          var option3 = {
+            // title: {
+            //   text: '粮仓温度三维展示',
+            //   textStyle: {
+            //     color: '#25554E',
+            //     //字体大小
+            //     fontSize: 18
+            //   },
+            //   left: 'center',
+            //   top: 30,
+
+            // },
+            visualMap: {
+              show: true,
+              min: 0,
+              max: 30,//控制颜色
+              inRange: {
+                symbolSize: [7, 10], //控制圆点的大小
+                color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'],
+                colorAlpha: [0.5, 1]  //控制透明度
+              }
+            },
+            tooltip: {},  //显示默认形式悬浮框
+            xAxis3D: {
+              type: 'value',
+              name: '西向',
+            },
+            yAxis3D: {
+              type: 'value',
+              name: '北向',
+            },
+            zAxis3D: {
+              type: 'value',
+              name: '深度',
+              nameGap: 10,
+            },
+            grid3D: {
+              right: 0,
+              left: 0,
+              top: 0,
+              boxWidth: 60,
+              boxHeight: 80,
+              boxDepth: 60,
+
+              // environment: '#000',
+              environment: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0, color: '#00aaff' // 天空颜色
+              }, {
+                offset: 0.7, color: '#998866' // 地面颜色
+              }, {
+                offset: 1, color: '#998866' // 地面颜色
+              }], false),
+              axisLine: {
+                lineStyle: {
+                  color: 'white'
+                },
+                interval: 0
+              },
+              axisPointer: {
+                lineStyle: {
+                  color: 'white'
+                }
+              },
+              viewControl: {
+                // autoRotate: isRotate,
+                distance: 200,
+              }
+            },
+            series: [{
+              type: 'scatter3D',
+              data: data
+            }]
+          };
+          myChart3.setOption(option3);
+          window.onresize = myChart3.resize;
         }
 
       }

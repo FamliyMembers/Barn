@@ -34,6 +34,12 @@
         },
         "cordova-plugin-datepicker": {
             "PACKAGE_NAME": "com.ionicframework.barn788888"
+        },
+        "cordova-plugin-x-toast": {
+            "PACKAGE_NAME": "com.ionicframework.barn788888"
+        },
+        "cordova-plugin-network-information": {
+            "PACKAGE_NAME": "com.ionicframework.barn788888"
         }
     },
     "dependent_plugins": {

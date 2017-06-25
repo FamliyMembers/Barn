@@ -32,13 +32,17 @@ angular.module('starter', ['ionic', 'controllers', 'directives', 'services', 'ng
                 window.open = window.cordova.InAppBrowser.open;
             }
             $cordovaAppVersion.getVersionNumber().then(function (version) {
+
                 localStorage.appVersion = version;
-                console.log("Version is-----", version)
+                alert(version);
+                console.log("app.js------Version is-----", version)
             });
+
             window.plugins.jPushPlugin.init();
             window.plugins.jPushPlugin.openNotificationIniOSCallback = function (data) {
 
                 $state.go("tabs.warn", {}, { reload: true });
+                console.log("app.js------jpush is-----");
 
             };
             window.plugins.jPushPlugin.setDebugMode(true);

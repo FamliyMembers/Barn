@@ -319,7 +319,7 @@ angular.module('controllers', [])
               document.getElementById('second').style.display = "none";
               document.getElementById('second-alarm').style.display = "none";
               $scope.color = "white"
-              $scope.label = "三维数据展示";
+              $scope.label = "三维粮情数据";
               console.log('hello，value=0，显示main，此时的value值已经改变，变成了', value);
               break;
             }
@@ -919,8 +919,8 @@ angular.module('controllers', [])
             var temp = chartdata[i].data;
             temp = parseFloat(temp);
             if (chartdata[i].location_x) {
-              var item = [chartdata[i].location_x, chartdata[i].location_y, chartdata[i].depth, temp];
-              console.log('item', i, item);
+              var item = [chartdata[i].location_x, chartdata[i].location_y, 5 - chartdata[i].depth, temp];
+              // console.log('item', i, item);
               data.push(item);
             }
           }
@@ -940,26 +940,27 @@ angular.module('controllers', [])
             visualMap: {
               show: true,
               min: 0,
-              max: 30,//控制颜色
+              max: 35,//控制颜色
               inRange: {
                 symbolSize: [7, 10], //控制圆点的大小
-                color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'],
+                color: ['#313695', '#74add1', '#abd9e9', '#ffffbf', '#ffff00','#ffd700' ,'#a50026'],
                 colorAlpha: [0.5, 1]  //控制透明度
               }
             },
             tooltip: {},  //显示默认形式悬浮框
             xAxis3D: {
               type: 'value',
-              name: '西向',
+              name: '东向',
             },
             yAxis3D: {
               type: 'value',
               name: '北向',
             },
             zAxis3D: {
-              type: 'value',
+              type: 'category',
+              data: ['5', '4', '3', '2', '1'],
               name: '深度',
-              nameGap: 10,
+              nameGap: 15,
             },
             grid3D: {
               right: 0,
@@ -1984,6 +1985,48 @@ angular.module('controllers', [])
         $scope.height=(window.screen.height-100)+"px";
         container.style.height=$scope.height;
 
+      }])
+    .controller('PersonChangePassCtrl',['$scope','PopupService','$http','LoadingService','$state','LoginService','$ionicHistory',
+      function($scope,PopupService,$http,LoadingService,$state,LoginService,$ionicHistory){
+        $scope.ctrlScope = $scope;
+        $scope.changePassword=function () {
+          if($scope.first!=$scope.second){
+            PopupService.setContent("两次输入密码不一致");
+            PopupService.showAlert();
+          }else{
+            LoadingService.show();
+            $http({
+              method: 'POST',
+              url: 'http://123.56.27.166:8080/barn_application/user/modifyPassword',
+              data:{UID:localStorage.userId,newPassword:$.md5($scope.first)}
+            }).then(function successCallback(resp) {
+              // 请求成功执行代码
+              LoadingService.hide();
+              if(resp.data.state==1) {
+                PopupService.setContent("密码修改成功");
+                localStorage.userId="";
+                localStorage.password="";
+                PopupService.showConfirmPopup(goLogin);
+              }else{
+                PopupService.setContent("密码修改失败");
+                PopupService.showAlert();
+              }
+            }, function errorCallback(resp) {
+              // 请求失败执行代码
+              LoadingService.hide();
+              PopupService.setContent("服务器连接失败，请检查您的网络，然后重试");
+              PopupService.showAlert();
+            });
+
+          }
+
+        }
+        var goLogin=function () {
+          $ionicHistory.clearCache();
+          $ionicHistory.clearHistory();
+          LoginService.set();
+          $state.go("login");
+        };
       }])
 
     .controller('StatisticCtrl',['$scope','$state','$http','$rootScope',function ($scope,$state,$http,$rootScope) {

@@ -168,12 +168,22 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
         },101)
 
     })
-    .config(function($ionicConfigProvider,$stateProvider,$urlRouterProvider){
+    .config(function($ionicConfigProvider,$stateProvider,$urlRouterProvider,$httpProvider){
 
         $ionicConfigProvider.tabs.position("bottom");
         $ionicConfigProvider.tabs.style("standard");
         $ionicConfigProvider.navBar.alignTitle("center");
         $ionicConfigProvider.backButton.text('').previousTitleText(false);
+
+        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+        // Override $http service's default transformRequest
+        $httpProvider.defaults.transformRequest = [function(obj) {
+          var str = [];
+          for (var p in obj) {
+            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          }
+          return str.join("&");
+        }];
 
         $stateProvider
             .state('start', {
@@ -339,6 +349,15 @@ angular.module('starter', ['ionic','controllers','directives','services','ngCord
                 }
               }
             })
+          .state('tabs.changepass', {
+            url: "/changepass",
+            views: {
+              'person-tab': {
+                templateUrl: "templates/person-changepassword.html",
+                controller: "PersonChangePassCtrl"
+              }
+            }
+          })
             .state('tabs.test', {
               url: "/test",
               views: {

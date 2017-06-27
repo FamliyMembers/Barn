@@ -123,13 +123,29 @@ angular.module('services', [])
           ]
         });
       };
+      var showConfirmPopup=function (myConfirmTap) {
+        var myConfirmPopup = $ionicPopup.show({
+          title: myTitle,
+          template: myBody,
+          buttons: [
+            {
+              text: '<b>确定</b>',
+              type: 'button-royal',
+              onTap: function(e) {
+                myConfirmTap();
+              }
+            }
+          ]
+        });
+      };
 
         return{
             showAlert:showAlert,
             showPopup:showPopup,
             setTitle:setTitle,
             setContent:setContent,
-            showYNPopup:showYNPopup
+            showYNPopup:showYNPopup,
+            showConfirmPopup:showConfirmPopup
         };
     }])
     .factory('ConfirmService',[function(){

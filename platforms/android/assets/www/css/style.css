@@ -464,3 +464,26 @@ ul.home-depository-nav li{
   animation: myanimation 2s;
   -webkit-animation:myanimation 2s;
 }
+#changepass span{
+  display: inline-block;
+  padding-left: 20px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  font-size: 16px;
+}
+#changepass input{
+  display: inline-block;
+  padding-bottom: 5px;
+}
+#changepass button{
+  padding: 10px;
+  border: transparent;
+  border-radius: 50px;
+  background-color: #108578;
+  color: white;
+  font-size: 18px;
+  width: 80%;
+  margin-top: 30px;
+  margin-left: 10%;
+}
+
